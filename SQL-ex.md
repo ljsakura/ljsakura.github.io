@@ -201,7 +201,28 @@ left join laptop c on
 a.model = c.model
 where c.speed >=750
 ```
+Exercise: 24 (Serge I: 2003-02-03)  
+List the models of any type having the highest price of all products present in the database.
 ```sql
+Select distinct model from 
+(
+  select model, price from pc
+  union all
+  select model, price from laptop
+  union all
+  select model, price from printer
+) a
+where price =
+(
+  select max(price) from 
+  (
+    select model, price from pc
+    union all
+    select model, price from laptop
+    union all
+    select model, price from printer
+  ) a
+)
 ```
 ```sql
 ```
