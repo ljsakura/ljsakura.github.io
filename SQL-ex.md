@@ -299,7 +299,7 @@ where maker in
 )
 ```
 
-29- Database
+29-30 Database
 Short database description "Recycling firm"  
 The firm owns several buy-back centers for collection of recyclable materials. Each of them receives funds to be paid to the recyclables suppliers. Data on funds received is recorded in the table   
 Income_o(point, date, inc)  
@@ -325,8 +325,45 @@ left join income_o b on
 a.date = b.date and
 a.point = b.point
 ```
+Exercise: 30 (Serge I: 2003-02-14)  
+Under the assumption that receipts of money (inc) and payouts (out) can be registered any number of times a day for each collection point (i.e. the code column is the primary key), display a table with one corresponding row for each operating date of each collection point.
+Result set: point, date, total payout per day (out), total money intake per day (inc). 
+Missing values are considered to be NULL.
 ```sql
+Select a.point, a.date, out, inc from 
+(
+  select point, date, sum(out) out from outcome
+  group by point, date
+) a
+left join
+(
+  select point, date, sum(inc) inc from income
+  group by point, date
+) b on
+a.point = b.point and a.date = b.date
+union
+Select c.point, c.date, out, inc from 
+(
+  select point, date, sum(inc) inc from income
+  group by point, date
+) c
+left join
+(
+  select point, date, sum(out) out from outcome
+  group by point, date
+) d on
+c.point = d.point and c.date = d.date
 ```
+31- Database  
+Short database description "Ships"  
+The database of naval ships that took part in World War II is under consideration. The database consists of the following relations:   
+Classes(class, type, country, numGuns, bore, displacement)   
+Ships(name, class, launched)   
+Battles(name, date)   
+Outcomes(ship, battle, result)   
+Ships in classes all have the same general design. A class is normally assigned either the name of the first ship built according to the corresponding design, or a name that is different from any ship name in the database. The ship whose name is assigned to a class is called a lead ship.  
+The Classes relation includes the name of the class, type (can be either bb for a battle ship, or bc for a battle cruiser), country the ship was built in, the number of main guns, gun caliber (bore diameter in inches), and displacement (weight in tons). The Ships relation holds information about the ship name, the name of its corresponding class, and the year the ship was launched. The Battles relation contains names and dates of battles the ships participated in, and the Outcomes relation - the battle result for a given ship (may be sunk, damaged, or OK, the last value meaning the ship survived the battle unharmed).   
+Notes: 1) The Outcomes relation may contain ships not present in the Ships relation. 2) A ship sunk can’t participate in later battles. 3) For historical reasons, lead ships are referred to as head ships in many exercises.4) A ship found in the Outcomes table but not in the Ships table is still considered in the database. This is true even if it is sunk.   
 ```sql
 ```
 ```sql
