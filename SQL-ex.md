@@ -224,9 +224,43 @@ where price =
   ) a
 )
 ```
+Exercise: 25 (Serge I: 2003-02-14)  
+Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity. --返回生产printer并也能生产pc的厂家，同时要满足pc的ram是最低值，且speed是ram最低的那些pc中最高的
+Result set: maker.
 ```sql
+Select maker from product a
+where type = 'printer'
+intersect
+Select maker from product a
+inner join pc c on
+a.model = c.model
+where ram = 
+(
+  select min(ram) from pc
+) 
+and speed = 
+(
+  select max(speed) from pc 
+  where ram = 
+  (
+    select min(ram) from pc
+  )
+)
 ```
+Exercise: 26 (Serge I: 2003-02-14)  
+Find out the average price of PCs and laptops produced by maker A.
+Result set: one overall average price for all items.
 ```sql
+Select avg(price) from
+(
+  select model, price from pc
+  union all
+  select model, price from laptop
+) new
+where model in
+(
+  select model from product where maker = 'a'
+)
 ```
 ```sql
 ```
