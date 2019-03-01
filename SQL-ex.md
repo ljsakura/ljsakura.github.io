@@ -1,4 +1,4 @@
-1-28 Database  
+1-28 Database 1  
 Short database description "Computer firm"  
 The database scheme consists of four tables:  
 Product(maker, model, type)  
@@ -299,7 +299,7 @@ where maker in
 )
 ```
 
-29-30 Database
+29-30 Database 2
 Short database description "Recycling firm"  
 The firm owns several buy-back centers for collection of recyclable materials. Each of them receives funds to be paid to the recyclables suppliers. Data on funds received is recorded in the table   
 Income_o(point, date, inc)  
@@ -354,7 +354,7 @@ left join
 ) d on
 c.point = d.point and c.date = d.date
 ```
-31- Database  
+31-34 Database 3  
 Short database description "Ships"  
 The database of naval ships that took part in World War II is under consideration. The database consists of the following relations:   
 Classes(class, type, country, numGuns, bore, displacement)   
@@ -389,12 +389,33 @@ from
 ) a
 group by country
 ```
+Exercise: 33 (Serge I: 2002-11-02)  
+Get the ships sunk in the North Atlantic battle. 
+Result set: ship.
 ```sql
+Select ship from outcomes 
+where battle = 'North Atlantic'
+and result = 'sunk'
 ```
+Exercise: 34 (Serge I: 2002-11-04)  
+In accordance with the Washington Naval Treaty concluded in the beginning of 1922, it was prohibited to build battle ships with a displacement of more than 35 thousand tons. 
+Get the ships violating this treaty (only consider ships for which the year of launch is known). 
+List the names of the ships.
 ```sql
+Select distinct name from classes, ships
+where classes.class = ships.class
+and type = 'bb'
+and launched >= 1922
+and displacement >35000
 ```
+Exercise: 35 (qwrqwr: 2012-11-23)  
+Find models in the Product table consisting either of digits only or Latin letters (A-Z, case insensitive) only.
+Result set: model, type.
 ```sql
+Select model, type from product
+where model not like '%[^A-Za-z]%' or model not like '%[^0-9]%' --补集的补集，字符串中包含非A-Za-z（或是0-9）的集合，再对其取补集便是字符串中只包含A-Za-z（或是0-9）的集合。like '%[^0-9]%' 与 not like '%[0-9]%' 的结果也是不同的，前者返回全集-纯数字字符串的集合，则结果为其他字符的集合+其他字符混合数字字符的集合；后者返回全集-所有含数字字符串的集合，则结果为仅有其他字符的集合。
 ```
+
 ```sql
 ```
 ```sql
