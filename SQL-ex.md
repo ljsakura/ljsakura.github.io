@@ -413,20 +413,78 @@ Find models in the Product table consisting either of digits only or Latin lette
 Result set: model, type.
 ```sql
 Select model, type from product
-where model not like '%[^A-Za-z]%' or model not like '%[^0-9]%' --补集的补集，字符串中包含非A-Za-z（或是0-9）的集合，再对其取补集便是字符串中只包含A-Za-z（或是0-9）的集合。like '%[^0-9]%' 与 not like '%[0-9]%' 的结果也是不同的，前者返回全集-纯数字字符串的集合，则结果为其他字符的集合+其他字符混合数字字符的集合；后者返回全集-所有含数字字符串的集合，则结果为仅有其他字符的集合。
+where model not like '%[^A-Za-z]%' or model not like '%[^0-9]%' 
+--补集的补集，字符串中包含非A-Za-z（或是0-9）的集合，再对其取补集便是字符串中只包含A-Za-z（或是0-9）的集合。
+--like '%[^0-9]%' 与 not like '%[0-9]%' 的结果也是不同的，
+--前者返回全集-纯数字字符串的集合，则结果为其他字符的集合+其他字符混合数字字符的集合；
+--后者返回全集-所有含数字字符串的集合，则结果为仅有其他字符的集合。
+```
+Exercise: 36 (Serge I: 2003-02-17)  
+List the names of lead ships in the database (including the Outcomes table).
+```sql
+Select name from ships
+inner join classes on
+ships.name = classes.class
+union
+select ship from outcomes
+inner join classes on
+outcomes.ship = classes.class
+```
+Exercise: 37 (Serge I: 2003-02-17)  
+Find classes for which only one ship exists in the database (including the Outcomes table).
+```sql
+Select class from
+(
+select name, classes.class from ships
+inner join classes on
+ships.class = classes.class
+union
+select ship, class from outcomes
+inner join classes on
+outcomes.ship = classes.class
+) a
+group by class
+having count(*) = 1
+```
+Exercise: 38 (Serge I: 2003-02-19)  
+Find countries that ever had classes of both battleships (‘bb’) and cruisers (‘bc’).
+```sql
+Select country from classes
+where type = 'bb'
+intersect 
+Select country from classes
+where type = 'bc'
+```
+Exercise: 39 (Serge I: 2003-02-14)  
+Find the ships that `survived for future battles`; that is, after being damaged in a battle, they participated in another one, which occurred later.
+```sql
+Select distinct a.ship from
+(
+select ship, battle, date from outcomes
+inner join battles on
+outcomes.battle = battles.name
+where result = 'damaged'
+) a
+inner join
+(
+select ship, battle, date from outcomes
+inner join battles on
+outcomes.battle = battles.name
+) b on
+a.ship = b.ship and 
+a.date< b.date
+```
+Exercise: 40 (Serge I: 2002-11-05)
+For the ships in the Ships table that have at least 10 guns, get the class, name, and country.
+```sql
+Select ships.class, name, country from ships
+inner join classes on
+ships.class = classes.class
+where numguns >= 10
 ```
 
 ```sql
-```
-```sql
-```
-```sql
-```
-```sql
-```
-```sql
-```
-```sql
+
 ```
 ```sql
 ```
