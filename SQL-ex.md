@@ -506,7 +506,7 @@ unpivot
   )
 ) p
 ```
-pivot 与 unpivot 的使用详见[MSDN] (https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
+pivot 与 unpivot 的使用详见 [MSDN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
 ```sql
 ```
 ```sql
