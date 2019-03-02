@@ -482,10 +482,31 @@ inner join classes on
 ships.class = classes.class
 where numguns >= 10
 ```
-
+Exercise: 41 (Serge I: 2008-08-30)  
+For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:
+- name of the characteristic (title of the corresponding column in the PC table);
 ```sql
-
+Select characteristic, value from 
+(
+  select 
+  isnull (cast(model as varchar(255)),'') model, --如果不使用 isnull 则第二个测试数据库就会报错，因为存在空值
+  isnull (cast(speed as varchar(255)),'') speed, 
+  isnull (cast(ram as varchar(255)),'') ram, 
+  isnull (cast(hd as varchar(255)),'') hd, 
+  isnull (cast(cd as varchar(255)),'') cd, 
+  isnull (cast(price as varchar(255)),'') price  
+  from pc
+  where code = (select max(code) from pc)
+) a
+unpivot 
+(
+  value for characteristic in
+  (
+    model, speed, ram, hd, cd, price
+  )
+) p
 ```
+pivot 与 unpivot 的使用详见MSDN [https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105)]
 ```sql
 ```
 ```sql
