@@ -507,18 +507,67 @@ unpivot
 ) p
 ```
 pivot 与 unpivot 的使用详见 [MSDN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
+
+Exercise: 42 (Serge I: 2002-11-05)  
+Find the names of ships sunk at battles, along with the names of the corresponding battles.
 ```sql
+Select distinct ship, battle from outcomes
+where result = 'sunk'
 ```
+Exercise: 43 (qwrqwr: 2011-10-28)  
+Get the battles that occurred in years when no ships were launched into water.
 ```sql
+Select distinct battles.name from battles
+where datepart(yyyy, date) not in 
+(
+  select distinct launched from ships
+  where launched is not null
+)
 ```
+Exercise: 44 (Serge I: 2002-12-04)  
+Find all ship names beginning with the letter R.
 ```sql
+Select name from ships
+where name like 'r%'
+union
+select ship from outcomes
+where ship like 'r%'
 ```
+Exercise: 45 (Serge I: 2002-12-04)  
+Find all ship names consisting of three or more words (e.g., King George V).
+Consider the words in ship names to be separated by single spaces, and the ship names to have no leading or trailing spaces.
 ```sql
+Select name from ships
+where trim(name) like '% % %' -- trim 去掉左右空格
+union
+Select ship from outcomes
+where trim(ship) like '% % %'
 ```
+Exercise: 46 (Serge I: 2003-02-14)  
+For each ship that participated in the Battle of Guadalcanal, get its name, displacement, and the number of guns.
 ```sql
+Select ship, displacement, numGuns from outcomes a
+left join ships b on
+a.ship = b.name
+left join classes c on
+b.class = c.class or
+a.ship = c.class -- A ship engaged in this battle should be listed even if its class is not known.
+where battle = 'guadalcanal'
 ```
+Exercise: 47 (Serge I: 2011-02-11)  
+Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.
+Result set: row number as described above, manufacturer's name (maker), model.
 ```sql
+Select row_number () over (order by num desc, a.maker, model) no, a.maker, a.model
+from product a
+left join 
+(
+  select count(distinct model) as num, maker from product
+  group by maker
+) b on
+a.maker = b.maker
 ```
+
 ```sql
 ```
 ```sql
