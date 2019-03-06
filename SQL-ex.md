@@ -567,14 +567,57 @@ left join
 ) b on
 a.maker = b.maker
 ```
-
+Exercise: 48 (Serge I: 2003-02-16)  
+Find the ship classes having at least one ship sunk in battles.
 ```sql
+Select distinct class from outcomes a
+inner join ships b on
+a.ship = b.name
+where result = 'sunk'
+union
+Select distinct class from outcomes a
+inner join classes b on
+a.ship = b.class
+where result = 'sunk'
 ```
+Exercise: 49 (Serge I: 2003-02-17)  
+Find the names of the ships having a gun caliber of 16 inches (including ships in the Outcomes table).
 ```sql
+Select name from ships a
+inner join classes b on
+a.class = b.class
+where bore = 16
+union
+Select ship from outcomes a
+inner join classes b on
+a.ship = b.class
+where bore = 16
 ```
+Exercise: 50 (Serge I: 2002-11-05)  
+Find the battles in which Kongo-class ships from the Ships table were engaged.
 ```sql
+Select distinct battle from ships a
+inner join outcomes b on
+a.name = b.ship
+where  a.class = 'kongo' 
 ```
+Exercise: 51 (Serge I: 2003-02-17)  
+Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).
 ```sql
+Select name from classes a
+inner join
+(
+select name, class from ships
+union
+select ship as name, ship as class from outcomes
+) b on
+a.class = b.class
+inner join
+(
+select max(numGuns) mn, displacement from classes
+group by displacement
+) c on
+a.numguns = c.mn and a.displacement = c.displacement
 ```
 ```sql
 ```
