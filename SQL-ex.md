@@ -638,10 +638,29 @@ and (bore < 19 or bore is null)
 and (displacement <= 65000 or displacement is null)
 and (type = 'bb' or type is null)
 ```
+Exercise: 53 (Serge I: 2002-11-05)  
+With a precision of two decimal places, determine the average number of guns for the battleship classes.
 ```sql
+Select cast(avg(numGuns*1.0) as decimal(10,2)) from classes
+where type = 'bb' 
 ```
+Exercise: 54 (Serge I: 2003-02-14)  
+With a precision of two decimal places, determine the average number of guns for all battleships (including the ones in the Outcomes table).
 ```sql
+Select cast(avg(numGuns*1.0) as decimal(10,2)) from 
+(
+select b.name, b.class, a.numguns from classes a
+inner join ships b on
+a.class = b.class
+where type = 'bb'
+union
+select b.ship, b.ship, a.numguns from classes a
+inner join outcomes b on
+a.class = b.ship
+where type = 'bb' 
+) x
 ```
+
 ```sql
 ```
 ```sql
