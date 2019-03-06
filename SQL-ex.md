@@ -607,19 +607,36 @@ Find the names of the ships with the largest number of guns among all ships havi
 Select name from classes a
 inner join
 (
-select name, class from ships
-union
-select ship as name, ship as class from outcomes
+  select name, class from ships
+  union
+  select ship as name, ship as class from outcomes
 ) b on
 a.class = b.class
 inner join
 (
-select max(numGuns) mn, displacement from classes
-group by displacement
+  select max(numGuns) mn, displacement from classes a
+  inner join
+  (
+    select name, class from ships
+    union
+    select ship as name, ship as class from outcomes
+  ) b on
+  a.class = b.class
+  group by displacement
 ) c on
 a.numguns = c.mn and a.displacement = c.displacement
 ```
+Exercise: 52 (qwrqwr: 2010-04-23)  
+Determine the names of all ships in the Ships table that can be a Japanese battleship having at least nine main guns with a caliber of less than 19 inches and a displacement of not more than 65 000 tons.
 ```sql
+Select name from ships a
+left join classes b on
+a.class = b.class
+where (country = 'japan' or country is null)
+and (numGuns >= 9 or numGuns is null)
+and (bore < 19 or bore is null)
+and (displacement <= 65000 or displacement is null)
+and (type = 'bb' or type is null)
 ```
 ```sql
 ```
