@@ -697,6 +697,28 @@ Select class, count(result) from
 (
   select result, a.class from classes a
   left join
+  (
+    select name, class from ships
+    union
+    select ship, ship from outcomes
+    where ship not in(select name from ships)
+  )b on
+  a.class = b.class
+  left join 
+  (
+    select * from outcomes where result = 'sunk'
+  ) c on
+  a.class = c.ship or b.name = c.ship
+) x
+group by class
+```
+Exercise: 57 (Serge I: 2003-02-14)  
+For classes having irreparable combat losses and at least three ships in the database, display the name of the class and the number of ships sunk.
+```sql
+select class, count(result) from
+(
+select result, name, a.class from classes a
+  left join
 (
 select name, class from ships
 union
@@ -711,8 +733,7 @@ a.class = b.class
   a.class = c.ship or b.name = c.ship
 ) x
 group by class
-```
-```sql
+having count(name) > 2 and count(result) > 0
 ```
 ```sql
 ```
