@@ -692,7 +692,7 @@ Select class, count(name) from
   a.class = b.ship
 ) x
 group by class
-----------
+---------- code below gets wrong result on second database
 Select class, count(result) from
 (
   select result, a.class from classes a
@@ -715,6 +715,34 @@ group by class
 Exercise: 57 (Serge I: 2003-02-14)  
 For classes having irreparable combat losses and at least three ships in the database, display the name of the class and the number of ships sunk.
 ```sql
+Select class, count(result) from
+(
+  select c.name, a.class, b.name as result from classes a
+  left join ships c on
+  a.class = c.class 
+  left join
+  (
+    select * from ships where name in(select ship from outcomes where result = 'sunk')
+  ) b on
+  c.name = b.name and 
+  c.class = b.class
+  union
+  select c.ship, a.class, b.ship as result from classes a
+  left join 
+  (
+    select * from outcomes where ship not in(select name from ships)
+  ) c on
+  c.ship = a.class 
+  left join 
+  (
+    select * from outcomes where result = 'sunk' and ship not in(select name from ships)
+  ) b on
+  b.ship = c.ship
+where c.ship not in (select name from ships)
+) x
+group by class
+having count(name) > 2 and count(result) > 0
+----------code below gets wrong result on second database
 select class, count(result) from
 (
 select result, name, a.class from classes a
