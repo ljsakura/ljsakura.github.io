@@ -660,10 +660,57 @@ a.class = b.ship
 where type = 'bb' 
 ) x
 ```
-
+Exercise: 55 (Serge I: 2003-02-16)  
+For each class, determine the year the first ship of this class was launched. 
+If the lead ship’s year of launch is not known, get the minimum year of launch for the ships of this class.
+Result set: class, year.
 ```sql
+Select classes.class, min(launched) from classes
+left join ships on
+ships.class = classes.class
+group by classes.class
 ```
+Exercise: 56 (Serge I: 2003-02-16)  
+For each class, find out the number of ships of this class that were sunk in battles. 
+Result set: class, number of ships sunk.
 ```sql
+Select class, count(name) from
+(
+  select name, a.class from classes a
+  left join ships b on
+  a.class = b.class
+  where name in
+    (
+      select ship from outcomes where result = 'sunk'
+    )
+  union
+  select ship, a.class from classes a
+  left join 
+  (
+    select * from outcomes where result = 'sunk'
+  ) b on
+  a.class = b.ship
+) x
+group by class
+----------
+Select class, count(result) from
+(
+  select result, a.class from classes a
+  left join
+(
+select name, class from ships
+union
+select ship, ship from outcomes
+where ship not in(select name from ships)
+)b on
+a.class = b.class
+  left join 
+  (
+    select * from outcomes where result = 'sunk'
+  ) c on
+  a.class = c.ship or b.name = c.ship
+) x
+group by class
 ```
 ```sql
 ```
