@@ -745,15 +745,15 @@ having count(name) > 2 and count(result) > 0
 ----------code below gets wrong result on second database
 select class, count(result) from
 (
-select result, name, a.class from classes a
+  select result, name, a.class from classes a
   left join
-(
-select name, class from ships
-union
-select ship, ship from outcomes
-where ship not in(select name from ships)
-)b on
-a.class = b.class
+  (
+    select name, class from ships
+    union
+    select ship, ship from outcomes
+    where ship not in(select name from ships)
+  )b on
+  a.class = b.class
   left join 
   (
     select * from outcomes where result = 'sunk'
