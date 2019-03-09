@@ -763,7 +763,32 @@ select class, count(result) from
 group by class
 having count(name) > 2 and count(result) > 0
 ```
+Exercise: 58 (Serge I: 2009-11-13)  
+For each product type and maker in the Product table, find out, with a precision of two decimal places, the percentage ratio of the number of models of the actual type produced by the actual maker to the total number of models by this maker.
+Result set: maker, product type, the percentage ratio mentioned above.
 ```sql
+Select x.*, cast( (isnull(ty_model, 0)*100.00/to_model) as decimal(10,2)) from 
+-- 需要 isnull 将ty_model为空部分转化为零； *100.00 或者 *100.0 转化小数位
+(
+  select a.maker, b.type from 
+  (
+    select distinct maker from product
+  ) a
+  cross join 
+  (
+    select distinct type from product
+  ) b
+ ) x
+ left join
+ (
+  select maker, count(distinct model) as to_model from product
+  group by maker
+ ) y on x.maker = y.maker
+left join
+(
+  select maker, type, count(distinct model) as ty_model from product
+  group by maker, type
+) z on x.maker = z.maker and x.type = z.type
 ```
 ```sql
 ```
