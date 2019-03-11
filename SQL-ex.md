@@ -795,21 +795,21 @@ Calculate the cash balance of each buy-back center for the database with money t
 Result set: point, balance.
 ```sql
 Select  
-case
-when a.point is null 
-then b.point 
-else a.point
-end point,
+  case
+  when a.point is null 
+  then b.point 
+  else a.point
+  end point,
 isnull(inc,0) - isnull(out,0)
 from
 (
-select point, sum(inc) as inc from income_o
-group by point
+  select point, sum(inc) as inc from income_o
+  group by point
 ) a
 full join 
 (
-select point, sum(out) as out from outcome_o
-group by point
+  select point, sum(out) as out from outcome_o
+  group by point
 ) b
 on a.point = b.point 
 ```
@@ -819,23 +819,23 @@ Note: exclude centers not having any records before the specified date.
 Result set: point, balance
 ```sql
 Select  
-case
-when a.point is null 
-then b.point 
-else a.point
-end point,
+  case
+  when a.point is null 
+  then b.point 
+  else a.point
+  end point,
 isnull(inc,0) - isnull(out,0)
 from
 (
-select point, sum(inc) as inc from income_o
-where date < '2001-4-15' --截止 2001-4-15的收入
-group by point
+  select point, sum(inc) as inc from income_o
+  where date < '2001-4-15' --截止 2001-4-15的收入
+  group by point
 ) a
 full join 
 (
-select point, sum(out) as out from outcome_o
-where date < '2001-4-15' --截止 2001-4-15的支出
-group by point
+  select point, sum(out) as out from outcome_o
+  where date < '2001-4-15' --截止 2001-4-15的支出
+  group by point
 ) b
 on a.point = b.point 
 ```
@@ -843,29 +843,29 @@ Exercise: 61 (Serge I: 2003-02-14)
 For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers.
 ```sql
 Select 
-case
-when (select count(*) from income_o) = 0
-then (select sum(out) from outcome_o)
-when (select count(*) from outcome_o) = 0
-then (select sum(inc) from income_o)
-else
-(select sum(inc) from income_o) - (select sum(out) from outcome_o)
-end -- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
+  case
+  when (select count(*) from income_o) = 0
+  then (select sum(out) from outcome_o)
+  when (select count(*) from outcome_o) = 0
+  then (select sum(inc) from income_o)
+  else
+  (select sum(inc) from income_o) - (select sum(out) from outcome_o)
+  end -- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
 ```
 Exercise: 62 (Serge I: 2003-02-15)  
 For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers at the beginning of 04/15/2001.
 ```sql
 Select 
-case
-when (select count(*) from income_o) = 0
-then (select sum(out) from outcome_o where date < '2001-4-15')
-when (select count(*) from outcome_o) = 0
-then (select sum(inc) from income_o where date < '2001-4-15')
-else
-(select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
-end
+  case
+  when (select count(*) from income_o) = 0
+  then (select sum(out) from outcome_o where date < '2001-4-15')
+  when (select count(*) from outcome_o) = 0
+  then (select sum(inc) from income_o where date < '2001-4-15')
+  else
+  (select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
+  end
 ```
-63- Database 4
+63 Database 4
 Short database description "Airport"  
 The database schema consists of 4 tables:  
 Company(ID_comp, name)  
@@ -878,11 +878,56 @@ The Company table contains IDs and names of the airlines transporting passengers
 - departure and arrival times are specified with one minute precision;  
 - there can be several passengers bearing the same first name and surname (for example, Bruce Willis);  
 - the seat (place) designation consists of a number followed by a letter; the number stands for the row, while the letter (a – d) defines the seat position in the grid (from left to right, in alphabetical order;  
-- connections and constraints are shown in the database schema below.
-```sql
+- connections and constraints are shown in the database schema below.  
 
-```
+Exercise: 63 (Serge I: 2003-04-08)  
+Find the names of different passengers that ever travelled more than once occupying seats with the same number.
 ```sql
+Select name from passenger
+where id_psg in
+(
+  select id_psg from pass_in_trip
+  group by id_psg, place
+  having count(*) >=2
+)
+```
+Exercise: 64 (Serge I: 2010-06-04)  
+Using the Income and Outcome tables, determine for each buy-back center the days when it received funds but made no payments, and vice versa.  
+Result set: point, date, type of operation (inc/out), sum of money per day.
+```sql
+Select 
+  case
+  when a.point is null
+  then b.point
+  else a.point
+  end point,
+  case
+  when a.date is null
+  then b.date
+  else a.date
+  end date,
+  case
+  when a.point is null
+  then 'out'
+  else 'inc'
+  end operation,
+  case
+  when inc is null
+  then out 
+  else inc
+  end monty
+from 
+(
+  select point, date, sum(inc) inc from income
+  group by point, date
+) a
+full join 
+(
+  select point, date, sum(out) out from outcome
+  group by point, date
+) b on
+a.point = b.point and a.date = b.date
+where a.point is null or b.point is null
 ```
 ```sql
 ```
