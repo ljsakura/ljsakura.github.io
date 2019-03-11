@@ -790,9 +790,54 @@ left join
   group by maker, type
 ) z on x.maker = z.maker and x.type = z.type
 ```
+Exercise: 59 (Serge I: 2003-02-15)  
+Calculate the cash balance of each buy-back center for the database with money transactions being recorded not more than once a day.
+Result set: point, balance.
 ```sql
+Select  
+case
+when a.point is null 
+then b.point 
+else a.point
+end point,
+isnull(inc,0) - isnull(out,0)
+from
+(
+select point, sum(inc) as inc from income_o
+group by point
+) a
+full join 
+(
+select point, sum(out) as out from outcome_o
+group by point
+) b
+on a.point = b.point 
 ```
+Exercise: 60 (Serge I: 2003-02-15)  
+For the database with money transactions being recorded not more than once a day, calculate the cash balance of each buy-back center at the beginning of 4/15/2001. 
+Note: exclude centers not having any records before the specified date.
+Result set: point, balance
 ```sql
+Select  
+case
+when a.point is null 
+then b.point 
+else a.point
+end point,
+isnull(inc,0) - isnull(out,0)
+from
+(
+select point, sum(inc) as inc from income_o
+where date < '2001-4-15' --截止 2001-4-15的收入
+group by point
+) a
+full join 
+(
+select point, sum(out) as out from outcome_o
+where date < '2001-4-15' --截止 2001-4-15的支出
+group by point
+) b
+on a.point = b.point 
 ```
 ```sql
 ```
