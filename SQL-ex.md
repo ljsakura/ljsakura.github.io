@@ -929,9 +929,32 @@ full join
 a.point = b.point and a.date = b.date
 where a.point is null or b.point is null
 ```
-
+Exercise: 65 (Serge I: 2009-08-24)  
+Number the unique pairs {maker, type} in the Product table, ordering them as follows:  
+- maker name in ascending order;  
+- type of product (type) in the order PC, Laptop, Printer.  
+If a manufacturer produces more than one type of product, its name should be displayed in the first row only;  
+other rows for THIS manufacturer should contain an empty string (').  
 ```sql
-
+Select row_number() over(order by maker, 
+  case
+    when type = 'pc' then 1
+    when type ='laptop' then 2
+    else 3
+  end
+), -- 按 PC, Laptop, Printer 进行排序，使用一次case
+  case 
+    when  row_number() over(partition by maker order by maker, 
+    case
+      when type = 'pc' then 1
+      when type ='laptop' then 2
+      else 3
+    end
+    ) = 1 then maker
+    else ''
+  end maker, -- 相同数值只在第一行显示，这次需要用 case 中嵌套 partition by 
+type from product
+group by maker, type
 ```
 ```sql
 ```
