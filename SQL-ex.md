@@ -977,7 +977,21 @@ left join
 ) y on
 x.a = y.date
 ```
+Exercise: 67 (Serge I: 2010-03-27)  
+Find out the number of routes with the greatest number of flights (trips).  
+Notes.   
+1) A - B and B - A are to be considered DIFFERENT routes.  
+2) Use the Trip table only.
 ```sql
+select count(no) from 
+(
+Select count(trip_no) no  from trip
+group by town_from+town_to
+having count(trip_no) >= all (Select count(trip_no)  from trip
+group by town_from+town_to)
+)
+a 
+--起初因为题目理解错误，导致第二个数据库一直报错，后来才发现原来题目的意思是找出航班最多的路线的个数，其实就是有N个路线，它们的航班数是最多的，求这个N
 ```
 ```sql
 ```
