@@ -306,7 +306,7 @@ Income_o(point, date, inc)
 The primary key is (point, date), where point holds the identifier of the buy-back center, and date corresponds to the calendar date the funds were received. The date column doesn’t include the time part, thus, money (inc) arrives no more than once a day for each center. Information on payments to the recyclables suppliers is held in the table  
 Outcome_o(point, date, out)  
 In this table, the primary key (point, date) ensures each buy-back center reports about payments (out) no more than once a day, too. 
-For the case income and expenditure may occur more than once a day, another database schema with tables having a primary key consisting of the single column code is used:  
+For the income and expenditure may occur more than once a day, another database schema with tables having a primary key consisting of the single column code is used:  
 Income(code, point, date, inc)  
 Outcome(code, point, date, out)  
 Here, the date column doesn’t include the time part, either.   
@@ -796,9 +796,9 @@ Result set: point, balance.
 ```sql
 Select  
   case
-  when a.point is null 
-  then b.point 
-  else a.point
+    when a.point is null 
+    then b.point 
+    else a.point
   end point,
 isnull(inc,0) - isnull(out,0)
 from
@@ -820,9 +820,9 @@ Result set: point, balance
 ```sql
 Select  
   case
-  when a.point is null 
-  then b.point 
-  else a.point
+    when a.point is null 
+    then b.point 
+    else a.point
   end point,
 isnull(inc,0) - isnull(out,0)
 from
@@ -844,12 +844,12 @@ For the database with money transactions being recorded not more than once a day
 ```sql
 Select 
   case
-  when (select count(*) from income_o) = 0
-  then (select sum(out) from outcome_o)
-  when (select count(*) from outcome_o) = 0
-  then (select sum(inc) from income_o)
-  else
-  (select sum(inc) from income_o) - (select sum(out) from outcome_o)
+    when (select count(*) from income_o) = 0
+    then (select sum(out) from outcome_o)
+    when (select count(*) from outcome_o) = 0
+    then (select sum(inc) from income_o)
+    else
+    (select sum(inc) from income_o) - (select sum(out) from outcome_o)
   end -- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
 ```
 Exercise: 62 (Serge I: 2003-02-15)  
@@ -857,12 +857,12 @@ For the database with money transactions being recorded not more than once a day
 ```sql
 Select 
   case
-  when (select count(*) from income_o) = 0
-  then (select sum(out) from outcome_o where date < '2001-4-15')
-  when (select count(*) from outcome_o) = 0
-  then (select sum(inc) from income_o where date < '2001-4-15')
-  else
-  (select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
+    when (select count(*) from income_o) = 0
+    then (select sum(out) from outcome_o where date < '2001-4-15')
+    when (select count(*) from outcome_o) = 0
+    then (select sum(inc) from income_o where date < '2001-4-15')
+    else
+    (select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
   end
 ```
 63 Database 4
@@ -897,24 +897,24 @@ Result set: point, date, type of operation (inc/out), sum of money per day.
 ```sql
 Select 
   case
-  when a.point is null
-  then b.point
-  else a.point
+    when a.point is null
+    then b.point
+    else a.point
   end point,
   case
-  when a.date is null
-  then b.date
-  else a.date
+    when a.date is null
+    then b.date
+    else a.date
   end date,
   case
-  when a.point is null
-  then 'out'
-  else 'inc'
+    when a.point is null
+    then 'out'
+    else 'inc'
   end operation,
   case
-  when inc is null
-  then out 
-  else inc
+    when inc is null
+    then out 
+    else inc
   end monty
 from 
 (
@@ -929,7 +929,9 @@ full join
 a.point = b.point and a.date = b.date
 where a.point is null or b.point is null
 ```
+
 ```sql
+
 ```
 ```sql
 ```
