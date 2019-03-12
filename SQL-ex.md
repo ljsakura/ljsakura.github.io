@@ -956,5 +956,45 @@ Select row_number() over(order by maker,
 type from product
 group by maker, type
 ```
+Exercise: 66 (Serge I: 2003-04-09)  
+For all days between 2003-04-01 and 2003-04-07 find the number of trips from Rostov. 
+Result set: date, number of trips.
+```sql
+Select a, 
+  case
+    when no is not null then no
+    else 0
+  end no 
+from
+(
+  select '2003-04-01 00:00:00.000' a union all select '2003-04-02 00:00:00.000' union all select '2003-04-03 00:00:00.000' union all select '2003-04-04 00:00:00.000' union all select '2003-04-05 00:00:00.000' union all select '2003-04-06 00:00:00.000' union all select '2003-04-07 00:00:00.000' 
+) x
+left join 
+(
+  select count(distinct trip_no) as no, date from pass_in_trip
+  where trip_no in(select trip_no from trip where town_from = 'rostov')
+  group by date
+) y on
+x.a = y.date
+```
 ```sql
 ```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+
