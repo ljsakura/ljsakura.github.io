@@ -1044,6 +1044,7 @@ Exercise: 70 (Serge I: 2003-02-14)
 Get the battles in which at least three ships from the same country took part.
 ```sql
 Select distinct battle from 
+-- 当存在多个国家参加同一场战斗，且每个国家参战的船只数量都不少于3，则必须用 distinct 来去除重复的 battle
 (
   select battle, country, ship from outcomes 
   inner join ships on
@@ -1059,9 +1060,14 @@ Select distinct battle from
 group by country, battle
 having count(distinct ship) >= 3
 ```
+Exercise: 71 (Serge I: 2008-02-23) 
+Find the PC makers with all personal computer models produced by them being present in the PC table.
 ```sql
-```
-```sql
+Select distinct maker from product
+where model in(select model from pc)
+and type = 'pc'
+and maker not in(select maker from product where model not in(select model from pc) and type = 'pc')
+-- 找出生产的 pc model 都在 pc 表中的 maker。 同时也要剔除生产的 pc model 不在 pc 表中的 maker
 ```
 ```sql
 ```
