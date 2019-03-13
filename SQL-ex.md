@@ -985,17 +985,58 @@ Notes.
 ```sql
 select count(no) from 
 (
-Select count(trip_no) no  from trip
-group by town_from+town_to
-having count(trip_no) >= all (Select count(trip_no)  from trip
-group by town_from+town_to)
+  Select count(trip_no) no  from trip
+  group by town_from+town_to
+  having count(trip_no) >= all (Select count(trip_no)  from trip
+  group by town_from+town_to)
 )
 a 
 --起初因为题目理解错误，导致第二个数据库一直报错，后来才发现原来题目的意思是找出航班最多的路线的个数，其实就是有N个路线，它们的航班数是最多的，求这个N
 ```
+Exercise: 68 (Serge I: 2010-03-27)  
+Find out the number of routes with the greatest number of flights (trips).  
+Notes.   
+1) A - B and B - A are to be considered the SAME route.  
+2) Use the Trip table only.
 ```sql
+select count(no) from 
+(
+  Select count(trip_no) no  from  trip
+  group by 
+    case
+      when town_from < town_to then town_from+ town_to
+      else town_to + town_from
+    end
+  having count(trip_no) >= all (Select count(trip_no)  from trip
+  group by 
+    case
+      when town_from < town_to then town_from+ town_to
+      else town_to + town_from
+    end
+  )
+) a 
 ```
+Exercise: 69 (Serge I: 2011-01-06)  
+Using the Income and Outcome tables, find out the balance for each buy-back center by the end of each day when funds were received or payments were made.   
+Note that the cash isn’t withdrawn, and the unspent balance/debt is carried forward to the next day.  
+Result set: buy-back center ID (point), date in dd/mm/yyyy format, unspent balance/debt by the end of this day.
 ```sql
+Select point, convert(varchar(100),date,103) date, sum(inc - out) over(partition by point order by date) balance  from
+-- 提示中建议使用 running totals，不过鉴于更熟悉 sum（）over（）所以还是采用了后者，对前者有兴趣的可以详见[Running totals]http://www.sql-tutorial.ru/en/book_running_totals.html
+  (
+  select coalesce(a.point, b.point) point, coalesce(a.date, b.date) date, coalesce(inc, 0) inc, coalesce(out, 0) out from
+  (
+    select point, date, sum(inc) inc from income 
+    --如果在子查询中对 date 进行 convert 转换，则会将 date 的类型从 datetime 转变为 varchar，这样在最后一步的 order by 里就会出现错误
+    group by point, date
+  ) a
+  full join
+  (
+    select point, date, sum(out) out from outcome
+    group by point, date
+  ) b on
+  a.point = b.point and a.date = b.date
+) x
 ```
 ```sql
 ```
