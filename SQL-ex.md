@@ -1022,7 +1022,7 @@ Note that the cash isn’t withdrawn, and the unspent balance/debt is carried fo
 Result set: buy-back center ID (point), date in dd/mm/yyyy format, unspent balance/debt by the end of this day.
 ```sql
 Select point, convert(varchar(100),date,103) date, sum(inc - out) over(partition by point order by date) balance  from
--- 提示中建议使用 running totals，不过鉴于更熟悉 sum（）over（）所以还是采用了后者，对前者有兴趣的可以详见[Running totals]http://www.sql-tutorial.ru/en/book_running_totals.html
+-- 提示中建议使用 running totals，不过鉴于更熟悉 sum（）over（）所以还是采用了后者，对前者有兴趣的可以详见[Running totals](http://www.sql-tutorial.ru/en/book_running_totals.html)
   (
   select coalesce(a.point, b.point) point, coalesce(a.date, b.date) date, coalesce(inc, 0) inc, coalesce(out, 0) out from
   (
