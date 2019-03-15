@@ -1069,7 +1069,27 @@ and type = 'pc'
 and maker not in(select maker from product where model not in(select model from pc) and type = 'pc')
 -- 找出生产的 pc model 都在 pc 表中的 maker。 同时也要剔除生产的 pc model 不在 pc 表中的 maker
 ```
+Exercise: 72 (Serge I: 2003-04-29)  
+Among the customers using a single airline, find distinct passengers who have flown most frequently. Result set: passenger name, number of trips.
 ```sql
+Select distinct name, num from
+(
+  select pass_in_trip .id_psg, passenger.name, count(pass_in_trip .trip_no) as num  from pass_in_trip
+  inner join passenger on
+  pass_in_trip.id_psg = passenger.id_psg
+  inner join trip on
+  pass_in_trip.trip_no = trip .trip_no
+  group by pass_in_trip .id_psg, passenger.name
+  having count(distinct id_comp) = 1
+) x 
+where num = (select max(num) from 
+(
+  select pass_in_trip .id_psg, count(pass_in_trip .trip_no) as num  from pass_in_trip
+  inner join trip on
+  pass_in_trip.trip_no = trip .trip_no
+  group by pass_in_trip .id_psg
+  having count(distinct id_comp) = 1
+) x )
 ```
 ```sql
 ```
