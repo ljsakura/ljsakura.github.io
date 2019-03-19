@@ -33,4 +33,4 @@
 在下图中，表配置为使用户可以展开或折叠此表。表的显示通过“产品表”文本框进行切换。  
 
 若要测试该切换，请运行报表，然后单击带有切换图像的文本框。报表显示内容随即刷新，显示带有切换后的可见性的报表项。  
-图片详见 [MSDN SQL Server 2017](https://docs.microsoft.com/zh-cn/sql/reporting-services/report-design/add-an-expand-or-collapse-action-to-an-item-report-builder-and-ssrs?view=sql-server-2017)
+图片详见 [MSDN SSRS](https://docs.microsoft.com/zh-cn/sql/reporting-services/report-design/add-an-expand-or-collapse-action-to-an-item-report-builder-and-ssrs?view=sql-server-2017)
