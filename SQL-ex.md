@@ -1091,7 +1091,24 @@ where num = (select max(num) from
   having count(distinct id_comp) = 1
 ) x )
 ```
+Exercise: 73 (Serge I: 2009-04-17)  
+For each country, determine the battles in which the ships of this country did not participate.
+Result set: country, battle.
 ```sql
+Select country, battle from
+(
+  select distinct country from classes
+) a
+cross join
+(
+  select distinct name as battle from battles
+) b
+except
+select distinct country, battle from classes
+left join ships on
+ships.class = classes.class
+left join outcomes on
+classes.class = outcomes.ship or ships.name = outcomes.ship
 ```
 ```sql
 ```
