@@ -1103,15 +1103,37 @@ cross join
 (
   select distinct name as battle from battles
 ) b
-except
+except --  做一个差集
 select distinct country, battle from classes
 left join ships on
 ships.class = classes.class
 left join outcomes on
 classes.class = outcomes.ship or ships.name = outcomes.ship
 ```
+Exercise: 74 (dorin_larsen: 2007-03-23)  
+Get all ship classes of Russia. If there are no Russian ship classes in the database, display classes of all countries present in the DB.
+Result set: country, class.
+```sql
+Select country, class from classes where country='russia'
+union
+select country, class
+from classes
+where 'russia' not in (select country from classes)  
+-- 或者也可以写作 where not exists (select country from classes where country='russia')
+```
+```sql
+```
 ```sql
 ```
 ```sql
 ```
-
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
+```sql
+```
