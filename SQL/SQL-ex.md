@@ -28,25 +28,29 @@ where type = 'printer'
 ```
 Exercise: 3 (Serge I: 2002-09-30)  
 Find the model number, RAM and screen size of the laptops with prices over $1000.  
-
+返回价格高于1000的 laptop 的 model，ram，screen size
 ```sql
 Select model, ram, screen from laptop
 where price > 1000
 ```
 Exercise: 4 (Serge I: 2002-09-21)  
-Find all records from the Printer table containing data about color printers.
+Find all records from the Printer table containing data about color printers.  
+从 printer 表中返回所有的彩色打印机
 ```sql
 Select * from printer
 where color = 'y'
 ```
 Exercise: 5 (Serge I: 2002-09-30)  
-Find the model number, speed and hard drive capacity of PCs cheaper than $600 having a 12x or a 24x CD drive.
+Find the model number, speed and hard drive capacity of PCs cheaper than $600 having a 12x or a 24x CD drive.  
+返回价格低于600且 cd drive 是 12x 或 24x 的 所有 pc 的 model，speed，hard drive
 ```sql
 Select model, speed, hd from pc
 where price < 600 and cd in ('12x','24x')
 ```
 Exercise: 6 (Serge I: 2002-10-28)  
-For each maker producing laptops with a hard drive capacity of 10 Gb or higher, find the speed of such laptops. Result set: maker, speed.
+For each maker producing laptops with a hard drive capacity of 10 Gb or higher, find the speed of such laptops.   
+Result set: maker, speed.  
+在 maker 生产的 laptop 中，返回 hard drive 高于10GB 的 laptop 的speed
 ```sql
 Select distinct maker, speed from product a
 left join laptop b on
@@ -54,7 +58,8 @@ a.model = b.model
 where hd >= 10 and type = 'laptop'
 ```
 Exercise: 7 (Serge I: 2002-11-02)  
-Get the models and prices for all commercially available products (of any type) produced by maker B.
+Get the models and prices for all commercially available products (of any type) produced by maker B.  
+返回 maker B 生产的所有 type 的 model，price
 ```sql
 Select a.model, price  from product a
 inner join 
@@ -69,7 +74,8 @@ a.model = b.model
 where maker = 'b'
 ```
 Exercise: 8 (Serge I: 2003-02-03)  
-Find the makers producing PCs but not laptops.
+Find the makers producing PCs but not laptops.  
+返回生产 pc 但不生产 laptop 的 maker
 ```sql
 Select distinct maker from product
 where type = 'pc' and maker not in 
@@ -79,7 +85,8 @@ where type = 'pc' and maker not in
 ```
 Exercise: 9 (Serge I: 2002-11-02)  
 Find the makers of PCs with a processor speed of 450 MHz or more.   
-Result set: maker.
+Result set: maker.  
+返回所生产的 pc 的 speed 不低于 450 的 maker
 ```sql
 Select distinct maker from product
 left join pc on
@@ -88,7 +95,8 @@ where speed >= 450
 ```
 Exercise: 10 (Serge I: 2002-09-23)  
 Find the printer models having the highest price.   
-Result set: model, price.
+Result set: model, price.  
+返回 printer 中 价格最高的 model
 ```sql
 Select model,  price from 
 printer
