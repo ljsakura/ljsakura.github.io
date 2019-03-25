@@ -11,20 +11,24 @@ The Laptop table is similar to the PC table, except that instead of the CD-ROM s
 For each printer model in the Printer table, its output type (‘y’ for color and ‘n’ for monochrome) – color field, printing technology ('Laser', 'Jet', or 'Matrix') – type, and price are specified.   
 
 Exercise: 1 (Serge I: 2002-09-30)  
-Find the model number, speed and hard drive capacity for all the PCs with prices below $500.
-Result set: model, speed, hd.
+Find the model number, speed and hard drive capacity for all the PCs with prices below $500.  
+Result set: model, speed, hd.  
+返回 price 小于500的所有 pc 的 model，speed， hd
 ```sql
 Select model, speed, hd from PC
 where price < 500
 ```
 Exercise: 2 (Serge I: 2002-09-21)  
-List all printer makers. Result set: maker.
+List all printer makers.   
+Result set: maker.  
+返回所有生产 printer 的 makers
 ```sql
 Select distinct maker from product
 where type = 'printer'
 ```
 Exercise: 3 (Serge I: 2002-09-30)  
-Find the model number, RAM and screen size of the laptops with prices over $1000.
+Find the model number, RAM and screen size of the laptops with prices over $1000.  
+
 ```sql
 Select model, ram, screen from laptop
 where price > 1000
@@ -55,11 +59,11 @@ Get the models and prices for all commercially available products (of any type) 
 Select a.model, price  from product a
 inner join 
 (
-select model, price from pc
-union
-select model, price from laptop
-union
-select model, price from printer
+  select model, price from pc
+  union
+  select model, price from laptop
+  union
+  select model, price from printer
 ) b on
 a.model = b.model
 where maker = 'b'
@@ -70,11 +74,12 @@ Find the makers producing PCs but not laptops.
 Select distinct maker from product
 where type = 'pc' and maker not in 
 (
-select distinct maker from product where type = 'laptop'
+  select distinct maker from product where type = 'laptop'
 )
 ```
 Exercise: 9 (Serge I: 2002-11-02)  
-Find the makers of PCs with a processor speed of 450 MHz or more. Result set: maker.
+Find the makers of PCs with a processor speed of 450 MHz or more.   
+Result set: maker.
 ```sql
 Select distinct maker from product
 left join pc on
@@ -82,13 +87,14 @@ product.model = pc.model
 where speed >= 450
 ```
 Exercise: 10 (Serge I: 2002-09-23)  
-Find the printer models having the highest price. Result set: model, price.
+Find the printer models having the highest price.   
+Result set: model, price.
 ```sql
 Select model,  price from 
 printer
 where price =
 (
-select max(price) from printer
+  select max(price) from printer
 )
 ```
 Exercise: 11 (Serge I: 2002-11-02)  
@@ -116,10 +122,10 @@ Get the makers who produce only one product type and more than one model. Output
 Select distinct maker, type from product
 where maker in
 (
-select maker from product
-group by maker
-having count(distinct type) =1
-and count(distinct model) >1
+  select maker from product
+  group by maker
+  having count(distinct type) =1 -- 只生产一种 type
+  and count(distinct model) >1 -- 生产多种 model
 )
 ```
 Exercise: 15 (Serge I: 2003-02-03)  
@@ -130,7 +136,7 @@ group by hd
 having count(*)>1
 ```
 Exercise: 16 (Serge I: 2003-02-03)  
-Get pairs of PC models with identical speeds and the same RAM capacity. Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i). 
+Get pairs of PC models with identical speeds and the same RAM capacity. Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).   
 Result set: model with the bigger number, model with the smaller number, speed, and RAM.
 ```sql
 Select distinct a.model,  b.model , a.speed, a.ram 
@@ -148,11 +154,11 @@ inner join product c on
 a.model = c.model
 where a.speed <
 (
-select min(speed) from pc
+  select min(speed) from pc
 )
 ```
 Exercise: 18 (Serge I: 2003-02-03)  
-Find the makers of the cheapest color printers.
+Find the makers of the cheapest color printers.  
 Result set: maker, price.
 ```sql
 Select distinct maker, price from product
@@ -160,13 +166,13 @@ inner join printer
 on printer.model = product.model
 where price = 
 (
-select min(price) from printer
-where color = 'y'
+  select min(price) from printer
+  where color = 'y'
 )
 and color = 'y'
 ```
 Exercise: 19 (Serge I: 2003-02-13)  
-For each maker having models in the Laptop table, find out the average screen size of the laptops he produces. 
+For each maker having models in the Laptop table, find out the average screen size of the laptops he produces.   
 Result set: maker, average screen size.
 ```sql
 Select maker, avg(screen) from laptop a
@@ -175,7 +181,7 @@ a.model = b.model
 group by maker
 ```
 Exercise: 20 (Serge I: 2003-02-13)  
-Find the makers producing at least three distinct models of PCs.
+Find the makers producing at least three distinct models of PCs.  
 Result set: maker, number of PC models.
 ```sql
 Select maker, count(model) from product
@@ -192,7 +198,7 @@ a.model = b.model
 group by maker
 ```
 Exercise: 22 (Serge I: 2003-02-13)  
-For each value of PC speed that exceeds 600 MHz, find out the average price of PCs with identical speeds.
+For each value of PC speed that exceeds 600 MHz, find out the average price of PCs with identical speeds.  
 Result set: speed, average price.
 ```sql
 Select speed, avg(price) from pc
@@ -200,7 +206,7 @@ where speed >600
 group by speed
 ```
 Exercise: 23 (Serge I: 2003-02-14)  
-Get the makers producing both PCs having a speed of 750 MHz or higher and laptops with a speed of 750 MHz or higher. 
+Get the makers producing both PCs having a speed of 750 MHz or higher and laptops with a speed of 750 MHz or higher.   
 Result set: maker
 ```sql
 Select distinct maker from product a
@@ -237,7 +243,7 @@ where price =
 )
 ```
 Exercise: 25 (Serge I: 2003-02-14)  
-Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity. --返回生产printer并也能生产pc的厂家，同时要满足pc的ram是最低值，且speed是ram最低的那些pc中最高的
+Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity. --返回生产printer并也能生产pc的厂家，同时要满足pc的ram是最低值，且speed是ram最低的那些pc中最高的  
 Result set: maker.
 ```sql
 Select maker from product a
@@ -260,7 +266,7 @@ and speed =
 )
 ```
 Exercise: 26 (Serge I: 2003-02-14)  
-Find out the average price of PCs and laptops produced by maker A.
+Find out the average price of PCs and laptops produced by maker A.  
 Result set: one overall average price for all items.
 ```sql
 Select avg(price) from
@@ -275,7 +281,7 @@ where model in
 )
 ```
 Exercise: 27 (Serge I: 2003-02-03)  
-Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.
+Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.  
 Result set: maker, average HDD capacity.
 ```sql
 Select maker, avg(hd) from pc
@@ -312,7 +318,7 @@ Outcome(code, point, date, out)
 Here, the date column doesn’t include the time part, either.   
 
 Exercise: 29 (Serge I: 2003-02-14)   
-Under the assumption that receipts of money (inc) and payouts (out) are registered not more than once a day for each collection point {i.e. the primary key consists of (point, date)}, write a query displaying cash flow data (point, date, income, expense). 
+Under the assumption that receipts of money (inc) and payouts (out) are registered not more than once a day for each collection point {i.e. the primary key consists of (point, date)}, write a query displaying cash flow data (point, date, income, expense).   
 Use Income_o and Outcome_o tables.
 ```sql
 Select a.point, a.date, inc, out from income_o a
@@ -326,8 +332,8 @@ a.date = b.date and
 a.point = b.point
 ```
 Exercise: 30 (Serge I: 2003-02-14)  
-Under the assumption that receipts of money (inc) and payouts (out) can be registered any number of times a day for each collection point (i.e. the code column is the primary key), display a table with one corresponding row for each operating date of each collection point.
-Result set: point, date, total payout per day (out), total money intake per day (inc). 
+Under the assumption that receipts of money (inc) and payouts (out) can be registered any number of times a day for each collection point (i.e. the code column is the primary key), display a table with one corresponding row for each operating date of each collection point.  
+Result set: point, date, total payout per day (out), total money intake per day (inc).   
 Missing values are considered to be NULL.
 ```sql
 Select a.point, a.date, out, inc from 
@@ -398,8 +404,8 @@ where battle = 'North Atlantic'
 and result = 'sunk'
 ```
 Exercise: 34 (Serge I: 2002-11-04)  
-In accordance with the Washington Naval Treaty concluded in the beginning of 1922, it was prohibited to build battle ships with a displacement of more than 35 thousand tons. 
-Get the ships violating this treaty (only consider ships for which the year of launch is known). 
+In accordance with the Washington Naval Treaty concluded in the beginning of 1922, it was prohibited to build battle ships with a displacement of more than 35 thousand tons.   
+Get the ships violating this treaty (only consider ships for which the year of launch is known).   
 List the names of the ships.
 ```sql
 Select distinct name from classes, ships
@@ -409,7 +415,7 @@ and launched >= 1922
 and displacement >35000
 ```
 Exercise: 35 (qwrqwr: 2012-11-23)  
-Find models in the Product table consisting either of digits only or Latin letters (A-Z, case insensitive) only.
+Find models in the Product table consisting either of digits only or Latin letters (A-Z, case insensitive) only.  
 Result set: model, type.
 ```sql
 Select model, type from product
@@ -460,16 +466,16 @@ Find the ships that `survived for future battles`; that is, after being damaged 
 ```sql
 Select distinct a.ship from
 (
-select ship, battle, date from outcomes
-inner join battles on
-outcomes.battle = battles.name
-where result = 'damaged'
+  select ship, battle, date from outcomes
+  inner join battles on
+  outcomes.battle = battles.name
+  where result = 'damaged'
 ) a
 inner join
 (
-select ship, battle, date from outcomes
-inner join battles on
-outcomes.battle = battles.name
+  select ship, battle, date from outcomes
+  inner join battles on
+  outcomes.battle = battles.name
 ) b on
 a.ship = b.ship and 
 a.date< b.date
@@ -534,7 +540,7 @@ select ship from outcomes
 where ship like 'r%'
 ```
 Exercise: 45 (Serge I: 2002-12-04)  
-Find all ship names consisting of three or more words (e.g., King George V).
+Find all ship names consisting of three or more words (e.g., King George V).  
 Consider the words in ship names to be separated by single spaces, and the ship names to have no leading or trailing spaces.
 ```sql
 Select name from ships
@@ -555,7 +561,7 @@ a.ship = c.class -- A ship engaged in this battle should be listed even if its c
 where battle = 'guadalcanal'
 ```
 Exercise: 47 (Serge I: 2011-02-11)  
-Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.
+Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.  
 Result set: row number as described above, manufacturer's name (maker), model.
 ```sql
 Select row_number () over (order by num desc, a.maker, model) no, a.maker, a.model
@@ -661,8 +667,8 @@ where type = 'bb'
 ) x
 ```
 Exercise: 55 (Serge I: 2003-02-16)  
-For each class, determine the year the first ship of this class was launched. 
-If the lead ship’s year of launch is not known, get the minimum year of launch for the ships of this class.
+For each class, determine the year the first ship of this class was launched.   
+If the lead ship’s year of launch is not known, get the minimum year of launch for the ships of this class.  
 Result set: class, year.
 ```sql
 Select classes.class, min(launched) from classes
@@ -671,7 +677,7 @@ ships.class = classes.class
 group by classes.class
 ```
 Exercise: 56 (Serge I: 2003-02-16)  
-For each class, find out the number of ships of this class that were sunk in battles. 
+For each class, find out the number of ships of this class that were sunk in battles.   
 Result set: class, number of ships sunk.
 ```sql
 Select class, count(name) from
@@ -713,7 +719,8 @@ Select class, count(result) from
 group by class
 ```
 Exercise: 57 (Serge I: 2003-02-14)  
-For classes having irreparable combat losses and at least three ships in the database, display the name of the class and the number of ships sunk.
+For classes having irreparable combat losses and at least three ships in the database, display the name of the class and the number of ships sunk.  
+查询至少有三艘 ships 的 class 且该 class 至少有一条船 sunk 了，本题比上一题多了一个指标，就是每个 class 下的 ship 数量，所以设定两个指标，一个是船只数，另一个是沉没的船只数
 ```sql
 Select class, count(result) from
 (
@@ -738,7 +745,7 @@ Select class, count(result) from
     select * from outcomes where result = 'sunk' and ship not in(select name from ships)
   ) b on
   b.ship = c.ship
-where c.ship not in (select name from ships)
+  where c.ship not in (select name from ships)
 ) x
 group by class
 having count(name) > 2 and count(result) > 0
@@ -764,7 +771,7 @@ group by class
 having count(name) > 2 and count(result) > 0
 ```
 Exercise: 58 (Serge I: 2009-11-13)  
-For each product type and maker in the Product table, find out, with a precision of two decimal places, the percentage ratio of the number of models of the actual type produced by the actual maker to the total number of models by this maker.
+For each product type and maker in the Product table, find out, with a precision of two decimal places, the percentage ratio of the number of models of the actual type produced by the actual maker to the total number of models by this maker.  
 Result set: maker, product type, the percentage ratio mentioned above.
 ```sql
 Select x.*, cast( (isnull(ty_model, 0)*100.00/to_model) as decimal(10,2)) from 
@@ -1121,7 +1128,36 @@ from classes
 where 'russia' not in (select country from classes)  
 -- 或者也可以写作 where not exists (select country from classes where country='russia')
 ```
+Exercise: 75 (Serge I: 2009-04-17)  
+For each ship from the Ships table, determine the name of the earliest battle from the Battles table it could have participated in after being launched.   
+If the year the ship has been launched is unknown use the latest battle.   
+If no battles occurred after the ship was launched, display NULL instead of the battle name.  
+It’s assumed a ship can participate in any battle fought in the year of its launching.  
+Result set: name of the ship, year it was launched, name of battle.
+
+Note: assume there are no battles fought at the same day.
 ```sql
+Select distinct ships.name, ships.launched,
+  case
+    when ships.launched is not null then battle
+    else (select name from battles where date =(select max(date) from battles))
+  end battle 
+from ships
+left join
+(
+  select * from 
+  (
+    select ships.name, launched, battles.name as battle, 
+      case
+        when date = min(date) over(partition by ships.name) then date
+        else null
+      end date 
+    from ships
+    inner join battles on
+    launched <= year(date)
+  )a
+  where date is not null
+)b on ships.name = b.name
 ```
 ```sql
 ```
