@@ -777,7 +777,7 @@ group by classes.class
 Exercise: 56 (Serge I: 2003-02-16)  
 For each class, find out the number of ships of this class that were sunk in battles.   
 Result set: class, number of ships sunk.  
-
+返回每个 class 下沉没船只的数量
 ```sql
 Select class, count(name) from
 (
@@ -871,7 +871,9 @@ having count(name) > 2 and count(result) > 0
 ```
 Exercise: 58 (Serge I: 2009-11-13)  
 For each product type and maker in the Product table, find out, with a precision of two decimal places, the percentage ratio of the number of models of the actual type produced by the actual maker to the total number of models by this maker.  
-Result set: maker, product type, the percentage ratio mentioned above.
+Result set: maker, product type, the percentage ratio mentioned above.  
+返回每个 maker 分类下，各个 type 所对应的 model 数量与该 maker 生产的所有 model 数量的比率 
+为了能够显示所有 maker 及所有 type，需要使用 cross join 生成一张 maker 和 type 的交叉表
 ```sql
 Select x.*, cast( (isnull(ty_model, 0)*100.00/to_model) as decimal(10,2)) from 
 -- 需要 isnull 将ty_model为空部分转化为零； *100.00 或者 *100.0 转化小数位
@@ -884,29 +886,29 @@ Select x.*, cast( (isnull(ty_model, 0)*100.00/to_model) as decimal(10,2)) from
   (
     select distinct type from product
   ) b
- ) x
+ ) x -- 生成交叉表
  left join
  (
   select maker, count(distinct model) as to_model from product
-  group by maker
+  group by maker -- 按 maker 聚合
  ) y on x.maker = y.maker
 left join
 (
   select maker, type, count(distinct model) as ty_model from product
-  group by maker, type
+  group by maker, type -- 按 maker 和 type 聚合
 ) z on x.maker = z.maker and x.type = z.type
 ```
 Exercise: 59 (Serge I: 2003-02-15)  
-Calculate the cash balance of each buy-back center for the database with money transactions being recorded not more than once a day.
-Result set: point, balance.
+Calculate the cash balance of each buy-back center for the database with money transactions being recorded not more than once a day.  
+Result set: point, balance.  
+当收入和支出交易每天都不超过一次时，计算每个回收中心的交易情况，本质上与29题及30题类似
 ```sql
 Select  
   case
-    when a.point is null 
-    then b.point 
+    when a.point is null then b.point 
     else a.point
   end point,
-isnull(inc,0) - isnull(out,0)
+isnull(inc,0) - isnull(out,0) -- 将 inc 和 out 的 null 置为0
 from
 (
   select point, sum(inc) as inc from income_o
@@ -921,16 +923,16 @@ on a.point = b.point
 ```
 Exercise: 60 (Serge I: 2003-02-15)  
 For the database with money transactions being recorded not more than once a day, calculate the cash balance of each buy-back center at the beginning of 4/15/2001. 
-Note: exclude centers not having any records before the specified date.
-Result set: point, balance
+Note: exclude centers not having any records before the specified date.  
+Result set: point, balance  
+当收入和支出交易每天都不超过一次时，计算从4/15/2001起每个回收中心的交易情况，本质上依旧与29题及30题类似
 ```sql
 Select  
   case
-    when a.point is null 
-    then b.point 
+    when a.point is null then b.point 
     else a.point
   end point,
-isnull(inc,0) - isnull(out,0)
+isnull(inc,0) - isnull(out,0) -- 将 inc 和 out 的 null 置为0
 from
 (
   select point, sum(inc) as inc from income_o
@@ -946,16 +948,14 @@ full join
 on a.point = b.point 
 ```
 Exercise: 61 (Serge I: 2003-02-14)  
-For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers.
+For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers.  
+当收入和支出交易每天都会发生多次时
 ```sql
 Select 
   case
-    when (select count(*) from income_o) = 0
-    then (select sum(out) from outcome_o)
-    when (select count(*) from outcome_o) = 0
-    then (select sum(inc) from income_o)
-    else
-    (select sum(inc) from income_o) - (select sum(out) from outcome_o)
+    when (select count(*) from income_o) = 0 then (select sum(out) from outcome_o)
+    when (select count(*) from outcome_o) = 0 then (select sum(inc) from income_o)
+    else (select sum(inc) from income_o) - (select sum(out) from outcome_o)
   end -- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
 ```
 Exercise: 62 (Serge I: 2003-02-15)  
