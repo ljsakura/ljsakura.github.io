@@ -11,11 +11,9 @@ Each personal computer in the PC table is unambiguously identified by a unique c
 The Laptop table is similar to the PC table, except that instead of the CD-ROM speed, it contains the screen size (in inches) – screen. 
 For each printer model in the Printer table, its output type (‘y’ for color and ‘n’ for monochrome) – color field, printing technology ('Laser', 'Jet', or 'Matrix') – type, and price are specified.   
 ```
-```
 Exercise: 1 (Serge I: 2002-09-30)  
 Find the model number, speed and hard drive capacity for all the PCs with prices below $500.  
 Result set: model, speed, hd.  
-```
 返回 price 小于500的所有 pc 的 model，speed， hd
 ```sql
 Select model, speed, hd from PC
@@ -312,7 +310,8 @@ where model in
 ```
 Exercise: 27 (Serge I: 2003-02-03)  
 Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.  
-Result set: maker, average HDD capacity.
+Result set: maker, average HDD capacity.  
+返回能够生产 pc 和 printer 的 maker 所生产的 pc 的 HDD 平均值
 ```sql
 Select maker, avg(hd) from pc
 inner join product on
@@ -324,7 +323,8 @@ and maker in
 group by maker
 ```
 Exercise: 28 (Serge I: 2012-05-04)  
-Using Product table, find out the number of makers who produce only one model.
+Using Product table, find out the number of makers who produce only one model.  
+返回 product 表中只生产一种 model 的 maker 的个数
 ```sql
 Select count(*) from product
 where maker in
@@ -334,7 +334,7 @@ where maker in
   having count(distinct model) = 1
 )
 ```
-
+```
 29-30 Database 2
 Short database description "Recycling firm"  
 The firm owns several buy-back centers for collection of recyclable materials. Each of them receives funds to be paid to the recyclables suppliers. Data on funds received is recorded in the table   
@@ -346,18 +346,35 @@ For the income and expenditure may occur more than once a day, another database 
 Income(code, point, date, inc)  
 Outcome(code, point, date, out)  
 Here, the date column doesn’t include the time part, either.   
-
+```
 Exercise: 29 (Serge I: 2003-02-14)   
 Under the assumption that receipts of money (inc) and payouts (out) are registered not more than once a day for each collection point {i.e. the primary key consists of (point, date)}, write a query displaying cash flow data (point, date, income, expense).   
-Use Income_o and Outcome_o tables.
+Use Income_o and Outcome_o tables.  
+依据 point, date, income, expense 返回一张现金流量表，考虑每天发生的收入及支出交易都不超过一次，既可以使用 union，也可以使用 case 及 full outer join
 ```sql
+--solution 1 use union
 Select a.point, a.date, inc, out from income_o a
 left join outcome_o b on
 a.date = b.date and
 a.point = b.point
-union --full outer join can not return all point and date data
+union 
 Select a.point, a.date, inc, out from outcome_o a
 left join income_o b on
+a.date = b.date and
+a.point = b.point
+
+--solution 2 use case and full outer join
+Select 
+  case
+  when a.point is not null then a.point
+    else b.point
+    end point,
+  case
+    when a.date is not null then a.date
+    else b.date
+  end date,
+inc, out from income_o a
+full outer join outcome_o b on
 a.date = b.date and
 a.point = b.point
 ```
