@@ -571,8 +571,10 @@ ships.class = classes.class
 where numguns >= 10
 ```
 Exercise: 41 (Serge I: 2008-08-30)  
-For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:
-- name of the characteristic (title of the corresponding column in the PC table);
+For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:   
+- name of the characteristic (title of the corresponding column in the PC table);  
+- its respective value.  
+pc 表中 code 最高的 pc，获取它的指标（除却 code），并将这些指标以两列展示，一列是指标名称，另一列是指标数据，即平常所说的数据透视表
 ```sql
 Select characteristic, value from 
 (
@@ -597,13 +599,15 @@ unpivot
 pivot 与 unpivot 的使用详见 [MSDN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
 
 Exercise: 42 (Serge I: 2002-11-05)  
-Find the names of ships sunk at battles, along with the names of the corresponding battles.
+Find the names of ships sunk at battles, along with the names of the corresponding battles.  
+返回在相应 battle 中沉没的船只
 ```sql
 Select distinct ship, battle from outcomes
 where result = 'sunk'
 ```
 Exercise: 43 (qwrqwr: 2011-10-28)  
-Get the battles that occurred in years when no ships were launched into water.
+Get the battles that occurred in years when no ships were launched into water.  
+返回在没有任何船只下水的年份进行的 battle
 ```sql
 Select distinct battles.name from battles
 where datepart(yyyy, date) not in 
@@ -613,7 +617,8 @@ where datepart(yyyy, date) not in
 )
 ```
 Exercise: 44 (Serge I: 2002-12-04)  
-Find all ship names beginning with the letter R.
+Find all ship names beginning with the letter R.  
+返回以 R 开头的所有 ship
 ```sql
 Select name from ships
 where name like 'r%'
@@ -623,7 +628,8 @@ where ship like 'r%'
 ```
 Exercise: 45 (Serge I: 2002-12-04)  
 Find all ship names consisting of three or more words (e.g., King George V).  
-Consider the words in ship names to be separated by single spaces, and the ship names to have no leading or trailing spaces.
+Consider the words in ship names to be separated by single spaces, and the ship names to have no leading or trailing spaces.  
+返回名字包含至少三个单词的 ship，本题用不用 trim 都可以，用了 trim 只是为了更严谨
 ```sql
 Select name from ships
 where trim(name) like '% % %' -- trim 去掉左右空格
@@ -632,7 +638,8 @@ Select ship from outcomes
 where trim(ship) like '% % %'
 ```
 Exercise: 46 (Serge I: 2003-02-14)  
-For each ship that participated in the Battle of Guadalcanal, get its name, displacement, and the number of guns.
+For each ship that participated in the Battle of Guadalcanal, get its name, displacement, and the number of guns.  
+返回所有参加了 Guadalcanal 战役的 ship 的 name, displacement, and the number of guns
 ```sql
 Select ship, displacement, numGuns from outcomes a
 left join ships b on
@@ -644,7 +651,8 @@ where battle = 'guadalcanal'
 ```
 Exercise: 47 (Serge I: 2011-02-11)  
 Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.  
-Result set: row number as described above, manufacturer's name (maker), model.
+Result set: row number as described above, manufacturer's name (maker), model.  
+为 product 表生成序号，要求如下：maker 以所生产的 model 数量降序排列（对于生产的 model 数量相同的 maker 来说，以 maker 的首字母升序排列），以 model 升序排列，这里用到了开窗函数 row_number（）over（order by ……）
 ```sql
 Select row_number () over (order by num desc, a.maker, model) no, a.maker, a.model
 from product a
@@ -656,7 +664,8 @@ left join
 a.maker = b.maker
 ```
 Exercise: 48 (Serge I: 2003-02-16)  
-Find the ship classes having at least one ship sunk in battles.
+Find the ship classes having at least one ship sunk in battles.  
+返回至少有一架船只在战役中沉没的 class
 ```sql
 Select distinct class from outcomes a
 inner join ships b on
@@ -669,7 +678,8 @@ a.ship = b.class
 where result = 'sunk'
 ```
 Exercise: 49 (Serge I: 2003-02-17)  
-Find the names of the ships having a gun caliber of 16 inches (including ships in the Outcomes table).
+Find the names of the ships having a gun caliber of 16 inches (including ships in the Outcomes table).  
+返回 gun 口径为16in的 ship，包括 outcomes 中的数据
 ```sql
 Select name from ships a
 inner join classes b on
@@ -682,7 +692,8 @@ a.ship = b.class
 where bore = 16
 ```
 Exercise: 50 (Serge I: 2002-11-05)  
-Find the battles in which Kongo-class ships from the Ships table were engaged.
+Find the battles in which Kongo-class ships from the Ships table were engaged.  
+返回 ships 表中 class 为 Kongo 的船只所参与的战役
 ```sql
 Select distinct battle from ships a
 inner join outcomes b on
@@ -690,7 +701,8 @@ a.name = b.ship
 where  a.class = 'kongo' 
 ```
 Exercise: 51 (Serge I: 2003-02-17)  
-Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).
+Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).  
+
 ```sql
 Select name from classes a
 inner join
