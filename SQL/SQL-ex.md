@@ -988,7 +988,8 @@ The Company table contains IDs and names of the airlines transporting passengers
 - connections and constraints are shown in the database schema below.  
 ```
 Exercise: 63 (Serge I: 2003-04-08)  
-Find the names of different passengers that ever travelled more than once occupying seats with the same number.
+Find the names of different passengers that ever travelled more than once occupying seats with the same number.  
+返回那些不止一次乘坐过相同座位的旅客
 ```sql
 Select name from passenger
 where id_psg in
@@ -1000,27 +1001,24 @@ where id_psg in
 ```
 Exercise: 64 (Serge I: 2010-06-04)  
 Using the Income and Outcome tables, determine for each buy-back center the days when it received funds but made no payments, and vice versa.  
-Result set: point, date, type of operation (inc/out), sum of money per day.
+Result set: point, date, type of operation (inc/out), sum of money per day.  
+使用 Income 和 Outcome 表找出每个回收中心在哪些天里只有收入没有支出，反之亦然
 ```sql
 Select 
   case
-    when a.point is null
-    then b.point
+    when a.point is null then b.point
     else a.point
   end point,
   case
-    when a.date is null
-    then b.date
+    when a.date is null then b.date
     else a.date
   end date,
   case
-    when a.point is null
-    then 'out'
+    when a.point is null then 'out'
     else 'inc'
   end operation,
   case
-    when inc is null
-    then out 
+    when inc is null then out 
     else inc
   end monty
 from 
@@ -1042,6 +1040,7 @@ Number the unique pairs {maker, type} in the Product table, ordering them as fol
 - type of product (type) in the order PC, Laptop, Printer.  
 If a manufacturer produces more than one type of product, its name should be displayed in the first row only;  
 other rows for THIS manufacturer should contain an empty string (').  
+生成 maker，type 两列数据，并对结果进行标序，要求如下：maker 按升序排列，type 按 pc，laptop，printer 排列，如果某个 maker 生产多个 type，则 maker 的名字只能显示在第一行，其他行需用空来代替
 ```sql
 Select row_number() over(order by maker, 
   case
@@ -1064,8 +1063,9 @@ type from product
 group by maker, type
 ```
 Exercise: 66 (Serge I: 2003-04-09)  
-For all days between 2003-04-01 and 2003-04-07 find the number of trips from Rostov. 
-Result set: date, number of trips.
+For all days between 2003-04-01 and 2003-04-07 find the number of trips from Rostov.  
+Result set: date, number of trips.  
+返回于2003-04-01 至 2003-04-07 期间每日从 Rostov 出发的航班数量
 ```sql
 Select a, 
   case
@@ -1074,7 +1074,7 @@ Select a,
   end no 
 from
 (
-  select '2003-04-01 00:00:00.000' a union all select '2003-04-02 00:00:00.000' union all select '2003-04-03 00:00:00.000' union all select '2003-04-04 00:00:00.000' union all select '2003-04-05 00:00:00.000' union all select '2003-04-06 00:00:00.000' union all select '2003-04-07 00:00:00.000' 
+  select '2003-04-01 00:00:00.000' a union all select '2003-04-02 00:00:00.000' union all select '2003-04-03 00:00:00.000' union all select '2003-04-04 00:00:00.000' union all select '2003-04-05 00:00:00.000' union all select '2003-04-06 00:00:00.000' union all select '2003-04-07 00:00:00.000'  -- 用 union all 拼接生成一张新表，注意 select 之后的第一个数据需要命名列名，本例中为 a 
 ) x
 left join 
 (
@@ -1088,7 +1088,8 @@ Exercise: 67 (Serge I: 2010-03-27)
 Find out the number of routes with the greatest number of flights (trips).  
 Notes.   
 1) A - B and B - A are to be considered DIFFERENT routes.  
-2) Use the Trip table only.
+2) Use the Trip table only.  
+返回航班数量最多的航线的个数，A-B 与 B-A 是不同的航线
 ```sql
 select count(no) from 
 (
@@ -1104,7 +1105,8 @@ Exercise: 68 (Serge I: 2010-03-27)
 Find out the number of routes with the greatest number of flights (trips).  
 Notes.   
 1) A - B and B - A are to be considered the SAME route.  
-2) Use the Trip table only.
+2) Use the Trip table only.  
+返回航班数量最多的航线的个数，A-B 与 B-A 是相同的航线，比上一题多了一项，重新组合出发地和目的地
 ```sql
 select count(no) from 
 (
@@ -1113,7 +1115,7 @@ select count(no) from
     case
       when town_from < town_to then town_from+ town_to
       else town_to + town_from
-    end
+    end -- 将出发地和目的地重新组合，确保 A-B 与 B-A 是相同的
   having count(trip_no) >= all (Select count(trip_no)  from trip
   group by 
     case
@@ -1126,12 +1128,14 @@ select count(no) from
 Exercise: 69 (Serge I: 2011-01-06)  
 Using the Income and Outcome tables, find out the balance for each buy-back center by the end of each day when funds were received or payments were made.   
 Note that the cash isn’t withdrawn, and the unspent balance/debt is carried forward to the next day.  
-Result set: buy-back center ID (point), date in dd/mm/yyyy format, unspent balance/debt by the end of this day.
+Result set: buy-back center ID (point), date in dd/mm/yyyy format, unspent balance/debt by the end of this day.  
+使用 Income 和 Outcome 表计算每天结束时各个回收中心的资金余额，这是一道数据滚动问题，即上一条数据的计算结果需要作为下一条数据的初始值滚动至下一行并参与计算，同时还要对 datetime 进行转换，考虑使用开窗函数 sum（）over（partition by……）
 ```sql
 Select point, convert(varchar(100),date,103) date, sum(inc - out) over(partition by point order by date) balance  from
 -- 提示中建议使用 running totals，不过鉴于更熟悉 sum（）over（）所以还是采用了后者，
-  (
+ (
   select coalesce(a.point, b.point) point, coalesce(a.date, b.date) date, coalesce(inc, 0) inc, coalesce(out, 0) out from
+  -- coalesce 作用等同于 case，只不过比 case 更简洁
   (
     select point, date, sum(inc) inc from income 
     --如果在子查询中对 date 进行 convert 转换，则会将 date 的类型从 datetime 转变为 varchar，这样在最后一步的 order by 里就会出现错误
@@ -1148,7 +1152,8 @@ Select point, convert(varchar(100),date,103) date, sum(inc - out) over(partition
 对Running Totals有兴趣的可以详见 [Running Totals](http://www.sql-tutorial.ru/en/book_running_totals.html)   
 
 Exercise: 70 (Serge I: 2003-02-14)  
-Get the battles in which at least three ships from the same country took part.
+Get the battles in which at least three ships from the same country took part.  
+返回同一个国家至少有三艘船只参与的战役
 ```sql
 Select distinct battle from 
 -- 当存在多个国家参加同一场战斗，且每个国家参战的船只数量都不少于3，则必须用 distinct 来去除重复的 battle
