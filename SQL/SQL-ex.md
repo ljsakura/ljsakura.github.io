@@ -702,7 +702,7 @@ where  a.class = 'kongo'
 ```
 Exercise: 51 (Serge I: 2003-02-17)  
 Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).  
-返回具有相同 displacement 中 gun 数量最大的 ship，既按 displacement 分组后求 gun 数量最大值，并返回其对应的 ship
+返回具有相同 displacement 中 gun 数量最大的 ship，即按 displacement 分组后求 gun 数量最大值，并返回其对应的 ship
 ```sql
 Select name from classes a
 inner join
@@ -727,7 +727,8 @@ inner join
 a.numguns = c.mn and a.displacement = c.displacement
 ```
 Exercise: 52 (qwrqwr: 2010-04-23)  
-Determine the names of all ships in the Ships table that can be a Japanese battleship having at least nine main guns with a caliber of less than 19 inches and a displacement of not more than 65 000 tons.
+Determine the names of all ships in the Ships table that can be a Japanese battleship having at least nine main guns with a caliber of less than 19 inches and a displacement of not more than 65 000 tons.  
+返回 ships 表中日本的 battleship，并且这些 ship 具备以下特征：至少有9个 gun，口径低于19in，排水量不高于65 000吨
 ```sql
 Select name from ships a
 left join classes b on
@@ -739,31 +740,34 @@ and (displacement <= 65000 or displacement is null)
 and (type = 'bb' or type is null)
 ```
 Exercise: 53 (Serge I: 2002-11-05)  
-With a precision of two decimal places, determine the average number of guns for the battleship classes.
+With a precision of two decimal places, determine the average number of guns for the battleship classes.  
+返回 battleship 的 gun 数量的均值，精度为两位小数
 ```sql
 Select cast(avg(numGuns*1.0) as decimal(10,2)) from classes
 where type = 'bb' 
 ```
 Exercise: 54 (Serge I: 2003-02-14)  
-With a precision of two decimal places, determine the average number of guns for all battleships (including the ones in the Outcomes table).
+With a precision of two decimal places, determine the average number of guns for all battleships (including the ones in the Outcomes table).  
+返回 battleship 的 gun 数量的均值，精度为两位小数，考虑 outcomes 中的数据
 ```sql
 Select cast(avg(numGuns*1.0) as decimal(10,2)) from 
 (
-select b.name, b.class, a.numguns from classes a
-inner join ships b on
-a.class = b.class
-where type = 'bb'
-union
-select b.ship, b.ship, a.numguns from classes a
-inner join outcomes b on
-a.class = b.ship
-where type = 'bb' 
+  select b.name, b.class, a.numguns from classes a
+  inner join ships b on
+  a.class = b.class
+  where type = 'bb'
+  union
+  select b.ship, b.ship, a.numguns from classes a
+  inner join outcomes b on
+  a.class = b.ship
+  where type = 'bb' 
 ) x
 ```
 Exercise: 55 (Serge I: 2003-02-16)  
 For each class, determine the year the first ship of this class was launched.   
 If the lead ship’s year of launch is not known, get the minimum year of launch for the ships of this class.  
-Result set: class, year.
+Result set: class, year.  
+返回每个 class 下的第一艘船下水的年份，如果 lead ship 的下水年份未知，则用该 class 下最早的下水年份表示
 ```sql
 Select classes.class, min(launched) from classes
 left join ships on
@@ -772,7 +776,8 @@ group by classes.class
 ```
 Exercise: 56 (Serge I: 2003-02-16)  
 For each class, find out the number of ships of this class that were sunk in battles.   
-Result set: class, number of ships sunk.
+Result set: class, number of ships sunk.  
+
 ```sql
 Select class, count(name) from
 (
