@@ -106,18 +106,21 @@ where price =
 )
 ```
 Exercise: 11 (Serge I: 2002-11-02)  
-Find out the average speed of PCs.
+Find out the average speed of PCs.  
+返回所有 pc 的 平均 speed
 ```sql
 Select avg(speed)  speed from pc
 ```
 Exercise: 12 (Serge I: 2002-11-02)  
-Find out the average speed of the laptops priced over $1000.
+Find out the average speed of the laptops priced over $1000.  
+返回所有价格高于1000的 laptop 的平均 speed
 ```sql
 Select avg(speed) speed from laptop
 where price > 1000
 ```
 Exercise: 13 (Serge I: 2002-11-02)  
-Find out the average speed of the PCs produced by maker A.
+Find out the average speed of the PCs produced by maker A.  
+返回 maker A 生产的 pc 的平均 speed
 ```sql
 Select avg(speed) speed from pc
 left join product on
@@ -125,7 +128,9 @@ pc.model = product.model
 where maker = 'a'
 ```
 Exercise: 14 (Serge I: 2012-04-20)  
-Get the makers who produce only one product type and more than one model. Output: maker, type.
+Get the makers who produce only one product type and more than one model.   
+Output: maker, type.  
+返回只生产一种 type 但生产多种 model 的 maker
 ```sql
 Select distinct maker, type from product
 where maker in
@@ -137,15 +142,18 @@ where maker in
 )
 ```
 Exercise: 15 (Serge I: 2003-02-03)  
-Get hard drive capacities that are identical for two or more PCs. 
+Get hard drive capacities that are identical for two or more PCs.   
+返回具有相同的 hard drive 两个或多个 pc 的 hd
 ```sql
 Select hd from pc
 group by hd
 having count(*)>1
 ```
 Exercise: 16 (Serge I: 2003-02-03)  
-Get pairs of PC models with identical speeds and the same RAM capacity. Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).   
-Result set: model with the bigger number, model with the smaller number, speed, and RAM.
+Get pairs of PC models with identical speeds and the same RAM capacity.   
+Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).   
+Result set: model with the bigger number, model with the smaller number, speed, and RAM.  
+返回具有相同 speed 及 ram 的 pc，两两一组，每种组合只能出现一次
 ```sql
 Select distinct a.model,  b.model , a.speed, a.ram 
 from pc a inner join pc b on
@@ -154,8 +162,9 @@ a.ram = b.ram and
 a.model >b.model
 ```
 Exercise: 17 (Serge I: 2003-02-03)  
-Get the laptop models that have a speed smaller than the speed of any PC. 
-Result set: type, model, speed.
+Get the laptop models that have a speed smaller than the speed of any PC.  
+Result set: type, model, speed.  
+返回 speed 比任意一个 pc 都低的 laptop 的 model
 ```sql
 select distinct c.type, a.model, a.speed from laptop a
 inner join product c on
@@ -167,7 +176,8 @@ where a.speed <
 ```
 Exercise: 18 (Serge I: 2003-02-03)  
 Find the makers of the cheapest color printers.  
-Result set: maker, price.
+Result set: maker, price.  
+返回生产最便宜的彩色打印机的 maker
 ```sql
 Select distinct maker, price from product
 inner join printer
@@ -181,7 +191,8 @@ and color = 'y'
 ```
 Exercise: 19 (Serge I: 2003-02-13)  
 For each maker having models in the Laptop table, find out the average screen size of the laptops he produces.   
-Result set: maker, average screen size.
+Result set: maker, average screen size.  
+对于所生产的 model 包含在 laptop 表中的 maker，返回其所生产的所有 laptop 的 screen size 的平均值
 ```sql
 Select maker, avg(screen) from laptop a
 left join product b on
@@ -190,7 +201,8 @@ group by maker
 ```
 Exercise: 20 (Serge I: 2003-02-13)  
 Find the makers producing at least three distinct models of PCs.  
-Result set: maker, number of PC models.
+Result set: maker, number of PC models.  
+返回至少生产三种不一样 pc model 的 maker
 ```sql
 Select maker, count(model) from product
 where type = 'pc'
