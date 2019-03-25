@@ -444,15 +444,17 @@ The Classes relation includes the name of the class, type (can be either bb for 
 Notes: 1) The Outcomes relation may contain ships not present in the Ships relation. 2) A ship sunk can’t participate in later battles. 3) For historical reasons, lead ships are referred to as head ships in many exercises.4) A ship found in the Outcomes table but not in the Ships table is still considered in the database. This is true even if it is sunk.   
 ```
 Exercise: 31 (Serge I: 2002-10-22)  
-For ship classes with a gun caliber of 16 in. or more, display the class and the country.
+For ship classes with a gun caliber of 16 in. or more, display the class and the country.  
+返回 gun 的口径不低于 16in 的船只所属的 class 及 country
 ```sql
 Select class, country from classes
 where bore >= 16
 ```
 Exercise: 32 (Serge I: 2003-02-17)  
 One of the characteristics of a ship is one-half the cube of the calibre of its main guns (mw). 
-Determine the average ship mw with an accuracy of two decimal places for each country having ships in the database.
---需返回ships中的船只name，且也要返回outcomes中的ship，最终将两者去重合并
+Determine the average ship mw with an accuracy of two decimal places for each country having ships in the database.  
+mw（口径二分之一的立方）是一个重要指数，返回数据库中每个国家所拥有的船只的 mw 的平均值，并以两位小数显示该结果  
+需返回 ships 中的船只name，且也要返回 outcomes 中的ship，最终将两者去重合并
 ```sql
 select country, convert(numeric(10, 2), avg(power(bore, 3)/2)) weight 
 from
@@ -469,7 +471,8 @@ group by country
 ```
 Exercise: 33 (Serge I: 2002-11-02)  
 Get the ships sunk in the North Atlantic battle. 
-Result set: ship.
+Result set: ship.  
+返回在 North Atlantic 战役中沉没的船只
 ```sql
 Select ship from outcomes 
 where battle = 'North Atlantic'
@@ -478,17 +481,19 @@ and result = 'sunk'
 Exercise: 34 (Serge I: 2002-11-04)  
 In accordance with the Washington Naval Treaty concluded in the beginning of 1922, it was prohibited to build battle ships with a displacement of more than 35 thousand tons.   
 Get the ships violating this treaty (only consider ships for which the year of launch is known).   
-List the names of the ships.
+List the names of the ships.  
+依据1922年初制定的 Washington Naval 条例，不允许制造排水量高于35 000吨的 battle ship，返回违反该条例的船只
 ```sql
 Select distinct name from classes, ships
 where classes.class = ships.class
-and type = 'bb'
+and type = 'bb' -- battle ship
 and launched >= 1922
 and displacement >35000
 ```
 Exercise: 35 (qwrqwr: 2012-11-23)  
 Find models in the Product table consisting either of digits only or Latin letters (A-Z, case insensitive) only.  
-Result set: model, type.
+Result set: model, type.  
+返回 product 表中只含有数字或拉丁字母的 model，本题是对余集及补集等集合知识的考察
 ```sql
 Select model, type from product
 where model not like '%[^A-Za-z]%' or model not like '%[^0-9]%' 
@@ -498,7 +503,8 @@ where model not like '%[^A-Za-z]%' or model not like '%[^0-9]%'
 --后者返回全集-所有含数字字符串的集合，则结果为仅有其他字符的集合。
 ```
 Exercise: 36 (Serge I: 2003-02-17)  
-List the names of lead ships in the database (including the Outcomes table).
+List the names of lead ships in the database (including the Outcomes table).  
+返回数据库中的 lead ship，也包括 outcomes 中的数据
 ```sql
 Select name from ships
 inner join classes on
@@ -509,32 +515,35 @@ inner join classes on
 outcomes.ship = classes.class
 ```
 Exercise: 37 (Serge I: 2003-02-17)  
-Find classes for which only one ship exists in the database (including the Outcomes table).
+Find classes for which only one ship exists in the database (including the Outcomes table).  
+返回在数据库中只有一个 ship 的 class，也包括 outcomes 中的数据
 ```sql
 Select class from
 (
-select name, classes.class from ships
-inner join classes on
-ships.class = classes.class
-union
-select ship, class from outcomes
-inner join classes on
-outcomes.ship = classes.class
+  select name, classes.class from ships
+  inner join classes on
+  ships.class = classes.class
+  union
+  select ship, class from outcomes
+  inner join classes on
+  outcomes.ship = classes.class
 ) a
 group by class
 having count(*) = 1
 ```
 Exercise: 38 (Serge I: 2003-02-19)  
-Find countries that ever had classes of both battleships (‘bb’) and cruisers (‘bc’).
+Find countries that ever had classes of both battleships (‘bb’) and cruisers (‘bc’).  
+返回既有 battleship 也有 cruiser 的 country，依旧是将前后两部分分别做查询，然后取交集
 ```sql
 Select country from classes
 where type = 'bb'
-intersect 
+intersect -- 交集
 Select country from classes
 where type = 'bc'
 ```
 Exercise: 39 (Serge I: 2003-02-14)  
-Find the ships that `survived for future battles`; that is, after being damaged in a battle, they participated in another one, which occurred later.
+Find the ships that `survived for future battles`; that is, after being damaged in a battle, they participated in another one, which occurred later.  
+返回在一场战斗中 damaged 并又在此之后参加了另一场战斗的 ship
 ```sql
 Select distinct a.ship from
 (
@@ -553,7 +562,8 @@ a.ship = b.ship and
 a.date< b.date
 ```
 Exercise: 40 (Serge I: 2002-11-05)
-For the ships in the Ships table that have at least 10 guns, get the class, name, and country.
+For the ships in the Ships table that have at least 10 guns, get the class, name, and country.  
+从 ships 表中找出 guns 的数量至少为10的 ship，返回其 class，name，country
 ```sql
 Select ships.class, name, country from ships
 inner join classes on
