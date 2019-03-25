@@ -210,7 +210,9 @@ group by maker
 having count(model)>=3
 ```
 Exercise: 21 (Serge I: 2003-02-13)  
-Find out the maximum PC price for each maker having models in the PC table. Result set: maker, maximum price.
+Find out the maximum PC price for each maker having models in the PC table.   
+Result set: maker, maximum price.  
+对于所生产的 model 包含在 pc 表中的 maker，返回其所生产的 pc 的最高价格
 ```sql
 Select maker, max(price) from product a
 inner join pc b on
@@ -219,7 +221,8 @@ group by maker
 ```
 Exercise: 22 (Serge I: 2003-02-13)  
 For each value of PC speed that exceeds 600 MHz, find out the average price of PCs with identical speeds.  
-Result set: speed, average price.
+Result set: speed, average price.  
+对于 speed 高于600MHz的 pc，返回它们中具有相同 speed 的 pc 的平均价格
 ```sql
 Select speed, avg(price) from pc
 where speed >600
@@ -227,7 +230,8 @@ group by speed
 ```
 Exercise: 23 (Serge I: 2003-02-14)  
 Get the makers producing both PCs having a speed of 750 MHz or higher and laptops with a speed of 750 MHz or higher.   
-Result set: maker
+Result set: maker  
+返回既能够生产 speed 不低于750MHz的 pc，也能生产 speed 不低于750MHz的 laptop 的 maker，这一结果可通过前后两部分分别做查询后再做交集即可
 ```sql
 Select distinct maker from product a
 left join pc b on
@@ -240,7 +244,8 @@ a.model = c.model
 where c.speed >=750
 ```
 Exercise: 24 (Serge I: 2003-02-03)  
-List the models of any type having the highest price of all products present in the database.
+List the models of any type having the highest price of all products present in the database.  
+返回数据库中价格高于所有 type 的产品的 model
 ```sql
 Select distinct model from 
 (
@@ -263,8 +268,9 @@ where price =
 )
 ```
 Exercise: 25 (Serge I: 2003-02-14)  
-Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity. --返回生产printer并也能生产pc的厂家，同时要满足pc的ram是最低值，且speed是ram最低的那些pc中最高的  
-Result set: maker.
+Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity.   
+Result set: maker.  
+返回生产printer并也能生产pc的厂家，同时要满足pc的ram是最低值，且speed是ram最低的那些pc中最高的  
 ```sql
 Select maker from product a
 where type = 'printer'
@@ -287,7 +293,8 @@ and speed =
 ```
 Exercise: 26 (Serge I: 2003-02-14)  
 Find out the average price of PCs and laptops produced by maker A.  
-Result set: one overall average price for all items.
+Result set: one overall average price for all items.  
+返回 maker A 所生产的所有 pc 及 laptop 的平均价格
 ```sql
 Select avg(price) from
 (
