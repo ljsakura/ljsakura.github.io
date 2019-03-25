@@ -352,7 +352,7 @@ Under the assumption that receipts of money (inc) and payouts (out) are register
 Use Income_o and Outcome_o tables.  
 依据 point, date, income, expense 返回一张现金流量表，考虑每天发生的收入及支出交易都不超过一次，既可以使用 union，也可以使用 case 及 full outer join
 ```sql
---solution 1 use union
+--solution 1  union
 Select a.point, a.date, inc, out from income_o a
 left join outcome_o b on
 a.date = b.date and
@@ -363,7 +363,7 @@ left join income_o b on
 a.date = b.date and
 a.point = b.point
 
---solution 2 use case and full outer join
+--solution 2  case and full outer join
 Select 
   case
   when a.point is not null then a.point
@@ -381,8 +381,10 @@ a.point = b.point
 Exercise: 30 (Serge I: 2003-02-14)  
 Under the assumption that receipts of money (inc) and payouts (out) can be registered any number of times a day for each collection point (i.e. the code column is the primary key), display a table with one corresponding row for each operating date of each collection point.  
 Result set: point, date, total payout per day (out), total money intake per day (inc).   
-Missing values are considered to be NULL.
+Missing values are considered to be NULL.  
+与上一题的不同之处在于考虑一天可能发生多笔收入及支出交易，所以先将 income 及 outcome 表分别按照 point 及 date 进行 group，余下都与上一题一样，也可以使用 case 和 full outer join
 ```sql
+solution 1  union
 Select a.point, a.date, out, inc from 
 (
   select point, date, sum(out) out from outcome
@@ -406,6 +408,29 @@ left join
   group by point, date
 ) d on
 c.point = d.point and c.date = d.date
+
+--solution 2  case and full outer join
+Select 
+  case
+    when a.point is not null then a.point
+    else b.point
+    end point,
+  case
+    when a.date is not null then a.date
+    else b.date
+  end date,
+out, inc from 
+(
+  select point, date, sum(out) out from outcome
+  group by point, date
+) a
+full outer join
+(
+  select point, date, sum(inc) inc from income
+  group by point, date
+) b on
+a.point = b.point and a.date = b.date
+```
 ```
 31-34 Database 3  
 Short database description "Ships"  
@@ -417,7 +442,7 @@ Outcomes(ship, battle, result)
 Ships in classes all have the same general design. A class is normally assigned either the name of the first ship built according to the corresponding design, or a name that is different from any ship name in the database. The ship whose name is assigned to a class is called a lead ship.  
 The Classes relation includes the name of the class, type (can be either bb for a battle ship, or bc for a battle cruiser), country the ship was built in, the number of main guns, gun caliber (bore diameter in inches), and displacement (weight in tons). The Ships relation holds information about the ship name, the name of its corresponding class, and the year the ship was launched. The Battles relation contains names and dates of battles the ships participated in, and the Outcomes relation - the battle result for a given ship (may be sunk, damaged, or OK, the last value meaning the ship survived the battle unharmed).   
 Notes: 1) The Outcomes relation may contain ships not present in the Ships relation. 2) A ship sunk can’t participate in later battles. 3) For historical reasons, lead ships are referred to as head ships in many exercises.4) A ship found in the Outcomes table but not in the Ships table is still considered in the database. This is true even if it is sunk.   
-
+```
 Exercise: 31 (Serge I: 2002-10-22)  
 For ship classes with a gun caliber of 16 in. or more, display the class and the country.
 ```sql
