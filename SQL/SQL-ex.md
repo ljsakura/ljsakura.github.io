@@ -949,27 +949,28 @@ on a.point = b.point
 ```
 Exercise: 61 (Serge I: 2003-02-14)  
 For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers.  
-当收入和支出交易每天都会发生多次时
+当收入和支出交易每天都会发生多次时，计算所有回收中心的余额
 ```sql
 Select 
   case
     when (select count(*) from income_o) = 0 then (select sum(out) from outcome_o)
     when (select count(*) from outcome_o) = 0 then (select sum(inc) from income_o)
     else (select sum(inc) from income_o) - (select sum(out) from outcome_o)
-  end -- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
+  end 
+-- 网上有人在这里加了 from income_o 结果就是出现多行，其实不用加的，加了反而会以 income_o 相同的行数显示计算结果
+-- 这里也涉及到了 case 语句里嵌套 select ，基本上，无论是 when 还是 then，它们后面都可以接查询语句
 ```
 Exercise: 62 (Serge I: 2003-02-15)  
-For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers at the beginning of 04/15/2001.
+For the database with money transactions being recorded not more than once a day, calculate the total cash balance of all buy-back centers at the beginning of 04/15/2001.  
+当收入和支出交易每天都不超过一次时，计算从04/15/2001起所有回收中心的余额
 ```sql
 Select 
   case
-    when (select count(*) from income_o) = 0
-    then (select sum(out) from outcome_o where date < '2001-4-15')
-    when (select count(*) from outcome_o) = 0
-    then (select sum(inc) from income_o where date < '2001-4-15')
-    else
-    (select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
+    when (select count(*) from income_o) = 0 then (select sum(out) from outcome_o where date < '2001-4-15')
+    when (select count(*) from outcome_o) = 0 then (select sum(inc) from income_o where date < '2001-4-15')
+    else (select sum(inc) from income_o where date < '2001-4-15') - (select sum(out) from outcome_o where date < '2001-4-15')
   end
+```
 ```
 63 Database 4
 Short database description "Airport"  
@@ -985,7 +986,7 @@ The Company table contains IDs and names of the airlines transporting passengers
 - there can be several passengers bearing the same first name and surname (for example, Bruce Willis);  
 - the seat (place) designation consists of a number followed by a letter; the number stands for the row, while the letter (a – d) defines the seat position in the grid (from left to right, in alphabetical order;  
 - connections and constraints are shown in the database schema below.  
-
+```
 Exercise: 63 (Serge I: 2003-04-08)  
 Find the names of different passengers that ever travelled more than once occupying seats with the same number.
 ```sql
