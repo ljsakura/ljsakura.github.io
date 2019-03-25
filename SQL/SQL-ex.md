@@ -702,7 +702,7 @@ where  a.class = 'kongo'
 ```
 Exercise: 51 (Serge I: 2003-02-17)  
 Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).  
-
+返回具有相同 displacement 中 gun 数量最大的 ship，既按 displacement 分组后求 gun 数量最大值，并返回其对应的 ship
 ```sql
 Select name from classes a
 inner join
