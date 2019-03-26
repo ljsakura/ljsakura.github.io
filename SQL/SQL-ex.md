@@ -1283,7 +1283,7 @@ Result set: passenger name, flight duration in minutes.
 对于第一点可能直观的想到 group by 后取 having count（）= 1 的结果，其实就算计数项为1，有可能也混入了那些乘坐同一座位超过一次的乘客，比如乘客 A 乘坐1号座位一次，乘坐2号座位两次，乘坐3号座位3次，所以这里需要做的不是选取，而是剔除，剔除乘坐同一座位超过一次的乘客  
 而后来计算飞行时长，题目中给了提示，如果起飞是一天，到达是第二天要怎么算，比如表中显示起飞是2009-10-1 12：00，到达是2009-10-1 2：00，明显到达时间要早于起飞时间，很显然飞行时段存在跨天，所以需要一个 case 语句做判断
 ```sql
-select name, sum(
+Select name, sum(
   case
     when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
     else datediff(mi, time_out, time_in) + 1440 -- 如果存在跨天，则在原结果上加上1440，即24*60，一天的分钟数
@@ -1304,7 +1304,30 @@ left join passenger on
 passenger.id_psg = a. id_psg
 group by name, a. id_psg
 ```
+Exercise: 77 (Serge I: 2003-04-09)  
+Find the days with the maximum number of flights departed from Rostov.   
+Result set: number of trips, date.  
+返回从 Rostov 出发的航班数量最多的日期
 ```sql
+Select * from
+(
+  select count(distinct trip.trip_no) as number, date from trip
+  inner join pass_in_trip on
+  trip.trip_no = pass_in_trip.trip_no
+  where town_from = 'rostov'
+  group by date
+) a
+where number = 
+(
+  select max(number) from
+  (
+    select count(distinct trip.trip_no) as number, date from trip
+    inner join pass_in_trip on
+    trip.trip_no = pass_in_trip.trip_no
+    where town_from = 'rostov'
+    group by date
+  )a
+)
 ```
 ```sql
 ```
