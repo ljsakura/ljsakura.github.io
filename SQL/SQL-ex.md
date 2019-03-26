@@ -1276,7 +1276,33 @@ left join
   where date is not null -- 选取已经标示出来的战役，其他为空的则剔除
 )b on ships.name = b.name
 ```
+Find the overall flight duration for passengers who never occupied the same seat.   
+Result set: passenger name, flight duration in minutes.  
+返回那些乘坐同一座位从未超过一次的乘客的总飞行时长，具体到分钟  
+本题有两个注意点，一是要找出乘坐同一座位从未超过一次的乘客，二是计算总飞行时长  
+对于第一点可能直观的想到 group by 后取 having count（）= 1 的结果，其实就算计数项为1，有可能也混入了那些乘坐同一座位超过一次的乘客，比如乘客 A 乘坐1号座位一次，乘坐2号座位两次，乘坐3号座位3次，所以这里需要做的不是选取，而是剔除，剔除乘坐同一座位超过一次的乘客  
+而后来计算飞行时长，题目中给了提示，如果起飞是一天，到达是第二天要怎么算，比如表中显示起飞是2009-10-1 12：00，到达是2009-10-1 2：00，明显到达时间要早于起飞时间，很显然飞行时段存在跨天，所以需要一个 case 语句做判断
 ```sql
+select name, sum(
+  case
+    when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
+    else datediff(mi, time_out, time_in) + 1440 -- 如果存在跨天，则在原结果上加上1440，即24*60，一天的分钟数
+  end
+)  from
+(
+  select trip_no, id_psg from pass_in_trip 
+  where pass_in_trip .id_psg not in
+  (
+    select id_psg from pass_in_trip
+    group by id_psg, place
+    having count(*) > 1 -- 剔除乘坐同一座位超过一次的乘客，而非选取乘坐同一座位从未超过一次的乘客
+  )
+)a
+left join trip on
+a. trip_no = trip. trip_no
+left join passenger on
+passenger.id_psg = a. id_psg
+group by name, a. id_psg
 ```
 ```sql
 ```
