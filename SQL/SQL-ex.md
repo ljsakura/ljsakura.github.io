@@ -1173,7 +1173,8 @@ group by country, battle
 having count(distinct ship) >= 3
 ```
 Exercise: 71 (Serge I: 2008-02-23) 
-Find the PC makers with all personal computer models produced by them being present in the PC table.
+Find the PC makers with all personal computer models produced by them being present in the PC table.  
+返回所生产的 pc model 都存在于 pc 表中的 maker
 ```sql
 Select distinct maker from product
 where model in(select model from pc)
@@ -1182,30 +1183,34 @@ and maker not in(select maker from product where model not in(select model from 
 -- 找出生产的 pc model 都在 pc 表中的 maker。 同时也要剔除生产的 pc model 不在 pc 表中的 maker
 ```
 Exercise: 72 (Serge I: 2003-04-29)  
-Among the customers using a single airline, find distinct passengers who have flown most frequently. Result set: passenger name, number of trips.
+Among the customers using a single airline, find distinct passengers who have flown most frequently.   
+Result set: passenger name, number of trips.  
+在那些只乘坐过一家航空公司航班的旅客中，找出飞行最频繁的旅客
 ```sql
 Select distinct name, num from
 (
-  select pass_in_trip .id_psg, passenger.name, count(pass_in_trip .trip_no) as num  from pass_in_trip
+  select pass_in_trip .id_psg, passenger.name, count(pass_in_trip .trip_no) as num from pass_in_trip
   inner join passenger on
   pass_in_trip.id_psg = passenger.id_psg
   inner join trip on
   pass_in_trip.trip_no = trip .trip_no
   group by pass_in_trip .id_psg, passenger.name
   having count(distinct id_comp) = 1
-) x 
+) x  -- 只乘坐一家航空公司航班的旅客
 where num = (select max(num) from 
-(
-  select pass_in_trip .id_psg, count(pass_in_trip .trip_no) as num  from pass_in_trip
-  inner join trip on
-  pass_in_trip.trip_no = trip .trip_no
-  group by pass_in_trip .id_psg
-  having count(distinct id_comp) = 1
-) x )
+  (
+    select pass_in_trip .id_psg, count(pass_in_trip .trip_no) as num from pass_in_trip
+    inner join trip on
+    pass_in_trip.trip_no = trip .trip_no
+    group by pass_in_trip.id_psg
+    having count(distinct id_comp) = 1
+  ) x -- 只乘坐一家航空公司航班的旅客的最高飞行次数
+)
 ```
 Exercise: 73 (Serge I: 2009-04-17)  
-For each country, determine the battles in which the ships of this country did not participate.
-Result set: country, battle.
+For each country, determine the battles in which the ships of this country did not participate.  
+Result set: country, battle.  
+返回每个国家没有参与的战役，考虑先做一张国家和战役的交叉表，通过 cross join 实现，而后生成每个国家参与的战役数据，两者做差集就成了
 ```sql
 Select country, battle from
 (
@@ -1223,8 +1228,10 @@ left join outcomes on
 classes.class = outcomes.ship or ships.name = outcomes.ship
 ```
 Exercise: 74 (dorin_larsen: 2007-03-23)  
-Get all ship classes of Russia. If there are no Russian ship classes in the database, display classes of all countries present in the DB.
-Result set: country, class.
+Get all ship classes of Russia. If there are no Russian ship classes in the database, display classes of all countries present in the DB.  
+Result set: country, class.  
+返回 Russia 的所有 class，如果数据库中没有 Russia 的 class 数据，那么就显示数据库中所有国家下的 class  
+想了好久也没想出来到底要怎么写，偶然看到一段代码，就是下面这段，写的十分简洁清晰
 ```sql
 Select country, class from classes where country='russia'
 union
@@ -1240,12 +1247,17 @@ If no battles occurred after the ship was launched, display NULL instead of the 
 It’s assumed a ship can participate in any battle fought in the year of its launching.  
 Result set: name of the ship, year it was launched, name of battle.
 
-Note: assume there are no battles fought at the same day.
+Note: assume there are no battles fought at the same day.  
+对于 ships 表中的每个 ship，返回自该船只下水后所能够参与的战役中最早的一场  
+如果船只下水年份未知，则显示最晚的一场战役  
+如果船只下水的年份之后都没有战役，则 battle 字段置空  
+假定船只下水当年就可以参与战役
 ```sql
 Select distinct ships.name, ships.launched,
   case
-    when ships.launched is not null then battle
-    else (select name from battles where date =(select max(date) from battles))
+    when ships.launched is not null then battle 
+    else (select name from battles where date =(select max(date) from battles)) 
+    -- 下水年份未知，则显示最晚一场的战役
   end battle 
 from ships
 left join
@@ -1256,12 +1268,12 @@ left join
       case
         when date = min(date) over(partition by ships.name) then date
         else null
-      end date 
+      end date -- 将对应每个船只最早一场的战役标示出来
     from ships
     inner join battles on
     launched <= year(date)
   )a
-  where date is not null
+  where date is not null -- 选取已经标示出来的战役，其他为空的则剔除
 )b on ships.name = b.name
 ```
 ```sql
