@@ -1417,7 +1417,25 @@ model not in
   select model from pc
 ) -- 生产的 pc model 不存在于 pc 表中的 maker
 ```
+Exercise: 81 (Serge I: 2011-11-25)  
+For each month-year combination with the maximum sum of payments (out), retrieve all records from the Outcome table.  
+这道题真是一不小心就会导致超时，不能用 select from where 来返回查询结果，只能用 join
 ```sql
+Select outcome.* from outcome
+inner join  
+(
+  select yy, mm from
+  (
+    select year(date) yy , month(Date)  mm, sum(out) out from outcome
+    group by year(date), month(Date)
+    having sum(out) >= all
+    (
+      select sum(out) out from outcome
+      group by year(date), month(Date)
+    )
+  )a
+) b on
+year(outcome.date) = yy and month(outcome.date) = mm
 ```
 ```sql
 ```
