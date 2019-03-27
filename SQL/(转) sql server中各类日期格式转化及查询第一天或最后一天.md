@@ -84,4 +84,41 @@ Select CONVERT(varchar(100), GETDATE(), 130): 18 ???? ?????? 1427 10:57:49:907AM
 
 Select CONVERT(varchar(100), GETDATE(), 131): 18/04/1427 10:57:49:920AM
 ```
-查询不同
+查询日期（第一天/最后一天）
+
+```sql
+1.一个月第一天的
+Select DATEADD(mm, DATEDIFF(mm,0,getdate()), 0)
+2.本周的星期一
+Select DATEADD(wk, DATEDIFF(wk,0,getdate()), 0)
+3.一年的第一天
+Select DATEADD(yy, DATEDIFF(yy,0,getdate()), 0)
+4.季度的第一天
+Select DATEADD(qq, DATEDIFF(qq,0,getdate()), 0)
+5.当天的半夜
+Select DATEADD(dd, DATEDIFF(dd,0,getdate()), 0)
+6.上个月的最后一天
+Select dateadd(ms,-3,DATEADD(mm, DATEDIFF(mm,0,getdate()), 0))
+7.去年的最后一天
+Select dateadd(ms,-3,DATEADD(yy, DATEDIFF(yy,0,getdate()), 0))
+8.本月的最后一天
+Select dateadd(ms,-3,DATEADD(mm, DATEDIFF(m,0,getdate())+1, 0))
+9.本年的最后一天
+Select dateadd(ms,-3,DATEADD(yy, DATEDIFF(yy,0,getdate())+1, 0))
+10.本月的第一个星期一
+select DATEADD(wk, DATEDIFF(wk,0,dateadd(dd,6-datepart(day,getdate()),getdate())), 0)
+
+年 yy, yyyy
+季度 qq, q
+月 mm, m
+年中的日 dy, y
+日 dd, d
+周 wk, ww
+星期 dw, w
+小时 hh
+分钟 mi, n
+秒 ss, s
+毫秒 ms
+微妙 mcs
+纳秒 ns
+```
