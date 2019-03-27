@@ -1334,6 +1334,7 @@ For each battle, get the first and the last day of the month when the battle occ
 Result set: battle name, first day of the month, last day of the month.  
 Note: output dates in yyyy-mm-dd format.
 对于每场战役，返回战役发生日期所在月份的第一天及最后一天
+日期转化及第一天/最后一天详见[sql server中各类日期格式转化及查询第一天或最后一天.md](ljsakura.github.io/SQL/(转) sql server中各类日期格式转化及查询第一天或最后一天.md)
 ```sql
 Select name, 
 convert(varchar(100),dateadd(mm, datediff(mm,0,date), 0),23), 
