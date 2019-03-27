@@ -84,3 +84,4 @@ Select CONVERT(varchar(100), GETDATE(), 130): 18 ???? ?????? 1427 10:57:49:907AM
 
 Select CONVERT(varchar(100), GETDATE(), 131): 18/04/1427 10:57:49:920AM
 ```
+查询不同
