@@ -1419,7 +1419,7 @@ model not in
 ```
 Exercise: 81 (Serge I: 2011-11-25)  
 For each month-year combination with the maximum sum of payments (out), retrieve all records from the Outcome table.  
-这道题真是一不小心就会导致超时，不能用 select from where 来返回查询结果，只能用 join
+这道题真是一不小心就会导致超时
 ```sql
 Select outcome.* from outcome
 inner join  
