@@ -1329,7 +1329,16 @@ where number =
   )a
 )
 ```
+Exercise: 78 (Serge I: 2005-01-19)  
+For each battle, get the first and the last day of the month when the battle occurred.  
+Result set: battle name, first day of the month, last day of the month.  
+Note: output dates in yyyy-mm-dd format.
+对于每场战役，返回战役发生日期所在月份的第一天及最后一天
 ```sql
+Select name, 
+convert(varchar(100),dateadd(mm, datediff(mm,0,date), 0),23), 
+convert(varchar(100),dateadd(ms,-3,dateadd(mm, datediff(m,0,date)+1, 0)),23) from
+battles
 ```
 ```sql
 ```
