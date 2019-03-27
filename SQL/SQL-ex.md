@@ -1309,6 +1309,8 @@ Find the days with the maximum number of flights departed from Rostov.
 Result set: number of trips, date.  
 返回从 Rostov 出发的航班数量最多的日期
 ```sql
+solution 1 
+
 Select * from
 (
   select count(distinct trip.trip_no) as number, date from trip
@@ -1328,6 +1330,22 @@ where number =
     group by date
   )a
 )
+
+solution 2 使用 having 可以让代码更简洁
+
+Select count(distinct trip.trip_no) as number, date from trip
+inner join pass_in_trip on
+trip.trip_no = pass_in_trip.trip_no
+where town_from = 'rostov'
+group by date
+having count(distinct trip.trip_no) >= all
+(
+  select count(distinct trip.trip_no)  from trip
+  inner join pass_in_trip on
+  trip.trip_no = pass_in_trip.trip_no
+  where town_from = 'rostov'
+  group by date
+)
 ```
 Exercise: 78 (Serge I: 2005-01-19)  
 For each battle, get the first and the last day of the month when the battle occurred.  
@@ -1341,7 +1359,42 @@ convert(varchar(100),dateadd(mm, datediff(mm,0,date), 0),23),
 convert(varchar(100),dateadd(ms,-3,dateadd(mm, datediff(m,0,date)+1, 0)),23) from
 battles
 ```
+Exercise: 79 (Serge I: 2003-04-29)  
+Get the passengers who, compared to others, spent most time flying.   
+Result set: passenger name, total flight duration in minutes.  
+返回那些飞行时长最高的旅客，总飞行时长以分钟计算
 ```sql
+Select name, sum(duration) from pass_in_trip
+inner join passenger on
+passenger.id_psg = pass_in_trip. id_psg
+inner join 
+(
+  select trip_no, 
+    case
+      when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
+      else datediff(mi, time_out, time_in) + 1440 
+    end duration
+  from trip
+) a on
+a. trip_no = pass_in_trip. trip_no
+group by name, pass_in_trip.id_psg --考虑到旅客有重名的情况，所以这里聚合的时候一定要加上旅客的 ID
+having sum(duration) >= all 
+(
+  select sum(duration) from pass_in_trip
+  inner join passenger on
+  passenger.id_psg = pass_in_trip. id_psg
+  inner join 
+  (
+    select trip_no, 
+      case
+        when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
+        else datediff(mi, time_out, time_in) + 1440 
+      end duration
+    from trip
+  ) a on
+  a. trip_no = pass_in_trip. trip_no
+  group by name, pass_in_trip.id_psg
+)
 ```
 ```sql
 ```
