@@ -1396,7 +1396,26 @@ having sum(duration) >= all
   group by name, pass_in_trip.id_psg
 )
 ```
+Exercise: 80 (Baser: 2011-11-11)  
+Find the computer equipment makers not producing any PC models absent in the PC table.  
+返回所生产的 pc model 都存在于 pc 表中的 maker，以及不生产 pc 的maker
 ```sql
+Select maker from product
+where type = 'pc' and 
+model in
+(
+  select model from pc
+) -- 生产的 pc model 存在于 pc 表中的 maker
+union  -- 并集
+select maker from product
+where type != 'pc' -- 生产非 pc 的 maker
+except  -- 差集
+select maker from product
+where type = 'pc' and 
+model not in 
+(
+  select model from pc
+) -- 生产的 pc model 不存在于 pc 表中的 maker
 ```
 ```sql
 ```
