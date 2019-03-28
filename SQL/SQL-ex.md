@@ -1472,35 +1472,14 @@ Select name from ships
 inner join classes on
 ships.class = classes.class
 where (
-  case numguns
-    when 8 then 1
-    else 0
-    end +
-  case bore
-    when 15 then 1
-    else  0
-    end +
-  case displacement
-    when 32000 then 1
-    else 0
-    end +
-  case type
-  when 'bb' then 1
-  else  0
-  end +
-  case launched
-    when 1915 then 1
-    else 0
-    end +
-  case ships.class
-    when 'kongo' then 1
-    else 0
-    end +
-  case country
-    when 'usa' then 1
-    else 0
-    end 
- ) >= 4
+  case numguns      when 8       then 1 else 0 end +
+  case bore         when 15      then 1 else 0 end +
+  case displacement when 32000   then 1 else 0 end +
+  case type         when 'bb'    then 1 else 0 end +
+  case launched     when 1915    then 1 else 0 end +
+  case ships.class  when 'kongo' then 1 else 0 end +
+  case country      when 'usa'   then 1 else 0 end 
+ ) >= 4 -- 论坛里也有人用 iif(col_name = value, 1, 0) 来做判断的
 ```
 ```sql
 ```
