@@ -1440,7 +1440,7 @@ year(outcome.date) = yy and month(outcome.date) = mm
 Exercise: 82 (Serge I: 2011-10-08)  
 Assuming the PC table is sorted by code in ascending order, find the average price for each group of six consecutive personal computers.   
 Result set: the first code value in a set of six records, average price for the respective set.  
-假定 pc 表是按 code 升序排列的，返回连续六个电脑的价格均指，求滑动平均问题  
+假定 pc 表是按 code 升序排列的，返回连续六个电脑的价格均值，求滑动平均问题  
 来说说这道题的几个坑，首先 code 的数据虽然是按升序排列，可是它们不一定连续，所以要重新为 pc 表进行编码，这个没问题，row_number 就可以实现了  
 然后第二个数据库就一直报错了，显示全部十条都是错的，错的，错的……抓狂十分钟，终于想明白哪里错了，不能按照新的编码显示结果，要显示原编码~~~
 ```sql
@@ -1456,7 +1456,51 @@ p2.code - p1.code <= 5 and p2.code >= p1.code
 group by p1.code, newcode
 having count(*) = 6
 ```
+Exercise: 83 (dorin_larsen: 2006-03-14)  
+Find out the names of the ships in the Ships table that meet at least four criteria from the following list:  
+numGuns = 8,   
+bore = 15,  
+displacement = 32000,  
+type = bb,  
+launched = 1915,  
+class = Kongo,  
+country = USA.  
+返回至少满足以下四个条件的船只名称  
+想了好久也没想到要怎么做这个问题，后来看到有人说可以考虑把这些条件都置换成0/1，这样再对置换后的数值求和，大于等于4的就是要查找的结果，这个想法简直太赞了，果然群众的智慧就是高
 ```sql
+Select name from ships
+inner join classes on
+ships.class = classes.class
+where (
+  case numguns
+    when 8 then 1
+    else 0
+    end +
+  case bore
+    when 15 then 1
+    else  0
+    end +
+  case displacement
+    when 32000 then 1
+    else 0
+    end +
+  case type
+  when 'bb' then 1
+  else  0
+  end +
+  case launched
+    when 1915 then 1
+    else 0
+    end +
+  case ships.class
+    when 'kongo' then 1
+    else 0
+    end +
+  case country
+    when 'usa' then 1
+    else 0
+    end 
+ ) >= 4
 ```
 ```sql
 ```
