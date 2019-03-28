@@ -1437,7 +1437,24 @@ inner join
 ) b on
 year(outcome.date) = yy and month(outcome.date) = mm
 ```
+Exercise: 82 (Serge I: 2011-10-08)  
+Assuming the PC table is sorted by code in ascending order, find the average price for each group of six consecutive personal computers.   
+Result set: the first code value in a set of six records, average price for the respective set.  
+假定 pc 表是按 code 升序排列的，返回连续六个电脑的价格均指，求滑动平均问题  
+来说说这道题的几个坑，首先 code 的数据虽然是按升序排列，可是它们不一定连续，所以要重新为 pc 表进行编码，这个没问题，row_number 就可以实现了  
+然后第二个数据库就一直报错了，显示全部十条都是错的，错的，错的……抓狂十分钟，终于想明白哪里错了，不能按照新的编码显示结果，要显示原编码~~~
 ```sql
+Select newcode, avg(p2.price) from  -- 显示原 pc 表中 code 的数据
+(
+  select row_number() over(order by code) code, code as newcode from pc 
+) p1
+inner join 
+(
+  select row_number() over(order by code) code, price from pc 
+) p2 on
+p2.code - p1.code <= 5 and p2.code >= p1.code
+group by p1.code, newcode
+having count(*) = 6
 ```
 ```sql
 ```
