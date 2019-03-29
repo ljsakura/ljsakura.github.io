@@ -1513,9 +1513,29 @@ Select name, sum(a) as '1-10', sum(b) as '11-20', sum(c) as '21-30' from
 )a
 group by name
 ```
+Exercise: 85 (Serge I: 2012-03-16)  
+Get makers producing either printers only or personal computers only; in case of PC manufacturers they should produce at least 3 models.  
+返回只生产 printer 或 pc 的 maker ，如果是生产 pc 的，那么 model 的数量至少是3
 ```sql
+Select maker from product
+where type = 'pc' 
+and maker not in
+(
+  select maker from product where type != 'pc'
+)
+group by maker
+having count(distinct model) >= 3 -- 只生产 pc 且 model 数量至少为3的 maker
+union  -- 并集
+select maker from product
+where type = 'printer'
+and maker not in 
+(
+  select maker from product where type != 'printer'
+) -- 只生产 printer 的 maker
 ```
+
 ```sql
+
 ```
 ```sql
 ```
