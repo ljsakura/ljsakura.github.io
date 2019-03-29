@@ -1481,7 +1481,37 @@ where (
   case country      when 'usa'   then 1 else 0 end 
  ) >= 4 -- 论坛里也有人用 iif(col_name = value, 1, 0) 来做判断的
 ```
+Exercise: 84 (Serge I: 2003-06-05)  
+For each airline, calculate the number of passengers carried in April 2003 (if there were any) by ten-day periods. Consider only flights that departed that month.  
+Result set: company name, number of passengers carried for each ten-day period.  
+计算2003年4月份，每间隔十天，各个航空公司运输的乘客数量
 ```sql
+Select name, sum(a) as '1-10', sum(b) as '11-20', sum(c) as '21-30' from
+(
+  select company.name,
+    case
+      when day(date) >  0 and day(date) < 11 then  1
+      else 0
+    end a, -- 这里不能直接将列名定义为 ‘1-10’，否则在最上面一行做聚合时会报错，显示列为 varchar 的格式，无法聚合
+    case
+      when day(date) > 10 and day(date) < 21 then  1
+      else 0
+    end b, -- 同上
+    case
+      when day(date) > 20 and day(date) < 31 then  1
+      else 0
+    end c -- 同上
+  from 
+  (
+  select * from Pass_in_trip
+  where year(date) = 2003 and month(date) = 4
+  ) a
+  inner join Trip on
+  a. trip_no = Trip.trip_no
+  inner join Company on
+  Company. id_comp = trip. id_comp
+)a
+group by name
 ```
 ```sql
 ```
