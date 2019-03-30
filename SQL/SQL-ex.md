@@ -1533,9 +1533,26 @@ and maker not in
   select maker from product where type != 'printer'
 ) -- 只生产 printer 的 maker
 ```
-
+Exercise: 86 (Serge I: 2012-04-20)  
+For each maker, list the types of products he produces in alphabetic order, using a slash ("/") as a delimiter.  
+Result set: maker, list of product types.  
+对于每个 maker，将所有 type 按字母排序，并用反斜杠'/'拼接起来  
+本题在 mysql 中可以使用 group_concat 函数，在 mssql 中可以使用 stuff 函数
 ```sql
+solution 1  mysql
 
+Select maker,
+group_concat(distinct type order by type Separator '/') as types 
+from product 
+group by maker 
+
+----------
+solution 2  mssql
+
+Select maker, 
+data=stuff ((select distinct '/'+ type from product t where maker=t1.maker for xml path('')), 1, 1, '')
+from product t1
+group by maker
 ```
 ```sql
 ```
