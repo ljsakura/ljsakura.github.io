@@ -1579,7 +1579,38 @@ and town_to = 'Moscow'
 group by Pass_in_trip.id_psg, Passenger.name
 having count(town_to) > 1
 ```
+Exercise: 88 (Serge I: 2003-04-29)  
+Among those flying with a single airline find the names of different passengers who have flown most often.   
+Result set: passenger name, number of trips, and airline name.  
+真是一道让人欲哭无泪的问题，和72题基本相似，比72题要多返回一列，就是航空公司的名字  
+考虑在72题代码的基础上再次 join 其他关系表，从而获取航空公司的名字，可是第二个测试数据库一直报错，思考了许久，猜想大概是因为有重名乘客且他们乘坐的航空公司和飞行次数都相同，导致了最后结果因此而减少，所以采用 group by，依据乘客的 ID 进行分组再返回最终结果，果不其然，正如我所猜想的
 ```sql
+Select x.name, max(num), company.name as comp from
+(
+  select pass_in_trip .id_psg, passenger.name, count(pass_in_trip .trip_no) as num from pass_in_trip
+  inner join passenger on
+  pass_in_trip.id_psg = passenger.id_psg
+  inner join trip on
+  pass_in_trip.trip_no = trip .trip_no
+  group by pass_in_trip .id_psg, passenger.name
+  having count(distinct id_comp) = 1
+) x -- 只乘坐一家航空公司航班的旅客
+inner join pass_in_trip on 
+pass_in_trip.id_psg = x.id_psg
+inner join trip on
+trip.trip_no = pass_in_trip.trip_no
+inner join company on
+company.id_comp = trip.id_comp
+where num = (select max(num) from 
+  (
+    select pass_in_trip .id_psg, count(pass_in_trip .trip_no) as num from pass_in_trip
+    inner join trip on
+    pass_in_trip.trip_no = trip .trip_no
+    group by pass_in_trip.id_psg
+    having count(distinct id_comp) = 1
+  ) x -- 只乘坐一家航空公司航班的旅客的最高飞行次数
+)
+group by x.name, x.id_psg, company.name -- 一定要按乘客的 ID 进行聚合，这样才不会将同名乘客忽略掉
 ```
 ```sql
 ```
