@@ -1612,7 +1612,24 @@ where num = (select max(num) from
 )
 group by x.name, x.id_psg, company.name -- 一定要按乘客的 ID 进行聚合，这样才不会将同名乘客忽略掉
 ```
+Exercise: 89 (Serge I: 2012-05-04)  
+Get makers having most models in the Product table, as well as those having least.  
+Output: maker, number of models.  
+返回 product 表中 model 数量最多和最少的 maker
 ```sql
+Select maker, count(distinct model) from product
+group by maker
+having count(distinct model) >= all
+(
+  select count(model) from product group by maker
+)
+union -- 并集
+Select maker, count(distinct model) from product
+group by maker
+having count(distinct model) <= all
+(
+  select count(model) from product group by maker
+)
 ```
 ```sql
 ```
