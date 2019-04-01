@@ -1554,7 +1554,30 @@ data=stuff ((select distinct '/'+ type from product t where maker=t1.maker for x
 from product t1
 group by maker
 ```
+Exercise: 87 (Serge I: 2003-08-28)  
+Supposing a passenger lives in the town his first flight departs from, find non-Muscovites who have visited Moscow more than once.   
+Result set: passenger's name, number of visits to Moscow.  
+假定旅客第一次出发的城市就是他所居住的城市，返回那些非莫斯科居民且飞往 Moscow 超过一次的旅客，题目有提示，有些旅客可能在同一天多次飞行，所以不仅要按照 date 排序，还要按照 time_out 排序
 ```sql
+Select distinct Passenger.name, count(town_to) from Pass_in_trip
+left join Passenger on
+Pass_in_trip.id_psg = Passenger.id_psg
+left join Trip on
+Pass_in_trip. trip_no = Trip. trip_no
+where Pass_in_trip .id_psg in
+(
+  select id_psg from
+  (
+    select id_psg, row_number() over(partition by id_psg order by date, time_out ) as num, town_from from Pass_in_trip
+    -- 需要按照 date，time_out 多重排序，取出发日期和出发时间最小值，用 row_number 是目前我能想到的方法中最简洁的，否则要嵌套多层子查询
+    left join Trip on
+    Pass_in_trip. trip_no = Trip. trip_no
+  ) a 
+  where town_from != 'Moscow' and num = 1
+) -- 以上子查询返回了第一次出发城市不是 Moscow 的旅客
+and town_to = 'Moscow'
+group by Pass_in_trip.id_psg, Passenger.name
+having count(town_to) > 1
 ```
 ```sql
 ```
