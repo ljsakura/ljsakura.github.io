@@ -1631,7 +1631,16 @@ having count(distinct model) <= all
   select count(model) from product group by maker
 )
 ```
+Exercise: 90 (Serge I: 2012-05-04)  
+Display all records from the Product table except for three rows with the smallest model numbers and three ones with the greatest model numbers.  
+返回除 model 最大和最小的三个值以外所有行
+开窗函数走起来，一个升序排列，一个降序排列，然后就一切迎刃而解
 ```sql
+Select maker, model, type from
+(
+  select *, row_number() over(order by model asc) index1, row_number() over(order by model desc) index2 from product
+) a
+where index1 not in (1,2,3) and index2 not in (1,2,3)
 ```
 ```sql
 ```
