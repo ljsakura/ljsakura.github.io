@@ -1676,7 +1676,39 @@ Select cast(avg(total * 1.0) as decimal(10,2)) from -- 需要对 total 做 *1.0�
   group by utq.Q_ID
 ) a
 ```
+Exercise: 92 (ZrenBy: 2003-09-01)  
+Get all white squares that have been painted only with spray cans empty at present.   
+Output the square names.  
+返回被喷涂成白色且喷涂这些画板的喷瓶已用空的画板名称，白色画板的 R G B都应该为255
 ```sql
+select Q_NAME from
+(
+  select Q_NAME,
+    case
+      when  V_COLOR = 'R' and sum(B_VOL) = 255 then 1 
+      when  V_COLOR = 'G' and sum(B_VOL) = 255 then 1 
+      when  V_COLOR = 'B' and sum(B_VOL) = 255 then 1 else 0 -- 判断 RGB 的值
+    end value
+  from utB
+  left join utQ on
+  utB. B_Q_ID = utQ. Q_ID
+  left join utV on
+  utB. B_V_ID = utV. V_ID
+  group by Q_NAME, V_COLOR
+) a 
+group by Q_NAME
+having sum(value) = 3 -- RGB 三个值都为255的画板名
+except -- 差集
+select Q_NAME from utB
+left join utQ on
+utB. B_Q_ID = utQ. Q_ID
+left join
+(
+  select B_V_ID, sum(B_VOL) to_v from utB
+  group by B_V_ID
+) b on
+utB. B_V_ID = b. B_V_ID
+where to_v < 255 -- 所使用的喷瓶没有用空的画板名
 ```
 ```sql
 ```
