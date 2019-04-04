@@ -1276,6 +1276,7 @@ left join
   where date is not null -- 选取已经标示出来的战役，其他为空的则剔除
 )b on ships.name = b.name
 ```
+Exercise: 76 (Serge I: 2003-08-28)  
 Find the overall flight duration for passengers who never occupied the same seat.   
 Result set: passenger name, flight duration in minutes.  
 返回那些乘坐同一座位从未超过一次的乘客的总飞行时长，具体到分钟  
@@ -1710,9 +1711,29 @@ left join
 utB. B_V_ID = b. B_V_ID
 where to_v < 255 -- 所使用的喷瓶没有用空的画板名
 ```
+Exercise: 93 (Serge I: 2003-06-05)  
+For each airline that transported passengers calculate the total flight duration of its planes.   
+Result set: company name, duration in minutes.  
+返回运输过旅客的航空公司所有飞机总的飞行时长，需要注意有的乘客是在同一天搭乘同一班航班，所以要做去重
 ```sql
+Select name, sum(
+  case
+    when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
+    else datediff(mi, time_out, time_in) + 1440
+  end
+)  from 
+(
+  select distinct trip_no, date from Pass_in_trip -- 对同一天搭乘同一航班的数据去重
+) Pass_in_trip
+inner join Trip on
+Pass_in_trip. trip_no = Trip. trip_no
+inner join Company on
+Trip. id_comp = Company. id_comp
+group by name
 ```
+
 ```sql
+
 ```
 ```sql
 ```
