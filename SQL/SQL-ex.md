@@ -1731,9 +1731,45 @@ inner join Company on
 Trip. id_comp = Company. id_comp
 group by name
 ```
-
+Exercise: 94 (Serge I: 2003-04-09)  
+For seven successive days starting with the earliest date when the number of departures from Rostov was maximal, get the number of flights departed from Rostov.  
+Result set: date, number of flights.  
+返回从 Rostov 出发航班数量最多且最早的那一天，并从该天开始计算自此后连续七天从 Rostov 出发的航班数量
 ```sql
-
+select dt, 
+  case
+    when qty is null then 0
+    else qty
+  end
+qty 
+from
+(
+  select dateadd(dd, ad, date) as dt from -- 新日期表
+  (
+    select date from
+    (
+      select date, row_number() over(order by count(distinct Pass_in_trip .trip_no)desc, date) num from Pass_in_trip
+      left join Trip on
+      Pass_in_trip. trip_no = Trip. trip_no
+      where town_from = 'rostov'
+      group by date
+    )a
+    where num = 1 -- 从 Rostov 出发航班数量最多且最早的那一天，按航班数量降序排列，按日期升序排列，而后取第一位
+  ) b 
+  cross join
+  (
+    select 0 as ad union all select 1 union all select 2 union all select 3 union all select 4 union all select 5 union all select 6 
+  )c -- 为了生成连续七天，先做一个1-7的连续表，而后 cross join ，并用 dateadd 生成新日期表
+)d
+left join
+(
+  select date, count(distinct Pass_in_trip.trip_no) as qty from Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  where town_from = 'rostov'
+  group by date
+)e on -- 每天从 Rostov 出发的航班数量
+d.dt = e.date
 ```
 ```sql
 ```
