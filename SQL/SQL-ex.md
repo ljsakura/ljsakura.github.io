@@ -1771,9 +1771,50 @@ left join
 )e on -- 每天从 Rostov 出发的航班数量
 d.dt = e.date
 ```
+Exercise: 95 (qwrqwr: 2013-02-08)  
+Using the Pass_in_Trip table, calculate for each airline:  
+1) the number of performed flights;  
+2) the number of plane types used;  
+3) the number of different passengers that have been transported;  
+4) the total number of passengers that have been transported by the company.  
+Output: airline name, 1), 2), 3), 4).  
+返回每家航空公司已执行飞行的航班数量，飞机种类，已运载的不同旅客人数，以及总运载旅客人数
 ```sql
+Select Company.name, 
+count(distinct cast(date as varchar(20))+ cast(Pass_in_Trip.trip_no as varchar(20))) as flight, 
+count(distinct plane) as plane, 
+count(distinct ID_psg) as diff_psg, 
+count(ID_psg) as total_psg from Pass_in_trip
+left join Trip on
+Pass_in_trip. trip_no = Trip. trip_no
+left join Company on
+Company. id_comp = Trip. id_comp
+group by Company.name
 ```
+Exercise: 96 (ZrenBy: 2003-09-01)  
+Considering only red spray cans used more than once, get those that painted squares currently having a non-zero blue component.  
+Result set: spray can name.  
+返回被使用过不止一次的红色喷瓶，且这些喷瓶所喷涂的画板所使用的蓝色涂料用量不为零
 ```sql
+Select V_NAME from utB
+left join utV on
+B_V_ID = V_ID
+where V_NAME in
+(
+  select V_NAME from utB
+  left join utV on
+  B_V_ID = V_ID
+  where B_Q_ID in 
+  (
+    Select B_Q_ID from utB
+    left join utV on
+    B_V_ID = V_ID
+    where V_COLOR = 'B'  -- 查找使用了蓝色涂料的画板
+  )
+  and V_COLOR = 'R'  -- 已喷涂蓝色涂料画板所使用的红色喷瓶的名称
+)
+group by V_NAME
+having count(V_NAME) > 1 -- 筛选使用超过一次的红色喷瓶
 ```
 ```sql
 ```
