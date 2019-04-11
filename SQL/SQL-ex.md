@@ -1816,7 +1816,41 @@ where V_NAME in
 group by V_NAME
 having count(V_NAME) > 1 -- 筛选使用超过一次的红色喷瓶
 ```
+
 ```sql
+with test as
+(
+select *, row_number() over(partition by code order by value)  as number from
+(
+select code, character, value from 
+(
+select code, cast(speed as int) speed, cast(ram as int) ram, cast(price as int) price, cast(screen as int) screen from laptop
+)laptop
+unpivot 
+(
+value for character in (speed, ram, price, screen)
+) p
+) a
+)
+;
+with result as
+(
+select code, character, value from test
+where code not in
+(
+select distinct test.code from test
+left join test as temp on 
+temp.code = test.code and temp.number + 1 = test.number and temp.value * 2 > test.value
+where temp.code is not null
+) 
+)
+;
+select code, speed, ram, cast(price as money) price, screen from
+result
+pivot
+(
+sum(value) for character in(speed, ram, price, screen)
+) p
 ```
 ```sql
 ```
