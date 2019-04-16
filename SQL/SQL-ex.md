@@ -1816,41 +1816,74 @@ where V_NAME in
 group by V_NAME
 having count(V_NAME) > 1 -- 筛选使用超过一次的红色喷瓶
 ```
-
+Exercise: 97 (qwrqwr: 2013-02-15)  
+From the Laptop table, select rows fulfilling the following condition:   
+the values of the speed, ram, price, and screen columns can be arranged in such a way that each successive value exceeds two or more times the previous one.  
+Note: all known laptop characteristics are greater than zero.  
+Output: code, speed, ram, price, screen.  
+返回满足以下条件的行：  
+speed，ram，price，screen 的数值能被排列成一组有序序列，该有序序列特征为每一个数值都是前一个数值的两倍或两倍以上  
+这道题我最开始用排除法做，就是第二段代码，但是一直在第二个数据库上报错，冥思苦想近一周，又找人研究了两天，依旧没有什么有效结论，最终决定摒弃排除法，用选择法，没想到居然通过了，这简直就是…………直到现在也没想明白第二段代码错在哪里，莫名脸---  
+本题中学到了一个新的运算符，cross apply，其实是 apply 的延伸，有 cross apply/outer apply，详细使用方式可以在 MSDN 官网上浏览
 ```sql
 with test as
 (
-select *, row_number() over(partition by code order by value)  as number from
-(
-select code, character, value from 
-(
-select code, cast(speed as int) speed, cast(ram as int) ram, cast(price as int) price, cast(screen as int) screen from laptop
-)laptop
-unpivot 
-(
-value for character in (speed, ram, price, screen)
-) p
-) a
+  select *, row_number() over(partition by code order by value) as number from
+  (
+    select code, name, value from Laptop
+    cross apply
+    (
+      values('speed', speed)
+      ,('ram', ram)
+      ,('price', price)
+      ,('screen', screen)
+    ) 
+    spec(name, value)
+  ) a
 )
-;
-with result as
+
+select code, speed, ram, price, screen from laptop 
+where code in
 (
-select code, character, value from test
+  select code from
+  (
+    select test.code, 
+    case
+    when test.value >= temp.value * 2 then 1
+    else 0
+    end inx
+    from test
+    inner join test as temp on 
+    temp.code = test.code and temp.number + 1 = test.number 
+  ) b
+  group by code
+  having sum(inx) = 3
+)
+
+--- code below failed on the second database, but I don't know why
+with test as
+(
+  select *, row_number() over(partition by code order by value) as number from
+  (
+    select code, name, value from Laptop
+    cross apply
+    (
+      values('speed', speed)
+      ,('ram', ram)
+      ,('price', price)
+      ,('screen', screen)
+    ) 
+    spec(name, value)
+  ) a
+)
+
+select code, speed, ram, price, screen from laptop
 where code not in
 (
-select distinct test.code from test
-left join test as temp on 
-temp.code = test.code and temp.number + 1 = test.number and temp.value * 2 > test.value
-where temp.code is not null
-) 
+  select distinct test.code from test
+  inner join test as temp on 
+  temp.code = test.code and temp.number + 1 = test.number and temp.value * 2 > test.value
 )
-;
-select code, speed, ram, cast(price as money) price, screen from
-result
-pivot
-(
-sum(value) for character in(speed, ram, price, screen)
-) p
 ```
 ```sql
 ```
