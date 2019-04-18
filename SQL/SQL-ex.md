@@ -1885,7 +1885,31 @@ where code not in
   temp.code = test.code and temp.number + 1 = test.number and temp.value * 2 > test.value
 )
 ```
+Exercise: 98 (qwrqwr: 2010-04-26)  
+Display the list of PCs, for each of which the result of the bitwise OR operation performed on the binary representations of its respective processor speed and RAM capacity contains a sequence of at least four consecutive bits set to 1.  
+Result set: PC code, processor speed, RAM capacity.  
+返回 pc 表中 speed 和 ram 的或位运算的二进制结果中至少存在四个连续1的行  
+本题既考察了 sql 中的递归，又考察了位运算
 ```sql
+with ctebins as
+(
+select code, speed, ram, cast((speed | ram)as int) as level, cast('' as varchar(max)) as binval
+-- | 代表了或位运算，这里需要注意，因为 speed，ram 是 smallint 的格式，如果不转化为 int 则不能与后面的 c.level / 2 进行拼接
+from pc
+union all
+select c.code, c.speed, c.ram, c.level / 2, cast(c.level % 2 as varchar(max)) + c.binval
+from ctebins c
+where c.level > 0
+) -- 该 with 语句即递归，为 CTE （公用表表达式）
+
+select code, speed, ram from pc 
+where code in(
+select code from ctebins
+where level = 0 and binval like '%1111%' -- 存在至少四个连续1
+)
+```
+有关递归可以参见例题中
+、
 ```
 ```sql
 ```
