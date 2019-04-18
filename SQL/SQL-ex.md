@@ -1908,9 +1908,9 @@ select code from ctebins
 where level = 0 and binval like '%1111%' -- 存在至少四个连续1
 )
 ```
-有关递归可以参见例题中
-、
-```
+有关递归可以参见例题中给出的链接[Simple recursive CTE](http://blogs.lobsterpot.com.au/2006/10/20/simple-recursive-cte/)  
+有关位运算的详细说明明可参见[MSDN](https://docs.microsoft.com/zh-cn/sql/t-sql/language-elements/bitwise-operators-transact-sql?view=sql-server-2017)  
+
 ```sql
 ```
 ```sql
