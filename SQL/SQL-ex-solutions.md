@@ -1909,9 +1909,59 @@ where level = 0 and binval like '%1111%' -- 存在至少四个连续1
 )
 ```
 有关递归可以参见例题中给出的链接[Simple recursive CTE](http://blogs.lobsterpot.com.au/2006/10/20/simple-recursive-cte/)  
-有关位运算的详细说明明可参见[MSDN](https://docs.microsoft.com/zh-cn/sql/t-sql/language-elements/bitwise-operators-transact-sql?view=sql-server-2017)  
+有关位运算的详细说明明可参见[MSDN](https://docs.microsoft.com/zh-cn/sql/t-sql/language-elements/bitwise-operators-transact-sql?view=sql-server-2017)   
 
+Exercise: 99 (qwrqwr: 2013-03-01)  
+Only Income_o and Outcome_o tables are considered. It is known that no money transactions are performed on Sundays.  
+For each buy-back center (point) and each funds receipt date, determine the encashment date according to the following rules:  
+1. The encashment date is the same as the receipt date if there is no payment entry in the Outcome_o table for this date and point.   
+2. Otherwise, the first possible date after the receipt date is used that doesn’t fall on Sunday and doesn’t have a corresponding payment entry in the Outcome_o table for the point in question.  
+Output: point, receipt date, encashment date.  
+使用 Income_o 和 Outcome_o 表并返回如下信息，已知周日无收付款项：  
+1、如果收款当日无付款项，则收款日被作为结算日；  
+2、如果收款当日有付款项，则付款日后最早的一天将被作为结算日，且该日不为星期日
 ```sql
+with test as	
+(	
+  select point as po, date as da, date as temp from income_o	
+  union all	
+  select po, da,	
+    case	
+      when date is not null and datename(dw, date) = 'Saturday' then dateadd(dd, 2, temp)		
+      when date is not null and datename(dw, date) != 'Saturday' then dateadd(dd, 1, temp)	
+      else temp
+    end	
+  from test	
+  join outcome_o on	
+  po = point and temp = date	
+)	
+	
+select test.* from test
+left join outcome_o on
+po = point and temp = date
+where point is null and datename(dw, temp) != 'Sunday'
+
+---------- Code below failed on the second database
+with test1 as
+(
+  select a.point, a.date from income_o a
+  inner join outcome_o b on
+  a.point = b.point and a.date = b.date
+)
+, test as
+(
+  select point as po, date as da, date as temp from test1
+  union all
+  select po, da, dateadd(dd, 1, temp) from test
+  where temp in (select date from outcome_o) or datename(dw, temp) = 'Sunday'
+)
+select * from test
+where temp not in (select date from outcome_o) and datename(dw, temp) != 'Sunday'
+union 
+select a.point, a.date, a.date from income_o a
+left join outcome_o b on
+a.point = b.point and a.date = b.date
+where b.point is null
 ```
 ```sql
 ```
