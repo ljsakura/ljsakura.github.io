@@ -1976,11 +1976,11 @@ If the numbers of revenue and expense transactions are different for a day, disp
 Select coalesce(a.date, b.date),  coalesce(a.num, b.num),
 a.point, a.inc, b.point, b.out from
 (
-select point, date, inc, row_number() over(partition by date order by code) num from income
+  select point, date, inc, row_number() over(partition by date order by code) num from income
 ) a
 full outer join
 (
-select point, date, out, row_number() over(partition by date order by code) num from outcome
+  select point, date, out, row_number() over(partition by date order by code) num from outcome
 ) b on
 a.date = b.date and a.num = b.num
 ```
