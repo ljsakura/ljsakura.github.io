@@ -1963,7 +1963,26 @@ left join outcome_o b on
 a.point = b.point and a.date = b.date
 where b.point is null
 ```
+Exercise: 100 ($erges: 2009-06-05)  
+Write a query that displays all operations from the Income and Outcome tables as follows:  
+date, sequential record number for this date, buy-back center receiving funds, funds received, buy-back center making a payment, payment amount.   
+All revenue transactions for all centers made during a single day are ordered by the code field, and so are all expense transactions.   
+If the numbers of revenue and expense transactions are different for a day, display NULL in the corresponding columns for missing operations.  
+使用 Income 和 Outcome 表返回如下信息：  
+日期，连续编号，进账中心编号，进账数目，出账中心编号，出账数目；  
+所有收支结算都已当天分组并以 code 进行排序；  
+如果同一天内收支次数不匹配，则用 Null 值代替缺失信息
 ```sql
+Select coalesce(a.date, b.date),  coalesce(a.num, b.num),
+a.point, a.inc, b.point, b.out from
+(
+select point, date, inc, row_number() over(partition by date order by code) num from income
+) a
+full outer join
+(
+select point, date, out, row_number() over(partition by date order by code) num from outcome
+) b on
+a.date = b.date and a.num = b.num
 ```
 ```sql
 ```
