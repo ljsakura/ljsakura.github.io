@@ -1984,7 +1984,67 @@ full outer join
 ) b on
 a.date = b.date and a.num = b.num
 ```
+Exercise: 101 (qwrqwr: 2013-03-29)  
+The Printer table is sorted by the code field in ascending order.  
+The ordered rows form groups: the first group starts with the first row, each row having color=’n’ begins a new group, the groups of rows don’t overlap.   
+For each group, determine the maximum value of the model field (max_model), the number of unique printer types (distinct_types_cou), and the average price (avg_price).  
+For all table rows, display code, model, color, type, price, max_model, distinct_types_cou, avg_price.  
+使用按 code 升序排列的 printer 表返回这样的数据：  
+第一行作为第一组的第一行，而后每出现 color = 'n' 时则作为新一组的第一行，组与组之间不存在重叠；  
+对每一个分组返回其最大 model，distinct type 总和以及平均 price  
+该题最坑的地方在于假如第一行 color 不为 n 时，一定要想方设法将其设置为 n，而后才能进行后续分组
 ```sql
+with temp as
+(
+  select a.code x,
+		case
+			when b.code is null then (select max(code)+1 from printer)
+			else b.code
+		end
+  y
+  from
+	(
+		select *, row_number() over(order by code) num from 
+		(
+			select code, model,
+				case
+					when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
+					else color
+				end color,
+			type, price from printer
+		)
+		printer
+		where color = 'n'
+	) a
+	left join 
+	(
+		select *, row_number() over(order by code) num from 
+		(
+			select code, model,
+				case
+					when code = 1 and color != 'n' then 'n'
+					else color
+				end color,
+			type, price from printer
+		)
+		printer
+		where color = 'n'
+	) b on
+	a.num = b.num-1
+), -- 使用 CTE 生成范围集
+test as
+(
+	select * from printer
+	left join temp on
+	code >= x and code < y
+)
+select code, model, color, type, price, m, t, p from test
+left join
+(
+	select x, max(model) m, count(distinct type) t, avg(price) p from test
+	group by x
+) c on
+test.x = c.x
 ```
 ```sql
 ```
