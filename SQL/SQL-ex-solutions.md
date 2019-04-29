@@ -1997,21 +1997,21 @@ For all table rows, display code, model, color, type, price, max_model, distinct
 with temp as
 (
   select a.code x,
-		case
-		when b.code is null then (select max(code)+1 from printer)
-			else b.code
-		end
+    case
+      when b.code is null then (select max(code)+1 from printer)
+      else b.code
+    end
   y
   from
-	(
-		select *, row_number() over(order by code) num from 
-		(
-			select code, model,
-				case
-					when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
-					else color
-				end color,
-			type, price from printer
+  (
+    select *, row_number() over(order by code) num from 
+    (
+      select code, model,
+        case
+	when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
+	else color
+	end color,
+type, price from printer
 		)
 		printer
 		where color = 'n'
