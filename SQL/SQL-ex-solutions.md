@@ -2011,11 +2011,10 @@ with temp as
 	when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
 	else color
 	end color,
-type, price from printer
-		)
-		printer
-		where color = 'n'
-	) a
+      type, price from printer
+    ) printer
+    where color = 'n'
+  ) a
 	left join 
 	(
 		select *, row_number() over(order by code) num from 
