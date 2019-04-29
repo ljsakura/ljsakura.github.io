@@ -1998,7 +1998,7 @@ with temp as
 (
   select a.code x,
 		case
-			when b.code is null then (select max(code)+1 from printer)
+		when b.code is null then (select max(code)+1 from printer)
 			else b.code
 		end
   y
