@@ -2031,7 +2031,7 @@ with temp as
 		where color = 'n'
 	) b on
 	a.num = b.num-1
-), -- 使用 CTE 生成范围集
+), -- 使用 CTE 生成范围集 
 test as
 (
 	select * from printer
