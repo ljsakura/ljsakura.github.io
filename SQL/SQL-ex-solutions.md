@@ -2056,13 +2056,15 @@ left join Trip on
 Trip. trip_no = Pass_in_trip. trip_no
 group by Passenger.name, Pass_in_trip. ID_psg
 having count(distinct 
-	case 
-		when town_from > town_to then town_from + town_to 
-		else town_to + town_from
-	end
+  case 
+    when town_from > town_to then town_from + town_to 
+    else town_to + town_from
+  end
 ) = 1
 ```
+
 ```sql
+
 ```
 ```sql
 ```
