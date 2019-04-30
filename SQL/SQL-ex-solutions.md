@@ -1996,52 +1996,52 @@ For all table rows, display code, model, color, type, price, max_model, distinct
 ```sql
 with temp as
 (
-	select a.code x,
-		case
-			when b.code is null then (select max(code)+1 from printer)
-			else b.code
-		end y
-	from
-	(
-		select *, row_number() over(order by code) num from 
-		(
-			select code, model,
-			case
-			when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
-			else color
-			end color,
-			type, price from printer
-		)
-		printer
-		where color = 'n'
-	) a
-	left join 
-	(
-		select *, row_number() over(order by code) num from 
-		(
-			select code, model,
-				case
-					when code = 1 and color != 'n' then 'n' 
-					else color
-				end color,
-			type, price from printer
-		)
-		printer
-		where color = 'n'
-	) b on
-	a.num = b.num-1
+  select a.code x,
+    case
+      when b.code is null then (select max(code)+1 from printer)
+      else b.code
+    end y
+  from
+  (
+    select *, row_number() over(order by code) num from 
+    (
+    select code, model,
+      case
+        when code = 1 and color != 'n' then 'n' -- 将第一行 color 设置为 'n'
+        else color
+      end color,
+    type, price from printer
+  )
+  printer
+  where color = 'n'
+  ) a
+  left join 
+  (
+    select *, row_number() over(order by code) num from 
+    (
+      select code, model,
+        case
+          when code = 1 and color != 'n' then 'n' 
+          else color
+        end color,
+      type, price from printer
+    )
+    printer
+    where color = 'n'
+  ) b on
+  a.num = b.num-1
 ), -- 使用 CTE 生成范围集 
 test as
 (
-	select * from printer
-	left join temp on
-	code >= x and code < y
+  select * from printer
+  left join temp on
+  code >= x and code < y
 )
 select code, model, color, type, price, m, t, p from test
 left join
 (
-	select x, max(model) m, count(distinct type) t, avg(price) p from test
-	group by x
+  select x, max(model) m, count(distinct type) t, avg(price) p from test
+  group by x
 ) c on
 test.x = c.x
 ```
