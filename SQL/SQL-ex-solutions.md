@@ -2045,7 +2045,22 @@ left join
 ) c on
 test.x = c.x
 ```
+Exercise: 102 (Serge I: 2003-04-29)  
+Find the names of different passengers who travelled between two towns only (one way or back and forth).  
+返回只在两所城市之间飞行的旅客
 ```sql
+Select Passenger.name from Pass_in_trip
+left join Passenger on
+Pass_in_trip. ID_psg = Passenger. ID_psg
+left join Trip on
+Trip. trip_no = Pass_in_trip. trip_no
+group by Passenger.name, Pass_in_trip. ID_psg
+having count(distinct 
+	case 
+		when town_from > town_to then town_from + town_to 
+		else town_to + town_from
+	end
+) = 1
 ```
 ```sql
 ```
