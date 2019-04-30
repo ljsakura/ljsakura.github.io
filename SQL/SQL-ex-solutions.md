@@ -2062,9 +2062,38 @@ having count(distinct
   end
 ) = 1
 ```
-
+Exercise: 103 (qwrqwr: 2013-05-17)  
+Find out the three smallest and three greatest trip numbers. Output them in a single row with six columns, ordered from the least trip number to the greatest one.   
+Note: it is assumed the Trip table contains 6 or more rows.  
+返回 trip number 最小的三位和最大的三位，并显示在一行
 ```sql
+with test as
+(
+  select trip_no, 
+  row_number() over(order by trip_no asc) num_small,
+  row_number() over(order by trip_no desc) num_great
+  from Trip
+) 
 
+select * from
+(
+  select trip_no from test where num_small = 1
+) a,
+(
+  select trip_no from test where num_small = 2
+) b,
+(
+  select trip_no from test where num_small = 3
+) c,
+(
+  select trip_no from test where num_great = 3
+) d,
+(
+  select trip_no from test where num_great = 2
+) e,
+(
+  select trip_no from test where num_great = 1
+) f
 ```
 ```sql
 ```
