@@ -2095,7 +2095,25 @@ select * from
   select trip_no from test where num_great = 1
 ) f
 ```
+Exercise: 104 (Serge I: 2013-07-19)  
+For each cruiser class whose quantity of guns is known, number its guns sequentially beginning with 1.  
+Output: class name, gun ordinal number in 'bc-N' style.  
+生成所有已知 gun 数量的巡洋舰的 gun 的序列信息，自1开始，序列信息表示为 bc-N 这样的形式
 ```sql
+with test as
+(
+  select class, type, numguns from classes
+  where type = 'bc'
+),
+temp as
+(
+  select *, 1 as num from test
+  union all
+  select class, type, numguns, num+1 from temp
+  where num < numguns
+) -- 使用递归生成序列
+select class, type+'-'+cast(num as varchar(25))from temp
+where num <= numguns -- 不加这个 where 第二个 database 无法测试通过，虽然现在还未想明白为什么
 ```
 ```sql
 ```
