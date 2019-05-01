@@ -1310,7 +1310,7 @@ Find the days with the maximum number of flights departed from Rostov.
 Result set: number of trips, date.  
 返回从 Rostov 出发的航班数量最多的日期
 ```sql
-solution 1 
+--solution 1 
 
 Select * from
 (
@@ -1332,7 +1332,7 @@ where number =
   )a
 )
 
-solution 2 使用 having 可以让代码更简洁
+--solution 2 使用 having 可以让代码更简洁
 
 Select count(distinct trip.trip_no) as number, date from trip
 inner join pass_in_trip on
@@ -1540,7 +1540,7 @@ Result set: maker, list of product types.
 对于每个 maker，将所有 type 按字母排序，并用反斜杠'/'拼接起来  
 本题在 mysql 中可以使用 group_concat 函数，在 mssql 中可以使用 stuff 函数
 ```sql
-solution 1  mysql
+--solution 1  mysql
 
 Select maker,
 group_concat(distinct type order by type Separator '/') as types 
@@ -1548,7 +1548,7 @@ from product
 group by maker 
 
 ----------
-solution 2  mssql
+--solution 2  mssql
 
 Select maker, 
 data=stuff ((select distinct '/'+ type from product t where maker=t1.maker for xml path('')), 1, 1, '')
@@ -2115,7 +2115,48 @@ temp as
 select class, type+'-'+cast(num as varchar(25))from temp
 where num <= numguns -- 不加这个 where 第二个 database 无法测试通过，虽然现在还未想明白为什么
 ```
+Exercise: 105 (qwrqwr: 2013-09-11)  
+Statisticians Alice, Betty, Carol and Diana are numbering rows in the Product table.  
+Initially, all of them have sorted the table rows in ascending order by the names of the makers.  
+Alice assigns a new number to each row, sorting the rows belonging to the same maker by model in ascending order.  
+The other three statisticians assign identical numbers to all rows having the same maker.  
+Betty assigns the numbers starting with one, increasing the number by 1 for each next maker.  
+Carol gives a maker the same number the row with this maker's first model receives from Alice.  
+Diana assigns a maker the same number the row with this maker's last model receives from Alice.  
+Output: maker, model, row numbers assigned by Alice, Betty, Carol, and Diana respectively.  
+有 ABCD 四位统计师对 Product 表进行排序：  
+A 按照 maker，model 进行排序 --该步涉及 row_number() over()；  
+B 自1开始按照 maker 进行排序，每出现一个新 maker 则序号增加1 --该步涉及 dense_rank() over()；  
+C 取每个 maker 分组下的最小序号 --该步涉及 rank() over()；  
+D 取每个 maker 分组下的最大序号
 ```sql
+--solution 1
+Select maker, model,  
+row_number() over(order by maker, model) a,
+dense_rank() over(order by maker) b,
+rank() over(order by maker) c,
+x
+from product
+left join
+(
+  select m, max(x) x from
+(
+  select maker as m, row_number() over(order by maker, model) x from product
+) y
+group by m
+) z on
+maker = m
+
+----------
+--solution 2
+Select *, max(a) over(partition by maker) from
+(
+  select maker, model,  
+  row_number() over(order by maker, model) a,
+  dense_rank() over(order by maker) b,
+  rank() over(order by maker) c
+  from product
+) x
 ```
 ```sql
 ```
