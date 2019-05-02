@@ -2175,7 +2175,25 @@ Select B_DATETIME, B_Q_ID, B_V_ID, B_VOL, cast(round(exp(x),8) as decimal(18,8))
   ) y
 ) a
 ```
+Exercise: 107 (VIG: 2003-09-01)   
+Find the company, trip number, and trip date for the fifth passenger from among those who have departed from Rostov in April 2003.  
+Note. For this exercise it is assumed two flights can’t depart from Rostov simultaneously.  
+返回2003年4月从 Rostov 出发的第五位乘客所搭乘的航空公司名称，航班号以及出行日期
 ```sql
+Select name, trip_no, date from
+(
+  select date, Pass_in_trip. trip_no, Pass_in_trip. ID_psg, Company.name, 
+  row_number() over(order by date, Pass_in_trip. trip_no, Pass_in_trip. ID_psg) num
+  from Pass_in_trip
+  left join Passenger on
+  Pass_in_trip. ID_psg = Passenger. ID_psg
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Company on
+  Trip. ID_comp = Company. ID_comp
+  where year(date) = 2003 and month(date) = 4 and town_from = 'Rostov'
+) x
+where num = 5
 ```
 ```sql
 ```
