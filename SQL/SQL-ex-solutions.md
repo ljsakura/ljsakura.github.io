@@ -2158,7 +2158,22 @@ Select *, max(a) over(partition by maker) from
   from product
 ) x
 ```
+Exercise: 106 (Baser: 2013-09-06)  
+Let v1, v2, v3, v4, ... be a sequence of real numbers corresponding to paint amounts b_vol, sorted by b_datetime, b_q_id, and b_v_id in ascending order.   
+Find the transformed sequence P1=v1, P2=v1/v2, P3=v1/v2*v3, P4=v1/v2*v3/v4, ..., where each subsequent member is obtained from the preceding one by either multiplication by vi (for an odd i) or division by vi (for an even i).  
+Output the result as b_datetime, b_q_id, b_v_id, b_vol, Pi, with Pi being the member of the sequence corresponding to the record number i. Display Pi with eight decimal places.  
+将 utB 表的 b_vol 按照 b_datetime, b_q_id, and b_v_id 升序排列，并标注为 v1，v2，v3 ……  
+返回 P1=v1, P2=v1/v2, P3=v1/v2*v3, P4=v1/v2*v3/v4, ...,奇数项做乘法，偶数项做除法，结果以八位小数形式展示  
+开窗函数有累计求和的 sum（）over，可以考虑将 v1，v2，v3 ……  等转化为对数，log （v1 / v2 * v3）就可以表示为 log（v1）-log（v2）+log（v3），而后再取指数，需要注意的是，exp（log（x））最终结果不一定完全等于 x，会存在小数上的差异，这时就需要用 round 进行四舍五入，同时还需要用 cast 对小数位进行补充
 ```sql
+Select B_DATETIME, B_Q_ID, B_V_ID, B_VOL, cast(round(exp(x),8) as decimal(18,8)) from
+-- 先用 round 取整，同时保留八位小数，但如果存在取整后为整数的情况，则小数会少于八位，需要用 cast 补全小数位
+(
+  select *, sum(case when num%2 = 1 then log(B_VOL) else (-1)*log(B_VOL) end) over(order by num) x from 
+  (
+    select *, row_number() over(order by B_DATETIME, B_Q_ID, B_V_ID) num from utB
+  ) y
+) a
 ```
 ```sql
 ```
