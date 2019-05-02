@@ -2160,7 +2160,7 @@ Select *, max(a) over(partition by maker) from
 ```
 Exercise: 106 (Baser: 2013-09-06)  
 Let v1, v2, v3, v4, ... be a sequence of real numbers corresponding to paint amounts b_vol, sorted by b_datetime, b_q_id, and b_v_id in ascending order.   
-Find the transformed sequence P1=v1, P2=v1/v2, P3=v1/v2*v3, P4=v1/v2*v3/v4, ..., where each subsequent member is obtained from the preceding one by either multiplication by vi (for an odd i) or division by vi (for an even i).  
+Find the transformed sequence P1=v1, P2=v1/v2, P3=v1/v2* v3, P4=v1/v2* v3/v4, ..., where each subsequent member is obtained from the preceding one by either multiplication by vi (for an odd i) or division by vi (for an even i).  
 Output the result as b_datetime, b_q_id, b_v_id, b_vol, Pi, with Pi being the member of the sequence corresponding to the record number i. Display Pi with eight decimal places.  
 将 utB 表的 b_vol 按照 b_datetime, b_q_id, and b_v_id 升序排列，并标注为 v1，v2，v3 ……  
 返回 P1=v1, P2=v1/v2, P3=v1/v2*v3, P4=v1/v2*v3/v4, ...,奇数项做乘法，偶数项做除法，结果以八位小数形式展示  
