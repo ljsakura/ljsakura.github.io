@@ -2195,7 +2195,14 @@ Select name, trip_no, date from
 ) x
 where num = 5
 ```
+Exercise: 108 (Baser: 2013-10-16)  
+The restoration of the exhibits of the Triangles department of the PFAS museum has been carried out according to the performance specification. For each record in the utb table, the painters restored the paint on the side of every geometric figure, provided this side had a length equal to b_vol.  
+Get all triangles having the paint on all their sides restored, except for equilateral, isosceles, and obtuse ones.  
+For each triangle (yet without duplicates), display three values X, Y, Z, where X is the length of the short, Y – of the medium, and Z – of the long triangle side.  
+假定 utB 表中 b_vol 的值代表边长，返回所有可能的三角形组合，边长以 X，Y，Z 表示，且 X 为短边，Y 为中边，Z 为长边，但不包括等边三角形，等腰三角形以及钝角三角形
 ```sql
+Select distinct a.b_vol, b. b_vol, c. b_vol from utB a, utB b, utB c
+where a. b_vol < b. b_vol and b. b_vol < c. b_vol and square(a. b_vol) + square(b. b_vol) >=  square (c. b_vol)
 ```
 ```sql
 ```
