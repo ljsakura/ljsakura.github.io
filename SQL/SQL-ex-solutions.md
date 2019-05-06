@@ -2209,7 +2209,7 @@ Display:
 1. The names of all squares that are black or white.  
 2. The total number of white squares.  
 3. The total number of black squares.  
-显示不为黑即为白的图纸名称，以及白色图纸总数，黑色图纸总数
+显示黑色或白色图纸的名称，以及白色图纸总数，黑色图纸总数
 ```sql
 Select Q_NAME,
 sum(case when total = 255*3 then 1 else 0 end) over(), -- 分类汇总，也有人用嵌套 select 实现，不过官网推荐用开窗函数
@@ -2224,7 +2224,19 @@ from
   having sum(B_VOL) = 255*3 or sum(B_VOL) is null
 ) x
 ```
+Exercise: 110 (Serge I: 2003-12-24)  
+Find out the names of different passengers who ever travelled on a flight that took off on Saturday and landed on Sunday.  
+返回那些周六出发周日抵达的乘客名字  
+其实只要存在 time_in < time_out 的情况就可以判定飞行跨天，所以不需要再计算飞行时长，由于有重名乘客，所以按照乘客的 name，ID 进行聚合后再返回乘客名字即可
 ```sql
+Select Passenger.name
+from Pass_in_trip
+left join Passenger on
+Pass_in_trip. ID_psg = Passenger. ID_psg
+left join Trip on
+Pass_in_trip. trip_no = Trip. trip_no
+where datename(dw, date) = 'Saturday' and time_in < time_out
+group by Passenger.name, Pass_in_trip. ID_psg
 ```
 ```sql
 ```
