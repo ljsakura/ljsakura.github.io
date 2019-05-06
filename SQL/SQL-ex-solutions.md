@@ -2204,7 +2204,25 @@ For each triangle (yet without duplicates), display three values X, Y, Z, where 
 Select distinct a.b_vol, b. b_vol, c. b_vol from utB a, utB b, utB c
 where a. b_vol < b. b_vol and b. b_vol < c. b_vol and square(a. b_vol) + square(b. b_vol) >=  square (c. b_vol)
 ```
+Exercise: 109 (qwrqwr: 2011-01-13)  
+Display:  
+1. The names of all squares that are black or white.  
+2. The total number of white squares.  
+3. The total number of black squares.  
+显示不为黑即为白的图纸名称，以及白色图纸总数，黑色图纸总数
 ```sql
+Select Q_NAME,
+sum(case when total = 255*3 then 1 else 0 end) over(), -- 分类汇总，也有人用嵌套 select 实现，不过官网推荐用开窗函数
+sum(case when total is null then 1 else 0 end) over()
+from
+(
+  select Q_NAME, sum(B_VOL) total
+  from utQ
+  left join utB on
+  utB. B_Q_ID = utQ. Q_ID
+  group by Q_NAME
+  having sum(B_VOL) = 255*3 or sum(B_VOL) is null
+) x
 ```
 ```sql
 ```
