@@ -2238,7 +2238,36 @@ Pass_in_trip. trip_no = Trip. trip_no
 where datename(dw, date) = 'Saturday' and time_in < time_out
 group by Passenger.name, Pass_in_trip. ID_psg
 ```
+Exercise: 111 (Serge I: 2003-12-24)  
+Get the squares that are NEITHER white NOR black, and painted with different colors in a 1:1:1 ratio. Result set: square name, paint quantity for a single color.  
+返回图纸不是黑色也不是白色，且 RGB 三色涂色量为 1：1：1的所有图纸名以及任意一种颜色的用量
 ```sql
+select Q_NAME, R from
+(
+  select Q_NAME,
+  max(case when V_COLOR = 'R' then total else 0 end) R,
+  max(case when V_COLOR = 'G' then total else 0 end) G,
+  max(case when V_COLOR = 'B' then total else 0 end) B
+  from
+  (
+    select Q_NAME, V_COLOR, sum(B_VOL) as total from utQ
+    left join utB on
+    utB. B_Q_ID = utQ. Q_ID
+    left join utV on
+    utB. B_V_ID = utV. V_ID
+    where Q_NAME not in
+  (
+    select Q_NAME
+    from utQ
+    left join utB on
+    utB. B_Q_ID = utQ. Q_ID
+    group by Q_NAME
+    having sum(B_VOL) = 255*3 or sum(B_VOL) is null
+  )
+  group by Q_NAME, V_COLOR
+  ) x
+  group by Q_NAME
+)y where R = G and G = B
 ```
 ```sql
 ```
