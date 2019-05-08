@@ -2242,7 +2242,7 @@ Exercise: 111 (Serge I: 2003-12-24)
 Get the squares that are NEITHER white NOR black, and painted with different colors in a 1:1:1 ratio. Result set: square name, paint quantity for a single color.  
 返回图纸不是黑色也不是白色，且 RGB 三色涂色量为 1：1：1的所有图纸名以及任意一种颜色的用量
 ```sql
-select Q_NAME, R from
+Select Q_NAME, R from
 (
   select Q_NAME,
   max(case when V_COLOR = 'R' then total else 0 end) R,
@@ -2269,7 +2269,33 @@ select Q_NAME, R from
   group by Q_NAME
 )y where R = G and G = B
 ```
+Exercise: 112 (Serge I: 2003-12-24)  
+What maximal number of black squares could be colored white using the remaining paint?  
+返回剩余的颜料还能将几张黑色的图纸喷涂成白色  
+坑1：存在从未使用过的喷罐；  
+坑2：数据库中可能只有一种或两种颜色的喷罐
 ```sql
+select min(m-n)/255 from
+(
+  select color, case when total is null then 0 else total end m, case when vol is null then 0 else vol end n from
+  (
+    select 'R' color union all select 'G' union all select 'B' -- 为防止坑2发生，先生成一个 RGB 的表
+  ) test
+  left join
+  (
+    select V_COLOR, sum(255) total from utV
+    group by V_COLOR
+  ) a on
+  a. V_COLOR = test.color
+  left join
+  (
+    select V_COLOR, sum(B_VOL) vol from utB
+    left join utV on
+    utB. B_V_ID = utV. V_ID
+    group by V_COLOR
+  ) b on
+  a. V_COLOR = b. V_COLOR
+) x
 ```
 ```sql
 ```
