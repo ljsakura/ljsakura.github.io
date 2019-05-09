@@ -2345,7 +2345,26 @@ with test as
 select name, num from test
 where num =(select max(num) from test)
 ```
+Exercise: 115 (Baser: 2013-11-01)  
+Let’s consider isosceles trapezoids, each of them having an inscribed circle tangent to all four sides. Besides, each side has an integer length belonging to the set of b_vol values.   
+Output the result in 4 columns named Up, Down, Side, Rad, where Up is the shorter base, Down - the longer base, Side is the length of the legs, and Rad - the radius of the inscribed circle (with 2 decimal places).  
+假设等腰梯形有同时内切四条边的内切圆，且等腰梯形上底，下底，腰的长度都属于 b_vol 的数值集合，返回等腰梯形的上底，下底，腰以及内切圆的半径，半径以两位小数显示
 ```sql
+with test as
+(
+  select distinct B_VOL x from utB
+),
+temp as
+(
+  select a.x up, b.x down, c.x side from  test a
+  cross join test b
+  cross join test c
+  where c.x > a.x and b.x > c.x and a.x = 2*c.x - b.x 
+  -- 这里如果用 2*c.x = a.x + b.x 就会报错溢出，所以给 SQL 条活路吧，它没那么智能，O(∩_∩)O哈哈~
+)
+
+Select *, cast(sqrt(square(side)-square((down-up)/2))/2.0 as decimal(18,2)) from temp
+-- 这里用到 /2.0 也是为了先求出的结果能带小数位，然后再 cast 就万事大吉了
 ```
 ```sql
 ```
