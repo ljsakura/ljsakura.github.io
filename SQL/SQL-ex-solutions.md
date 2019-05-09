@@ -2327,7 +2327,23 @@ from
   col. color = b. V_COLOR
 ) x
 ```
+Exercise: 114 (Serge I: 2003-04-08)  
+Find the names of different passengers who occupied the same seat most often. Output: passenger name, number of flights in the same seat.  
+返回占用同一座位次数最多的乘客名字以及该乘客占用同一座位的飞行次数  
+坑1：不同日期搭乘了同一航班  
+坑2：重名乘客以及同一乘客占用不同座位次数相同，且都是最高频次
 ```sql
+with test as
+(
+  select distinct Pass_in_trip.ID_psg, name, count(distinct cast(trip_no as varchar(25))+cast(date as varchar(25))) num from Pass_in_trip
+  -- 第一个 distinct 是为了规避坑2的同一乘客占用不同座位次数相同，第二个 distinct 是为了规避坑1
+  left join Passenger on
+  Pass_in_trip. ID_psg = Passenger. ID_psg
+  group by Pass_in_trip.ID_psg, place, name -- 为了完美回避重名问题，这里同时用乘客的 ID 和 name 进行聚合
+)
+
+select name, num from test
+where num =(select max(num) from test)
 ```
 ```sql
 ```
