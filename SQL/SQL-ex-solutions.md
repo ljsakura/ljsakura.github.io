@@ -2275,7 +2275,7 @@ What maximal number of black squares could be colored white using the remaining 
 坑1：存在从未使用过的喷罐；  
 坑2：数据库中可能只有一种或两种颜色的喷罐
 ```sql
-select min(m-n)/255 from
+Select min(m-n)/255 from
 (
   select color, case when total is null then 0 else total end m, case when vol is null then 0 else vol end n from
   (
@@ -2297,7 +2297,35 @@ select min(m-n)/255 from
   a. V_COLOR = b. V_COLOR
 ) x
 ```
+Exercise: 113 (Serge I: 2003-12-24)  
+How much paint of each color is needed to dye all squares white?  
+Result set: amount of each paint in order (R,G,B).  
+还需要多少染料才能将所有的图纸都喷涂成白色  
+依旧需要考虑从未被喷涂过的图纸，将图纸数量乘以255并叉积 RGB 表，最后将去已有 RGB 涂料使用量，得到的就是所需用量
 ```sql
+Select 
+  max(case when color = 'R' then result else 0 end) R,
+  max(case when color = 'G' then result else 0 end) G,
+  max(case when color = 'B' then result else 0 end) B
+from
+(
+  select color, case when total is null then value else value-total end result from
+  (
+    select count(distinct Q_ID)*255 value from utQ
+  ) a
+  cross join
+  (
+    select 'R' color union all select 'G' union all select 'B'
+  ) col
+  left join
+  (
+    select V_COLOR, sum(B_VOL) total from utB
+    left join utV on
+    utB. B_V_ID = utV. V_ID
+    group by V_COLOR
+  ) b on
+  col. color = b. V_COLOR
+) x
 ```
 ```sql
 ```
