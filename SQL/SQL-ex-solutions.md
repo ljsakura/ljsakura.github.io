@@ -2348,7 +2348,8 @@ where num =(select max(num) from test)
 Exercise: 115 (Baser: 2013-11-01)  
 Let’s consider isosceles trapezoids, each of them having an inscribed circle tangent to all four sides. Besides, each side has an integer length belonging to the set of b_vol values.   
 Output the result in 4 columns named Up, Down, Side, Rad, where Up is the shorter base, Down - the longer base, Side is the length of the legs, and Rad - the radius of the inscribed circle (with 2 decimal places).  
-假设等腰梯形有同时内切四条边的内切圆，且等腰梯形上底，下底，腰的长度都属于 b_vol 的数值集合，返回等腰梯形的上底，下底，腰以及内切圆的半径，半径以两位小数显示
+假设等腰梯形有同时内切四条边的内切圆，且等腰梯形上底，下底，腰的长度都属于 b_vol 的数值集合，返回等腰梯形的上底，下底，腰以及内切圆的半径，半径以两位小数显示  
+有内切圆的等腰梯形是有这样一个特征滴，（上底+下底）/2 = 腰
 ```sql
 with test as
 (
@@ -2366,7 +2367,21 @@ temp as
 Select *, cast(sqrt(square(side)-square((down-up)/2))/2.0 as decimal(18,2)) from temp
 -- 这里用到 /2.0 也是为了先求出的结果能带小数位，然后再 cast 就万事大吉了
 ```
+Exercise: 116 (Velmont: 2013-11-19)  
+Assuming a painting event lasts exactly one second determine all continuous time intervals in the utB table that are more than one second long.  
+Output: date of the painting event that starts the respective interval, date of the painting event that ends it.  
+假定每场绘画活动时长都精确到秒，返回 utB 表中连续活动时间间隔超过一秒的时间段，并显示活动开始时间以及结束时间  
+其实是查找连续数字的变形，考虑用时间减去对应的序号生成新的 group，因为当时间间隔增加一秒时，序号也递增一位，那么做减法后会得到同样的结果，这里因为存在重复时间，所以一定要去重，否则会出错
 ```sql
+Select min(B_DATETIME) be, max(B_DATETIME) fin from
+(
+  select B_DATETIME, dateadd(ss, -row_number()over(order by B_DATETIME), B_DATETIME) num from
+  ( 
+    select distinct B_DATETIME from utB
+  ) x
+) y
+group by num
+having count(*) > 1
 ```
 ```sql
 ```
