@@ -2383,7 +2383,32 @@ Select min(B_DATETIME) be, max(B_DATETIME) fin from
 group by num
 having count(*) > 1
 ```
+Exercise: 117 (Serge I: 2013-11-29)  
+For each country in the Classes table, determine the maximal value among the following three expressions:  
+numguns * 5000, bore * 3000, displacement.  
+The result set consists of 3 columns:   
+- country;  
+- maximal value;  
+- the word "numguns" if numguns*5000 is the maximum, "bore" if it’s bore*3000, or "displacement" if it’s the displacement.  
+Note. If the maximum occurs for more than one expression, display them all in a separate row each.  
+返回 Classes 表中每个国家 numguns * 5000, bore * 3000, displacement 三个数值中最大的，如果存在不止一个最大值，则将所有最大值对应的数据都返回
 ```sql
+with test as
+(
+  select country, numGuns*5000 value, 'numGuns' name from Classes
+  union all
+  select country, bore*3000 value, 'bore' name from Classes
+  union all
+  select country, displacement value, 'displacement' name from Classes
+) 
+
+Select distinct a.*, name from
+(
+  select country, max(value) max_v from test 
+  group by country
+) a
+left join test on
+a.country = test.country and a.max_v = test.value
 ```
 ```sql
 ```
