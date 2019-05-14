@@ -2410,7 +2410,45 @@ Select distinct a.*, name from
 left join test on
 a.country = test.country and a.max_v = test.value
 ```
+Exercise: 118 (qwrqwr: 2013-12-11)  
+The PFAS Museum Director elections are held in leap years only, on the first Tuesday after the first Monday in April.  
+For each date from the Battles table, determine the closest election date following it.  
+Output: battle name, date of battle, election date. Note: output format for dates should be "yyyy-mm-dd".  
+选举只在闰年进行，且在紧跟着四月的第一个周一之后的第一个周二举行。
+对于 Battles 表中的 date，返回这些 date 后最近的一个选举日期，日期格式都为 yyyy-mm-dd  
+闰年：四年一闰，百年不闰，四百年一闰，论数学基础的重要性，我能说我一直以为每隔四年一闰吗？~(>_<)~
 ```sql
+Select name, date, min(election) from
+(
+  select * from
+  (
+    select name, convert(varchar(100), date, 23) date, 
+      case 
+        when datename(dw, election) = 'Monday' then dateadd(day, 1, election )
+        when datename(dw, election) = 'Tuesday' then dateadd(day, 7, election )
+        when datename(dw, election) = 'Wednesday' then dateadd(day, 6, election )
+        when datename(dw, election) = 'Thursday' then dateadd(day, 5, election )
+        when datename(dw, election) = 'Friday' then dateadd(day, 4, election )
+        when datename(dw, election) = 'Saturday' then dateadd(day, 3, election )
+        when datename(dw, election) = 'Sunday' then dateadd(day, 2, election )
+      end election
+      -- 从 4 月 1 日开始调整，调整到正确的选举日期
+    from
+    (
+      select *, datefromparts(year(date) + 4 -year(date)%4, 04, 01 ) as election  
+      from Battles
+      union all
+      select *, datefromparts(year(date) + 8 -year(date)%4, 04, 01 ) as election  
+      from Battles
+      union all
+      select *, datefromparts(year(date) + 0 -year(date)%4, 04, 01 ) as election  
+      from Battles
+    ) x -- 生成一张粗略的闰年表，比如说 date 出现在二三月份，且本年就是闰年的情况，那就必须是 + 0 ；，+ 4 就不必说了，最普遍的现象；+ 8 就是可能存在百年不闰这种情况，比如 + 4 之后正好遇上百年而且不是四百年，好吧，妥妥的被嫌弃，一开始就只因为这个问题我的 code 一直报错，后来查了闰年的概念，(⊙﹏⊙)b
+  )y
+  where date < election and (year(election) % 400 = 0 or (year(election) % 4 = 0 and year(election) % 100 != 0))
+  -- 判断是否是闰年
+)z 
+group by name, date -- 最后取分组后的最小值，因为 + 0，+ 4，+ 8 也可能都是闰年
 ```
 ```sql
 ```
