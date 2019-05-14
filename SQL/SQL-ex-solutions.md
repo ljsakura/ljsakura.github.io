@@ -2416,7 +2416,7 @@ For each date from the Battles table, determine the closest election date follow
 Output: battle name, date of battle, election date. Note: output format for dates should be "yyyy-mm-dd".  
 选举只在闰年进行，且在紧跟着四月的第一个周一之后的第一个周二举行。
 对于 Battles 表中的 date，返回这些 date 后最近的一个选举日期，日期格式都为 yyyy-mm-dd  
-闰年：四年一闰，百年不闰，四百年一闰，论数学基础的重要性，我能说我一直以为每隔四年一闰吗？~(>_<)~
+闰年：四年一闰，百年不闰，四百年一闰，论数学基础的重要性，我能说我一直以为每隔四年一闰吗?
 ```sql
 Select name, date, min(election) from
 (
@@ -2450,7 +2450,28 @@ Select name, date, min(election) from
 )z 
 group by name, date -- 最后取分组后的最小值，因为 + 0，+ 4，+ 8 也可能都是闰年
 ```
+Exercise: 119 ($erges: 2008-04-25)  
+Group all paintings by days, months and years separately. The group identifiers should be "yyyy" for years, "yyyy-mm" for months and "yyyy-mm-dd" for days.  
+Displayed should be only groups with more than 10 distinct moments of time (b_datetime) at which paintings have occurred.  
+Result set: group identifier, total quantity of paint used within a group.  
+将所有绘图活动按年月日进行分类，各分组的组别表示为 yyyy，yyyy-mm，yyyy-mm-dd  
+且每个分组下所发生的不重复的绘图时点超过十个  
+返回各分组下所使用的涂料总量
 ```sql
+select cast(year(B_DATETIME) as varchar) period, sum(B_VOL) vol from utB
+group by year(B_DATETIME)
+having count(distinct B_DATETIME ) > 10
+-- yyyy 分组
+union all
+select cast(year(B_DATETIME) as varchar) + '-' + right('00' + cast(month(B_DATETIME) as varchar), 2) period, sum(B_VOL) vol from utB
+group by cast(year(B_DATETIME) as varchar) + '-' + right('00' + cast(month(B_DATETIME) as varchar), 2)
+having count(distinct B_DATETIME) > 10
+-- yyyy-mm 分组，因为取 month 后，01-09这些月份前面的0都会消失，所以需要用right字符串拼接一个0出来
+union all
+select convert(varchar(100), B_DATETIME, 23), sum(B_VOL) vol from utB
+group by convert(varchar(100), B_DATETIME, 23)
+having count(distinct B_DATETIME) > 10
+-- yyyy-mm-dd 分组
 ```
 ```sql
 ```
