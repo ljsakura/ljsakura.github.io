@@ -2473,7 +2473,34 @@ group by convert(varchar(100), B_DATETIME, 23)
 having count(distinct B_DATETIME) > 10
 -- yyyy-mm-dd 分组
 ```
+Exercise: 120 (mslava: 2004-01-05)  
+For each airline that has transported at least one passenger, calculate the arithmetic, geometric, quadratic and harmonic means of its respective planes’ flight durations (in minutes) with an accuracy of two decimal places. In addition, output the aforementioned characteristics for all flights in a separate line, using the word ‘TOTAL’ as the airline name.   
+Result set: company name, arithmetic mean {(x1 + x2 + … + xN)/N}, geometric mean {(x1 * x2 * … * xN)^(1/N)}, quadratic mean { sqrt((x1^2 + x2^2 + ... + xN^2)/N)}, harmonic mean {N/(1/x1 + 1/x2 + ... + 1/xN)}.  
+对于每个运载过乘客的航班，按航空公司进行分组计算飞行时长的算术均值，几何均值，均方值以及调和均值
 ```sql
+select case when name is null then 'Total' else name end name, 
+cast(avg(mean) as decimal(18,2)) as A_Mean,  -- 算术均值
+cast(power((exp(sum(log(mean)))), 1.0/count(name)) as decimal(18,2)) as G_Mean, -- 几何均值
+cast(sqrt(sum(square(mean))/count(name)) as decimal(18,2)) as Q_Mean, -- 均方值
+cast(1/avg(1/mean)as decimal(18,2)) as H_Mean -- 调和均值，倒数均值的倒数
+from
+(
+  select name,  
+    case
+      when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
+      else datediff(mi, time_out, time_in) + 1440 
+    end *1.0 mean 
+  from 
+  (
+    select distinct trip_no, date from Pass_in_trip
+  )
+  Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Company on
+  Trip. Id_comp = Company. Id_comp
+) x
+group by rollup(name)
 ```
 ```sql
 ```
