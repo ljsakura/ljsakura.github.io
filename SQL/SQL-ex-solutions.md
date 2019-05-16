@@ -2560,7 +2560,39 @@ inner join
 ) a on
 Ships.class = a.class -- 5、Ships 表中对应 Ships class 分类下至少有一艘船参与 battle 的年份早于 1941 的 lead ship
 ```
+Exercise: 122 (Serge I: 2003-08-28)  
+Assuming the first town a passenger departs from is his/her residence, find out the passengers who are away from home.   
+Result set: passenger name, town of residence.  
+假定旅客首次出发的城市就是他/她的居住地，返回那些离开家的旅客以及他们的居住地  
+主要是找出第一次出发城市和最后一次抵达城市不一致的旅客，这些旅客都是没有返回居住地的
 ```sql
+with departure as 
+(
+  select Pass_in_trip.ID_psg, row_number() over(partition by Pass_in_trip.ID_psg order by date, time_out ) as num, town_from, name from Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Passenger on
+  Passenger.ID_psg = Pass_in_trip.ID_psg
+), -- 按 date 和 time_out 升序排列，第一位就是旅客的首次出发城市，也即旅客居住地
+destination as
+(
+  select Pass_in_trip.ID_psg, row_number() over(partition by Pass_in_trip.ID_psg order by date desc, time_out desc ) as num, town_to, name from Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Passenger on
+  Passenger.ID_psg = Pass_in_trip.ID_psg
+)  -- 按 date 和 time_out 降序排列，第一位就是旅客的最后抵达城市
+
+select a.name, town_from from 
+(
+  select * from departure where num = 1
+) a
+left join 
+(
+  select * from destination where num = 1
+) b on
+a. ID_psg= b. ID_psg 
+where town_from <> town_to
 ```
 ```sql
 ```
