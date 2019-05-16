@@ -2476,7 +2476,7 @@ having count(distinct B_DATETIME) > 10
 Exercise: 120 (mslava: 2004-01-05)  
 For each airline that has transported at least one passenger, calculate the arithmetic, geometric, quadratic and harmonic means of its respective planes’ flight durations (in minutes) with an accuracy of two decimal places. In addition, output the aforementioned characteristics for all flights in a separate line, using the word ‘TOTAL’ as the airline name.   
 Result set: company name, arithmetic mean {(x1 + x2 + … + xN)/N}, geometric mean {(x1 * x2 * … * xN)^(1/N)}, quadratic mean { sqrt((x1^2 + x2^2 + ... + xN^2)/N)}, harmonic mean {N/(1/x1 + 1/x2 + ... + 1/xN)}.  
-对于每个运载过乘客的航班，按航空公司进行分组计算飞行时长的算术均值，几何均值，均方值以及调和均值
+对于每个运载过乘客的航班，按航空公司进行分组计算飞行时长的算术均值，几何均值，均方值以及调和均值以及总计，总计可以使用 rollup
 ```sql
 select case when name is null then 'Total' else name end name, 
 cast(avg(mean) as decimal(18,2)) as A_Mean,  -- 算术均值
@@ -2489,7 +2489,7 @@ from
     case
       when datediff(mi, time_out, time_in) > 0 then datediff(mi, time_out, time_in)
       else datediff(mi, time_out, time_in) + 1440 
-    end *1.0 mean 
+    end *1.0 mean  -- 此处 *1.0 是为了让计算结果有小数位
   from 
   (
     select distinct trip_no, date from Pass_in_trip
@@ -2502,7 +2502,63 @@ from
 ) x
 group by rollup(name)
 ```
+Exercise: 121 (Serge I: 2005-05-23)  
+Get the names of all ships in the database that definitely were launched before 1941.  
+这是迄今为止遇见的最最最最最最最坑的一道题，没有之一，嗷嗷嗷，贴下本题的提示  
+Hints to task №121  
+1. There can be a class with no lead ship; thus, using the class name instead of the ship name is not correct.  
+2. A lead ship should be displayed even if the launch year is unknown for all ships of the eponymous class, BUT at least one of them participated in a battle before 1941.  
+3. It’s possible a lead ship whose launch year is not known is in the Ships table only.  
+4. Note that the type of the ‘date’ column is datetime.  
+大体就是这样：  
+1、Ships 表中 1941 年之前下水的船只和 Outcomes 表中 battle 的年份早于 1941 的都很好找；  
+2、然后就是寻找 Outcomes 表中对应 Ships class 分类下至少有一艘船下水早于 1941 的 lead ship；  
+3、同理，也要找到 Ships 表中对应 Ships class 分类下至少有一艘船下水早于 1941 的 lead ship；  
+4、寻找 Outcomes 表中对应 Ships class 分类下至少有一艘船参与 battle 的年份早于 1941 的 lead ship；  
+5、同理，也要找到 Ships 表中对应 Ships class 分类下至少有一艘船参与 battle 的年份早于 1941 的 lead ship；  
+是不是很坑，巨坑，超大坑
 ```sql
+Select name from Ships 
+where launched < 1941  -- Ships 表中 1941 年之前下水的船只，1的前半部分
+union
+select ship from Outcomes
+inner join Battles on 
+Battles.name = Outcomes. battle
+where year(date) < 1941  -- Outcomes 表中 battle 的年份早于 1941，1的后半部分
+union
+select ship from Outcomes
+inner join Ships on
+Ships.class = Outcomes.ship
+where launched < 1941  -- 2、Outcomes 表中对应 Ships class 分类下至少有一艘船下水早于 1941 的 lead ship
+union
+select a.name from Ships a
+inner join Ships b on
+a.name = b.class
+where b.launched < 1941 -- 3、Ships 表中对应 Ships class 分类下至少有一艘船下水早于 1941 的 lead ship
+union
+select ship from Outcomes
+inner join
+(
+  select class from Ships
+  inner join Outcomes on
+  Ships.name = ship
+  inner join Battles on
+  battle = Battles.name
+  where year(date) < 1941
+) a on
+ship = class -- 4、Outcomes 表中对应 Ships class 分类下至少有一艘船参与 battle 的年份早于 1941 的 lead ship
+union
+select name from Ships
+inner join
+(
+  select class from Ships
+  inner join Outcomes on
+  Ships.name = ship
+  inner join Battles on
+  battle = Battles.name
+  where year(date) < 1941
+) a on
+Ships.class = a.class -- 5、Ships 表中对应 Ships class 分类下至少有一艘船参与 battle 的年份早于 1941 的 lead ship
 ```
 ```sql
 ```
