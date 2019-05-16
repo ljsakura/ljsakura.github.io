@@ -2566,6 +2566,7 @@ Result set: passenger name, town of residence.
 假定旅客首次出发的城市就是他/她的居住地，返回那些离开家的旅客以及他们的居住地  
 主要是找出第一次出发城市和最后一次抵达城市不一致的旅客，这些旅客都是没有返回居住地的
 ```sql
+--Solution 1
 with departure as 
 (
   select Pass_in_trip.ID_psg, row_number() over(partition by Pass_in_trip.ID_psg order by date, time_out ) as num, town_from, name from Pass_in_trip
@@ -2593,6 +2594,28 @@ left join
 ) b on
 a. ID_psg= b. ID_psg 
 where town_from <> town_to
+
+----------
+--Solution 2
+with test as 
+(
+  select Pass_in_trip.ID_psg, row_number() over(partition by Pass_in_trip.ID_psg order by date, time_out ) as num1, row_number() over(partition by Pass_in_trip.ID_psg order by date desc, time_out desc ) as num2, town_from, town_to, name from Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Passenger on
+  Passenger.ID_psg = Pass_in_trip.ID_psg
+) -- 可以将 Solution1 中的 departure 和 destination 简化成一个公用表
+
+select a.name, a.town_from from 
+(
+  select * from test where num1 = 1
+) a
+left join 
+(
+  select * from test where num2 = 1
+) b on
+a. ID_psg= b. ID_psg 
+where a.town_from <> b.town_to
 ```
 ```sql
 ```
