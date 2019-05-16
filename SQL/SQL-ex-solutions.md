@@ -2584,7 +2584,7 @@ destination as
   Passenger.ID_psg = Pass_in_trip.ID_psg
 )  -- 按 date 和 time_out 降序排列，第一位就是旅客的最后抵达城市
 
-select a.name, town_from from 
+Select a.name, town_from from 
 (
   select * from departure where num = 1
 ) a
@@ -2606,7 +2606,7 @@ with test as
   Passenger.ID_psg = Pass_in_trip.ID_psg
 ) -- 可以将 Solution1 中的 departure 和 destination 简化成一个公用表
 
-select a.name, a.town_from from 
+Select a.name, a.town_from from 
 (
   select * from test where num1 = 1
 ) a
@@ -2617,7 +2617,38 @@ left join
 a. ID_psg= b. ID_psg 
 where a.town_from <> b.town_to
 ```
+Exercise: 123 (qwrqwr: 2014-11-07)  
+For each maker find out the number of available products (of any type) with a non-unique price and the number of such non-unique prices.  
+Result set: maker, number of products, number of prices.  
+返回各 maker 下价格不唯一的产品数量以及不唯一的价格数量  
+这里因为存在配置不同的产品，所以计算时 model 的数量要重复计，有多少算多少，而价格就按照 distinct 来计算就可以  
+按 maker 和 price 进行分组，每组中 price 的个数大于 1 的即为不唯一价格，同时计算 model 数量和 distinct price 的数量，然后再对所求的结果按 maker 分类就和即可
 ```sql
+select x.maker, 
+sum(case when cou is null then 0 else cou end), 
+sum(case when cou1 is null then 0 else cou1 end) 
+from
+(
+  select distinct maker from Product
+) x
+left join
+(
+  select maker, count(Product.model) cou, count(distinct price) cou1 from Product
+  left join
+  (
+    select model, price from PC
+    union all
+    select model, price from Laptop
+    union all
+    select model, price from Printer
+  ) a on
+  Product.model = a.model
+  where price is not null
+  group by maker, price
+  having count(*) > 1
+) b on
+x.maker = b.maker
+group by x.maker
 ```
 ```sql
 ```
