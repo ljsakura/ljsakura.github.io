@@ -2622,7 +2622,7 @@ For each maker find out the number of available products (of any type) with a no
 Result set: maker, number of products, number of prices.  
 返回各 maker 下价格不唯一的产品数量以及不唯一的价格数量  
 这里因为存在配置不同的产品，所以计算时 model 的数量要重复计，有多少算多少，而价格就按照 distinct 来计算就可以  
-按 maker 和 price 进行分组，每组中 price 的个数大于 1 的即为不唯一价格，同时计算 model 数量和 distinct price 的数量，然后再对所求的结果按 maker 分类就和即可
+按 maker 和 price 进行分组，每组中 price 的个数大于 1 的即为不唯一价格，同时计算 model 数量和 distinct price 的数量，然后再对所求的结果按 maker 分类就和即可，顺带小小的鄙视一下这道四分题，完全没有作为四分题的觉悟好么
 ```sql
 select x.maker, 
 sum(case when cou is null then 0 else cou end), 
@@ -2650,7 +2650,34 @@ left join
 x.maker = b.maker
 group by x.maker
 ```
+Exercise: 124 (DimaN: 2004-03-01)  
+Among the passengers who flew with at least two airlines find those who traveled the same number of times with each of these airlines. Display the names of such passengers.  
+返回至少乘坐过两家航空公司航班且乘坐每家航空公司航班次数都相等的乘客名字
 ```sql
+with test as
+(
+  select Pass_in_trip. ID_psg, Passenger.name, Company.name as airline from Pass_in_trip
+  left join Passenger  on
+  Pass_in_trip. ID_psg = Passenger. ID_psg
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Company on
+  Trip. ID_comp = Company. ID_comp
+)
+
+Select name from 
+(
+  select ID_psg, name, airline, count(*) as num from test
+  where ID_psg in 
+  (
+    select ID_psg from test
+    group by ID_psg, name
+    having count(distinct airline) > 1 -- 至少乘坐过两家航空公司航班
+  )
+  group by ID_psg, name, airline
+) a
+group by ID_psg, name
+having count(distinct num) = 1 -- 乘坐每家航空公司航班次数都相等，即次数都是一样的
 ```
 ```sql
 ```
