@@ -2679,7 +2679,45 @@ Select name from
 group by ID_psg, name
 having count(distinct num) = 1 -- 乘坐每家航空公司航班次数都相等，即次数都是一样的
 ```
+Exercise: 125 (Baser: 2014-10-24)  
+Put all data about models on sale and their prices (from the tables Laptop, PC and Printer) into a single table named LPP, and enumerate its records (by assigning an id to each row) without gaps or duplicates.   
+Assume the models in each of the original three tables to be sorted in ascending order by the code field. The unified LPP table numbering has to be set up according to the following rule: first go the first models from the tables (Laptop, PC, and Printer), then the last models, after that - the second models in the original tables, then, the penultimate ones, etc.   
+In case there are no models of a particular type left, number the remaining models of other types only.   
+Output the LPP table in 4 columns: id, type, model, and price. The type field contains one of the strings 'Laptop', 'PC', or 'Printer'.  
+写完这道题，我的数学大脑已经被轰炸的体无完肤，虽然成功的写出了 solution，但是隐隐觉得有一点点懵逼，还是大写的，真是智商不够，row_number 来凑  
+大概说下解题思路吧，这道题要求将 Laptop，PC，Printer 三张表拼接在一起，且在各 type 内部是按照原始表的 code 进行排序的，然后取各 type 中的首行，尾行，次首行，次尾行……这样循环拼接下去  
+一开始真的是绞尽脑汁也没想出来到底要怎么办，提示只给了一个 Ranking functions，好吧，使劲往上凑好了  
+后来偶然发现如果一个按 type 内 code 升序编码，一个按 type 内 code 降序编码，union 后再取每个 code 对应的最小编码所在的行，神奇的事情发生了，在 type 内可以按照最小编码排序产生半正确结果了，所谓半正确结果就是说还需要对三个 type 进行整合，这都是小意思了  
+啰啰嗦嗦写了一大堆，也是怕以后自己再看的时候看不懂，就酱吧
 ```sql
+select row_number() over(order by id, type) id, type, model, price from
+(
+  select row_number() over(partition by type order by num, code) id, type, model, price from
+  (
+    select distinct *, min(num) over(partition by type, code) min_num from 
+    -- 如果 type 内总计有奇数个，则会有重复项，用 distinct 去重，同时生成最小编码
+    (
+      select row_number() over(partition by type order by code) num, code, type, model, price from
+      (
+        select code, 'PC' as type, model, price from PC
+        union
+        select code, 'Laptop', model, price from Laptop
+        union
+        select code, 'Printer', model, price from Printer
+      ) asc_lpp -- 升序编码
+      union
+      select row_number() over(partition by type order by code desc) num, code, type, model, price from
+      (
+        select code, 'PC' as type, model, price from PC
+        union
+        select code, 'Laptop', model, price from Laptop
+        union
+        select code, 'Printer', model, price from Printer
+      ) desc_lpp -- 降序编码
+    ) c
+  ) d
+  where num = min_num -- 对应最小编码所在行
+) e
 ```
 ```sql
 ```
