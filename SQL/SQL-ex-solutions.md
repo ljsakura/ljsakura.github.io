@@ -2719,7 +2719,42 @@ select row_number() over(order by id, type) id, type, model, price from
   where num = min_num -- 对应最小编码所在行
 ) e
 ```
+Exercise: 126 (Serge I: 2015-04-17)  
+For the sequence of passengers ordered by id_psg find out the ones having the maximum number of flight bookings, as well as the ones directly preceding and following them in the sequence.   
+The first passenger in the sequence is preceded by the last one, and the last passenger is followed by the first one.  
+For each passenger meeting the aforementioned criterion, display his/her name, the name of the previous passenger, and the name of the next passenger.  
+假定乘客名单是按照 ID_psg 进行排序的，返回订购航班次数最多的乘客以及他/她前一名和后一名乘客，最后一名乘客的后一名乘客定义为第一名乘客，而第一名乘客的前一名乘客定义为最后一名乘客，简单说来就是一个拼接环  
+提示使用 LAG 和 LEAD 开窗函数，一个可以返回前一项，一个可以返回后一项  
+考虑将原始表三度拼接，这样就可以首尾兼顾
 ```sql
+with test as
+(
+  select trip_no, date, place, Passenger.* from Pass_in_trip
+  right join Passenger on
+  Pass_in_trip. ID_psg = Passenger. ID_psg
+),
+temp as
+(
+  select name, ID_psg, count(trip_no) num from test
+  group by name, ID_psg
+),
+fin as
+(
+  select *, 1 as ind from temp
+  union
+  select *, 2 as ind from temp
+  union
+  select *, 3 as ind from temp
+) -- 拼接原始表
+
+select distinct name, prev, nxt from
+-- 因为三度拼接，所以去重
+(
+  select *, lag(name) over(order by ind, ID_psg) prev, lead(name) over(order by ind, ID_psg) nxt from fin
+  -- 分别求每个乘客的前一名和后一名乘客
+) a
+where num = (select max(num) from temp) and prev is not null and nxt is not null
+-- 返回前一项和后一项都不为空的
 ```
 ```sql
 ```
