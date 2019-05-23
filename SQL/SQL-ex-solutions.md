@@ -2810,7 +2810,34 @@ select cast(avg(price) as decimal(18,2)) from
   ) t3
 ) x
 ```
+Exercise: 128 (Shurgenz: 2006-08-05)  
+For each existing pair of buy-back centers from different tables (outcome and outcome_o) having the same identifier, determine the one with a greater total daily payout for each date at least one member of the pair collected recyclables.   
+Result set: buy-back center ID, date, one of the following messages:   
+- "once a day", if the center with only one payment per day possible has a greater payout;   
+- "more than once a day", if the payout is greater for the center with several transactions per day possible;   
+- "both", if both pair members paid out the same sum.  
+将 outcome 和 outcome_o 表按照 point 和 date 进行配对，如果后者 out 的总和大，则显示"once a day"；  
+如果前者 out 的总和大，则显示"more than once a day"；  
+如果相等则显示"both"  
+需要注意的是，如果某一个表中所包含的 point 从未在另一张表中出现过，则需要剔除这个 point
 ```sql
+Select coalesce(a.point, b.point), coalesce(a.date, b.date), 
+case 
+when a.out is null or a.out < b.out then 'more than once a day'
+when b.out is null or b.out < a.out then 'once a day' 
+when a.out = b.out then 'both'
+end
+from 
+(
+  select * from Outcome_o where point in (select point from Outcome intersect select point from Outcome_o)
+) a
+full join
+(
+  select point, date, sum(out) as out from Outcome
+  where point in (select point from Outcome intersect select point from Outcome_o)
+  group by point, date
+) b on
+a.point = b.point and a.date = b.date
 ```
 ```sql
 ```
