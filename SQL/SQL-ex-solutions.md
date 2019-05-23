@@ -2747,7 +2747,7 @@ fin as
   select *, 3 as ind from temp
 ) -- 拼接原始表
 
-select distinct name, prev, nxt from
+Select distinct name, prev, nxt from
 -- 因为三度拼接，所以去重
 (
   select *, lag(name) over(order by ind, ID_psg) prev, lead(name) over(order by ind, ID_psg) nxt from fin
@@ -2756,7 +2756,59 @@ select distinct name, prev, nxt from
 where num = (select max(num) from temp) and prev is not null and nxt is not null
 -- 返回前一项和后一项都不为空的
 ```
+Exercise: 127 (qwrqwr: 2015-04-24)  
+Find out the arithmetic mean (rounded to hundredths) of the following prices:  
+1. Price of the cheapest Laptops produced by makers of PCs with the lowest CD-ROM speed;  
+2. Price of the most expensive PCs by makers of the cheapest printers;  
+3. Price of the most expensive printers by makers of Laptops with the greatest RAM capacity.  
+Note: Exclude missing prices from the calculation.  
+本题是一道极其变态的绕弯题，反正多绕几回就绕通了，坑点在于 PC 表中的 cd 列是以 12x，24x……等等这样的形式表示的，所以要将其变成 int
 ```sql
+select cast(avg(price) as decimal(18,2)) from
+(
+  select min(price) as price from
+  (
+    select * from Laptop where model in 
+    (
+      select model from Product where maker in 
+      (
+        select maker from Product where model in 
+        (
+          select model from PC where cast(replace(cd,'x','') as int) = (select min( cast(replace(cd,'x','') as int)) from PC)
+          -- 这里使用了 replace 将 cd 列中的 ’x' 移除，同时将移除后的结果变为 int
+        )
+      )
+    )
+  ) t1
+  union all
+  select max(price) as price from
+  (
+    select * from PC where model in
+    (
+      select model from Product where maker in 
+      (
+        select maker from Product where model in 
+        (
+          select model from Printer where price = (select min(price) from Printer)
+        )
+      )
+    )
+  ) t2
+  union all
+  select max(price) as price from
+  (
+    select * from Printer where model in
+    (
+      select model from Product where maker in 
+      (
+        select maker from Product where model in 
+        (
+          select model from Laptop where ram = (select max(ram) from Laptop)
+        )
+      )
+    )
+  ) t3
+) x
 ```
 ```sql
 ```
