@@ -2839,7 +2839,20 @@ full join
 ) b on
 a.point = b.point and a.date = b.date
 ```
+Exercise: 129 (Serge I: 2008-02-01)  
+Assuming there are gaps in the sequence of ordered square IDs (Q_ID), find the minimum and maximum "free" values in the range between the least and the biggest existing IDs.  
+E.g., for a square ID sequence consisting of 1, 2, 5, 7, the result should be 3 and 6.   
+If there are no gaps in the sequence, display NULLs for both values.   
+假定图纸 ID 是不连续的编号，找到缺失的最小编号和最大编号，如没有缺失则显示 NULL
 ```sql
+select min(t1) as q_min, max(t1) as q_max from 
+(
+  select Q_ID+1 as t1 from utQ
+  where Q_ID+1 not in (select Q_ID from utQ)  and Q_ID < (select max(Q_ID) from utQ) -- 缺失的最小编号组
+  union
+  select Q_ID-1 as t1 from utQ
+  where Q_ID-1 not in (select Q_ID from utQ)  and Q_ID > (select min(Q_ID) from utQ) -- 缺失的最大编号组
+)a
 ```
 ```sql
 ```
