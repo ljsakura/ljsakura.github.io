@@ -2872,10 +2872,10 @@ SEQ1  NAME1 DATE1  SEQ2  NAME2 DATE2
 ```sql
 with test as
 (
-  select *, NTILE(2) over(order by date, name) rn_nt, row_number()over(order by date, name) rn, count(*) over() total from battles
+  select *, NTILE(2) over(order by date, name) rn_nt, row_number()over(order by date, name) rn from battles
 )
 
-select a.rn, a.name, a.date, b.rn as rn2, b.name as name2, b.date as date2 from
+Select a.rn, a.name, a.date, b.rn as rn2, b.name as name2, b.date as date2 from
 (
   select *, row_number() over(order by date, name) r1 from test where rn_nt = 1
 ) a
@@ -2886,7 +2886,33 @@ left join
 a.r1 = b.r1
 order by b.rn
 ```
+Exercise: 131 (qwrqwr: 2010-09-24)  
+Select cities from the Trip table whose names contain at least 2 different vowels from the list (a,e,i,o,u), with all these letters occurring an equal number of times in the name.  
+从 Trip 表中返回那些至少包含两种元音字符，且元音字符个数都相等的城市的名称  
+需要注意的是 len 不会将尾部空格计算在内，如果有这样一串字符 'aaii oo'， 按题目要求是符合的，但是如果用 len 和 replace 计算的话 'o' 的个数就会变成3
 ```sql
+with town as
+(
+  select town_from town from trip
+  union
+  select town_to town from trip
+),
+test as
+(
+  select town, len(town) - len(replace(town, 'a', '')) as num, 'a' cha from town
+  union
+  select town, DATALENGTH(town) - DATALENGTH(replace(town, 'e', '')) as num, 'e' cha from town
+  union
+  select town, DATALENGTH(town) - DATALENGTH(replace(town, 'i', '')) as num, 'i' cha from town
+  union
+  select town, DATALENGTH(town) - DATALENGTH(replace(town, 'o', '')) as num, 'o' cha from town
+  union
+  select town, DATALENGTH(town) - DATALENGTH(replace(town, 'u', '')) as num, 'u' cha from town
+)
+
+Select town from test
+where num != 0
+group by town having count(distinct cha) > 1 and count(distinct num) = 1
 ```
 ```sql
 ```
