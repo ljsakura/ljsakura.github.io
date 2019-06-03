@@ -2848,13 +2848,43 @@ If there are no gaps in the sequence, display NULLs for both values.
 select min(t1) as q_min, max(t1) as q_max from 
 (
   select Q_ID+1 as t1 from utQ
-  where Q_ID+1 not in (select Q_ID from utQ)  and Q_ID < (select max(Q_ID) from utQ) -- 缺失的最小编号组
+  where Q_ID+1 not in (select Q_ID from utQ) and Q_ID < (select max(Q_ID) from utQ) -- 缺失的最小编号组
   union
   select Q_ID-1 as t1 from utQ
-  where Q_ID-1 not in (select Q_ID from utQ)  and Q_ID > (select min(Q_ID) from utQ) -- 缺失的最大编号组
+  where Q_ID-1 not in (select Q_ID from utQ) and Q_ID > (select min(Q_ID) from utQ) -- 缺失的最大编号组
 )a
 ```
+Exercise: 130 (Velmont: 2015-08-14)  
+Historians decided to make a summary of battles and arrange it in two super columns. Each super column consists of three columns containing the battle serial number, name, and date.  
+First, the left super column is filled out in ascending order of serial numbers, then the right one. Serial numbers are assigned sequentially, with the battles being sorted by date, then by name.   
+In order to save paper the historians distribute the data from the Battles table equally between the two super columns (adding an extra battle to the left one if the total of battles is odd).   
+Display the result of the historians’ work as a six-column table, filling empty cells with NULL values.  
+将 battle 按照 date，name 升序排序，而后按照序号将它们分成两大列，第一大列是前一半的序号，date，name，第二大列是后一半的序号，date，name  
+```
+-----Column1-----  -----Column2-----
+SEQ1  NAME1 DATE1  SEQ2  NAME2 DATE2
+1     name  date    5    name  date
+2     name  date    6    name  date
+3     name  date    7    name  date
+4     name  date    Null Null  Null
+```  
+如果原始数据的行数是奇数的话，则在右边大列中填充一行空值
 ```sql
+with test as
+(
+  select *, NTILE(2) over(order by date, name) rn_nt, row_number()over(order by date, name) rn, count(*) over() total from battles
+)
+
+select a.rn, a.name, a.date, b.rn as rn2, b.name as name2, b.date as date2 from
+(
+  select *, row_number() over(order by date, name) r1 from test where rn_nt = 1
+) a
+left join
+(
+  select *, row_number() over(order by date, name) r1 from test where rn_nt = 2
+) b on
+a.r1 = b.r1
+order by b.rn
 ```
 ```sql
 ```
