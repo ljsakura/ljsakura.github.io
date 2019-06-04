@@ -2914,7 +2914,50 @@ Select town from test
 where num != 0
 group by town having count(distinct cha) > 1 and count(distinct num) = 1
 ```
+Exercise: 132 (qwrqwr: 2015-10-16)  
+For the date of each battle (date1), take the date of the chronologically subsequent battle (date2); if there is no such battle, use the current date.  
+Determine the age (the number of full years and full months) a person born on date1 reaches on date2.  
+Notes:  
+1) assume a full month of age is reached on the day matching the birthday, or earlier if the month in question doesn’t have any subsequent days;   
+a full year consists of 12 full months; all battles took place on different dates before today.  
+2) represent the dates in "yyyy-mm-dd" format without the time part, and the age in "Y y., M m." format; omit the number of years or months if the corresponding value is 0; display an empty string for an age of less than 1 full month.  
+Output: age, date1, date2.  
+对于 Battles 表中的 date，按顺序排列，并计算当一场战斗发生时出生的人在下一场战斗发生时的年纪，最后一场战斗则使用当前日期计算年纪  
+要点：  
+1、假定要到每个月生日所在的天才算满一个月，如果某个月的最后一天比生日所在天小，那么也要算满一个月；  
+2、一整年包含12个整月；  
+3、所有日期都以 "yyyy-mm-dd" 格式显示，年龄以 "Y y., M m." 格式显示，如果年（月）的值为0则不显示年（月），不满一个月的显示空值
 ```sql
+with test as
+(
+  select date,  row_number() over(order by date) rn from
+  (
+    select convert(varchar(100), date, 23) date from Battles
+    union
+    select convert(varchar(100), getdate(), 23) date -- 拼接当前日期
+) x
+)
+
+Select  
+  case
+    when mo = 0 then ''
+    when mo < 12 then cast(mo as varchar(10)) + ' m.'
+    when mo%12 != 0 then cast(mo/12 as varchar(10)) +' y., ' + cast(mo%12 as varchar(10)) +' m.'
+    when mo%12 = 0 then cast(mo/12 as varchar(10)) +' y.'
+  end, date1, date2
+from
+(
+  select 
+    case
+      when day(b.date) >= day(a.date) then datediff(month, a.date, b.date)
+      when day(b.date) < day(a.date) and day(dateadd(day, 1, b.date)) = 1 then datediff(month, a.date, b.date)
+      -- 判断是否是月底最后一天
+      when day(b.date) < day(a.date) and day(dateadd(day, 1, b.date)) != 1 then datediff(month, a.date, b.date)-1
+    end mo,
+  a.date date1, b.date date2 from test a
+  inner join test b on
+  a.rn = b.rn - 1
+) y
 ```
 ```sql
 ```
