@@ -1538,7 +1538,7 @@ Exercise: 86 (Serge I: 2012-04-20)
 For each maker, list the types of products he produces in alphabetic order, using a slash ("/") as a delimiter.  
 Result set: maker, list of product types.  
 对于每个 maker，将所有 type 按字母排序，并用反斜杠'/'拼接起来  
-本题在 mysql 中可以使用 group_concat 函数，在 mssql 中可以使用 stuff 函数
+本题在 中可以使用 group_concat 函数，在 mssql 中可以使用 stuff 函数
 ```sql
 --solution 1  mysql
 
@@ -2959,7 +2959,52 @@ from
   a.rn = b.rn - 1
 ) y
 ```
+Exercise: 133 (yuriy.rozhok: 2007-03-24)  
+Let S be a subset of the set of integers.  
+Let’s call "a hill with N on its top" a sequence of members of S consisting of numbers less than N arranged in ascending order from left to right and concatenated to a string without delimiters, followed by the same numbers arranged in descending order, and the value of N lying in between. E. g., for S={1,2,...,10}, the hill with 5 on its top is represented as 123454321.  
+Assuming S consists of all company identifiers, put together a hill for each company, with its ID forming the top of the hill.  
+Consider all IDs to be positive and note there is no data in the database that can cause the hill sequence exceed 70 digits.   
+Result set: id_comp, hill sequence  
+假定 S 是一个整数集  
+以 N 为顶的山定义为 S 集合中小于 N 的数字以升序排列，而后不带任何分隔符，将这些数字再以降序排列，而 N 就放置于升序排列和降序排列之间，如 S={1,2,...,10}，则以5为顶的山就表示为123454321  
+假定 S 是航空公司所有编号组成的集合，为每个公司生成一座小山，公司的编号作为山顶  
+提示考虑航空公司编号不连续的情况，以及数值过高的情形  
+Solution1 使用了 mysql，其中 concat_ws 在拼接字符串时可有效避免 NULL 带来的影响，Solution2 使用了 mssql，但一直在 database2 上无法通过，调试中……
 ```sql
+--solution1 mysql
+select a.x,concat_ws('',a.y,b.y) from
+-- concat_ws 当拼接的字符串中有 NULL 值时也不会将最终结果变为 NULL
+(
+  select x, group_concat(y order by y separator '') y from
+  (
+    select a.ID_comp x, b. ID_comp y from Company a
+    left join Company b on
+    a. ID_comp>=b. ID_comp
+  ) a
+  group by x
+) a
+left join
+(
+  select x, group_concat(y order by y desc separator '') y from
+  (
+    select a.ID_comp x, b. ID_comp y from Company a
+    left join Company b on
+    a. ID_comp>b. ID_comp
+  ) a
+  group by x
+) b on
+a.x = b.x
+
+-- solution2 mssql failed on the second database
+with temp as
+(
+  select ID_comp, ID_comp ind, cast(ID_comp as varchar(max)) hill from Company
+  union all
+  select ID_comp, ind-1, cast(ind-1 as varchar(max))+hill+ cast(ind-1 as varchar(max))  from temp
+  where  ind >1 and ind-1 in(select ID_comp from Company)
+)
+select ID_comp, hill from temp
+where ind = (select min(ID_comp) from Company)
 ```
 ```sql
 ```
