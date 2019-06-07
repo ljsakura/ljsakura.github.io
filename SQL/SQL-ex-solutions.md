@@ -2969,10 +2969,10 @@ Result set: id_comp, hill sequence
 以 N 为顶的山定义为 S 集合中小于 N 的数字以升序排列，而后不带任何分隔符，将这些数字再以降序排列，而 N 就放置于升序排列和降序排列之间，如 S={1,2,...,10}，则以5为顶的山就表示为123454321  
 假定 S 是航空公司所有编号组成的集合，为每个公司生成一座小山，公司的编号作为山顶  
 提示考虑航空公司编号不连续的情况，以及数值过高的情形  
-Solution1 使用了 mysql，其中 concat_ws 在拼接字符串时可有效避免 NULL 带来的影响，Solution2 使用了 mssql，但一直在 database2 上无法通过，调试中……
+Solution1 使用了 mysql，其中 concat_ws 在拼接字符串时可有效避免 NULL 带来的影响，两个 Solution 的主要思路其实是一样的
 ```sql
 --solution1 mysql
-select a.x,concat_ws('',a.y,b.y) from
+Select a.x,concat_ws('',a.y,b.y) from
 -- concat_ws 当拼接的字符串中有 NULL 值时也不会将最终结果变为 NULL
 (
   select x, group_concat(y order by y separator '') y from
@@ -2995,16 +2995,26 @@ left join
 ) b on
 a.x = b.x
 
--- solution2 mssql failed on the second database
-with temp as
+-- solution2 mssql 
+with test as
 (
-  select ID_comp, ID_comp ind, cast(ID_comp as varchar(max)) hill from Company
-  union all
-  select ID_comp, ind-1, cast(ind-1 as varchar(max))+hill+ cast(ind-1 as varchar(max))  from temp
-  where  ind >1 and ind-1 in(select ID_comp from Company)
+  select a. ID_comp x, b. ID_comp y from Company a
+  left join Company b on
+  a. ID_comp >= b. ID_comp
 )
-select ID_comp, hill from temp
-where ind = (select min(ID_comp) from Company)
+Select a.x, a.y+ isnull(b.y,'') from
+-- 这里也可以用 case 语句判断，不过看起来不够简洁而已，之前用这种方法一直显示数据库超时，后来才发现原来是在递归那里出了问题，一开始以为编号是连续的，就一个个加，一个个减，自然占用了很大内存，如果改成外链接就会节省不少时间
+(
+  select x, string_agg(y,'') within group(order by y) y from test
+  group by x
+) a
+left join
+(
+  select x, string_agg(y,'') within group(order by y desc) y from test
+  where x != y
+  group by x
+) b on
+a.x = b.x
 ```
 ```sql
 ```
