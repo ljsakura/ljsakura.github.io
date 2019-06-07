@@ -3021,13 +3021,16 @@ To make the squares white, additional paint of each color is applied to them acc
 - first, squares needing the least amount of paint of a given color are dyed;  
 - in case the amount of needed paint is equal, squares with smaller Q_IDs are dyed first.   
 Find the IDs of the squares that still AREN’T white after all of the paint has been used up.  
-使用剩余颜料继续喷涂图纸，规则如下：
+使用剩余颜料继续喷涂图纸，规则如下：  
+-- 需每种颜色用量少的图纸先被喷涂；  
+-- 当需要颜色用量相同时，图纸编号小的先被喷涂
 ```sql
 with rem as
 (
   select V_COLOR, sum(remain) remain from 
   (
     select V_ID, V_COLOR, 255 - isnull(sum(B_VOL), 0) remain from utV
+    -- 存在未使用过的喷罐，所以要用 isnull 进行判断
     left join utB on
     utV. V_ID = utB. B_V_ID
     group by V_ID, V_COLOR
@@ -3039,26 +3042,27 @@ need as
   select *, sum(total) over(partition by V_COLOR order by total, B_Q_ID ) rn from
   (
     select Q_ID B_Q_ID, col V_COLOR, 255 - isnull(total, 0) total  from
-  (
-  select 'R' col union select 'G' union select 'B'
-  ) color
-  cross join
-  (
-    select distinct B_Q_ID Q_ID from utB
-    -- 如果要更细致一些，这里需要用 utQ 的 Q_ID 来 cross join
-  ) q
-  left join 
-  (
-    select B_Q_ID, V_COLOR, sum(B_VOL) total from utB
-    left join utV on
-    B_V_ID = V_ID
-    group by B_Q_ID, V_COLOR
-  ) a on
-  col = V_COLOR and Q_ID = a.B_Q_ID
+    -- 存在某一种或两种颜色未喷涂过的图纸，需要判断该颜色在图纸上用量是否为空
+    (
+    select 'R' col union select 'G' union select 'B'
+    ) color
+    cross join
+    (
+      select distinct B_Q_ID Q_ID from utB
+      -- 如果要更细致一些，这里需要用 utQ 的 Q_ID 来 cross join
+    ) q -- 用 cross join 生成 RGB 和 图纸编号的完全表
+    left join 
+    (
+      select B_Q_ID, V_COLOR, sum(B_VOL) total from utB
+      left join utV on
+      B_V_ID = V_ID
+      group by B_Q_ID, V_COLOR
+    ) a on
+    col = V_COLOR and Q_ID = a.B_Q_ID
   ) b
 )
 
-select Q_ID from utQ
+Select Q_ID from utQ
 where Q_ID not in
 (
   select  B_Q_ID from need
