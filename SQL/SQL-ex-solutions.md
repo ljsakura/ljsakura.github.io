@@ -2272,7 +2272,7 @@ Select Q_NAME, R from
 Exercise: 112 (Serge I: 2003-12-24)  
 What maximal number of black squares could be colored white using the remaining paint?  
 返回剩余的颜料还能将几张黑色的图纸喷涂成白色  
-坑1：存在从未使用过的喷罐；  
+坑1：存在从未使用过的；  
 坑2：数据库中可能只有一种或两种颜色的喷罐
 ```sql
 Select min(m-n)/255 from
@@ -2301,7 +2301,7 @@ Exercise: 113 (Serge I: 2003-12-24)
 How much paint of each color is needed to dye all squares white?  
 Result set: amount of each paint in order (R,G,B).  
 还需要多少染料才能将所有的图纸都喷涂成白色  
-依旧需要考虑从未被喷涂过的图纸，将图纸数量乘以255并叉积 RGB 表，最后将去已有 RGB 涂料使用量，得到的就是所需用量
+依旧需要考虑从未被喷涂过的图纸，将图纸数量乘以255并叉积 RGB 表，最后减去已有 RGB 涂料使用量，得到的就是所需用量
 ```sql
 Select 
   max(case when color = 'R' then result else 0 end) R,
@@ -3016,7 +3016,58 @@ left join
 ) b on
 a.x = b.x
 ```
+Exercise: 134 (Serge I: 2003-12-26)  
+To make the squares white, additional paint of each color is applied to them according to the following scheme:   
+- first, squares needing the least amount of paint of a given color are dyed;  
+- in case the amount of needed paint is equal, squares with smaller Q_IDs are dyed first.   
+Find the IDs of the squares that still AREN’T white after all of the paint has been used up.  
+使用剩余颜料继续喷涂图纸，规则如下：
 ```sql
+with rem as
+(
+  select V_COLOR, sum(remain) remain from 
+  (
+    select V_ID, V_COLOR, 255 - isnull(sum(B_VOL), 0) remain from utV
+    left join utB on
+    utV. V_ID = utB. B_V_ID
+    group by V_ID, V_COLOR
+  ) x
+  group by V_COLOR
+),
+need as
+(
+  select *, sum(total) over(partition by V_COLOR order by total, B_Q_ID ) rn from
+  (
+    select Q_ID B_Q_ID, col V_COLOR, 255 - isnull(total, 0) total  from
+  (
+  select 'R' col union select 'G' union select 'B'
+  ) color
+  cross join
+  (
+    select distinct B_Q_ID Q_ID from utB
+    -- 如果要更细致一些，这里需要用 utQ 的 Q_ID 来 cross join
+  ) q
+  left join 
+  (
+    select B_Q_ID, V_COLOR, sum(B_VOL) total from utB
+    left join utV on
+    B_V_ID = V_ID
+    group by B_Q_ID, V_COLOR
+  ) a on
+  col = V_COLOR and Q_ID = a.B_Q_ID
+  ) b
+)
+
+select Q_ID from utQ
+where Q_ID not in
+(
+  select  B_Q_ID from need
+  left join rem on
+  need. V_COLOR = rem. V_COLOR
+  where rn <= remain
+  group by B_Q_ID
+  having count(distinct need.V_COLOR) = 3
+)
 ```
 ```sql
 ```
