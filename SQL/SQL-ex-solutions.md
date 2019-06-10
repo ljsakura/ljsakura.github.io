@@ -570,7 +570,35 @@ inner join classes on
 ships.class = classes.class
 where numguns >= 10
 ```
+Exercise: 41 (Serge I: 2019-05-31)  
+For each maker who has models at least in one of the tables PC, Laptop, or Printer, determine the maximum price for his products.   
+Output: maker; if there are NULL values among the prices for the products of a given maker, display NULL for this maker, otherwise, the maximum price.  
+对于每个在 PC, Laptop 或 Printer 至少一张表中有至少一个 model 的 maker，返回该 maker 产品的最高价格  
+如果 maker 中有产品的价格是 NULL，则该 maker 的最高价格显示为 NULL，其余则仍旧显示最高价格
 ```sql
+with test as
+(
+  select model, price from PC
+  union
+  select model, price from Laptop
+  union
+  select model, price from Printer
+)
+
+Select a.maker, case when b.maker is null then price else null end from
+(
+  select maker, max(price) price from Product
+  left join test on
+  Product.model = test.model
+  where Product.model in (select model from test) 
+  group by maker
+) a
+left join 
+(
+  select distinct maker from Product
+  where model in (select model from test where price is null)
+) b on
+a.maker = b.maker
 ```
 Exercise: 42 (Serge I: 2002-11-05)  
 Find the names of ships sunk at battles, along with the names of the corresponding battles.  
@@ -623,6 +651,39 @@ b.class = c.class or
 a.ship = c.class -- A ship engaged in this battle should be listed even if its class is not known.
 where battle = 'guadalcanal'
 ```
+Exercise: 47 (Serge I: 2019-06-07)  
+Find the countries that have lost all their ships in battles.  
+返回在战役中损失了所有船只的国家，参照 57 题，涉及三列数据，country，船只名称，沉没船只名称，只要船只数量和沉没船只数量相等即可
+```sql
+Select country from
+(
+  select a.country, c.name, b.name as result from classes a
+  left join ships c on
+  a.class = c.class 
+  left join
+  (
+    select * from ships where name in(select ship from outcomes where result = 'sunk')
+  ) b on
+  c.name = b.name and 
+  c.class = b.class
+  union
+  select a.country, c.ship, b.ship as result from classes a
+  left join 
+  (
+    select * from outcomes where ship not in(select name from ships)
+  ) c on
+  c.ship = a.class 
+  left join 
+  (
+    select * from outcomes where result = 'sunk' and ship not in(select name from ships)
+  ) b on
+  b.ship = c.ship
+  where c.ship not in (select name from ships)
+) x
+where name is not null
+group by country
+having count(name) = count(result) 
+```
 Exercise: 48 (Serge I: 2003-02-16)  
 Find the ship classes having at least one ship sunk in battles.  
 返回至少有一架船只在战役中沉没的 class
@@ -658,7 +719,7 @@ Find the battles in which Kongo-class ships from the Ships table were engaged.
 Select distinct battle from ships a
 inner join outcomes b on
 a.name = b.ship
-where  a.class = 'kongo' 
+where a.class = 'kongo' 
 ```
 Exercise: 51 (Serge I: 2003-02-17)  
 Find the names of the ships with the largest number of guns among all ships having the same displacement (including ships in the Outcomes table).  
