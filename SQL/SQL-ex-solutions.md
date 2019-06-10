@@ -3073,7 +3073,17 @@ where Q_ID not in
   having count(distinct need.V_COLOR) = 3
 )
 ```
+Exercise: 135 (Serge I: 2016-12-16)  
+For each one-hour interval starting on the hour during which squares were dyed, determine the last moment of a painting event (B_DATETIME).  
+以小时为间隔，返回每个绘图时间的结束时点
 ```sql
+Select B_DATETIME from 
+(
+  select *, row_number() over(partition by convert(varchar(100), B_DATETIME, 23), 
+  datepart(hour, B_DATETIME) order by B_DATETIME desc) rn
+  from utB
+) a
+where rn = 1
 ```
 ```sql
 ```
