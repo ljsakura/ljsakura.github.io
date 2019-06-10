@@ -655,6 +655,7 @@ Exercise: 47 (Serge I: 2019-06-07)
 Find the countries that have lost all their ships in battles.  
 返回在战役中损失了所有船只的国家，参照 57 题，涉及三列数据，country，船只名称，沉没船只名称，只要船只数量和沉没船只数量相等即可
 ```sql
+-- solution1
 Select country from
 (
   select a.country, c.name, b.name as result from classes a
@@ -683,6 +684,21 @@ Select country from
 where name is not null
 group by country
 having count(name) = count(result) 
+
+-- solution2
+Select country from
+(
+  select country, name, result from Classes
+  inner join 
+  (
+    select coalesce(name, ship) name, coalesce(class, ship) class, result from Ships
+    full outer join Outcomes on
+    name = ship
+  ) x on Classes.class = x.class
+) a
+group by country
+having count(distinct name) = sum(iif(result = 'sunk', 1, 0))
+-- 比如某次战役中该船只是 OK，然后下一次战役是 damage，最后一次是 sunk，那么这个船只会被统计三次，所以用 distinct 来去重
 ```
 Exercise: 48 (Serge I: 2003-02-16)  
 Find the ship classes having at least one ship sunk in battles.  
