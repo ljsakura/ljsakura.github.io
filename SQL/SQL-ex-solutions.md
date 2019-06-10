@@ -570,34 +570,8 @@ inner join classes on
 ships.class = classes.class
 where numguns >= 10
 ```
-Exercise: 41 (Serge I: 2008-08-30)  
-For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:   
-- name of the characteristic (title of the corresponding column in the PC table);  
-- its respective value.  
-pc 表中 code 最高的 pc，获取它的指标（除却 code），并将这些指标以两列展示，一列是指标名称，另一列是指标数据，即平常所说的数据透视表
 ```sql
-Select characteristic, value from 
-(
-  select 
-  isnull (cast(model as varchar(255)),'') model, --如果不使用 isnull 则第二个测试数据库就会报错，因为存在空值
-  isnull (cast(speed as varchar(255)),'') speed, 
-  isnull (cast(ram as varchar(255)),'') ram, 
-  isnull (cast(hd as varchar(255)),'') hd, 
-  isnull (cast(cd as varchar(255)),'') cd, 
-  isnull (cast(price as varchar(255)),'') price  
-  from pc
-  where code = (select max(code) from pc)
-) a
-unpivot 
-(
-  value for characteristic in
-  (
-    model, speed, ram, hd, cd, price
-  )
-) p
 ```
-pivot 与 unpivot 的使用详见 [MSDN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
-
 Exercise: 42 (Serge I: 2002-11-05)  
 Find the names of ships sunk at battles, along with the names of the corresponding battles.  
 返回在相应 battle 中沉没的船只
@@ -648,20 +622,6 @@ left join classes c on
 b.class = c.class or
 a.ship = c.class -- A ship engaged in this battle should be listed even if its class is not known.
 where battle = 'guadalcanal'
-```
-Exercise: 47 (Serge I: 2011-02-11)  
-Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.  
-Result set: row number as described above, manufacturer's name (maker), model.  
-为 product 表生成序号，要求如下：maker 以所生产的 model 数量降序排列（对于生产的 model 数量相同的 maker 来说，以 maker 的首字母升序排列），以 model 升序排列，这里用到了开窗函数 row_number（）over（order by ……）
-```sql
-Select row_number () over (order by num desc, a.maker, model) no, a.maker, a.model
-from product a
-left join 
-(
-  select count(distinct model) as num, maker from product
-  group by maker
-) b on
-a.maker = b.maker
 ```
 Exercise: 48 (Serge I: 2003-02-16)  
 Find the ship classes having at least one ship sunk in battles.  
@@ -3106,4 +3066,46 @@ where rn = 1
 ```sql
 ```
 ```sql
+```
+Exercise: 146 (Serge I: 2008-08-30)  
+For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:   
+- name of the characteristic (title of the corresponding column in the PC table);  
+- its respective value.  
+pc 表中 code 最高的 pc，获取它的指标（除却 code），并将这些指标以两列展示，一列是指标名称，另一列是指标数据，即平常所说的数据透视表
+```sql
+Select characteristic, value from 
+(
+  select 
+  isnull (cast(model as varchar(255)),'') model, --如果不使用 isnull 则第二个测试数据库就会报错，因为存在空值
+  isnull (cast(speed as varchar(255)),'') speed, 
+  isnull (cast(ram as varchar(255)),'') ram, 
+  isnull (cast(hd as varchar(255)),'') hd, 
+  isnull (cast(cd as varchar(255)),'') cd, 
+  isnull (cast(price as varchar(255)),'') price  
+  from pc
+  where code = (select max(code) from pc)
+) a
+unpivot 
+(
+  value for characteristic in
+  (
+    model, speed, ram, hd, cd, price
+  )
+) p
+```
+pivot 与 unpivot 的使用详见 [MSDN](https://docs.microsoft.com/zh-cn/previous-versions/sql/sql-server-2008-r2/ms177410(v=sql.105))
+
+Exercise: 147 (Serge I: 2011-02-11)  
+Number the rows of the Product table as follows: makers in descending order of number of models produced by them (for manufacturers producing an equal number of models, their names are sorted in ascending alphabetical order); model numbers in ascending order.  
+Result set: row number as described above, manufacturer's name (maker), model.  
+为 product 表生成序号，要求如下：maker 以所生产的 model 数量降序排列（对于生产的 model 数量相同的 maker 来说，以 maker 的首字母升序排列），以 model 升序排列，这里用到了开窗函数 row_number（）over（order by ……）
+```sql
+Select row_number () over (order by num desc, a.maker, model) no, a.maker, a.model
+from product a
+left join 
+(
+  select count(distinct model) as num, maker from product
+  group by maker
+) b on
+a.maker = b.maker
 ```
