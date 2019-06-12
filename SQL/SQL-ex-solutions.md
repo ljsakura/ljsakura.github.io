@@ -3126,13 +3126,32 @@ Exercise: 136 (Serge I: 2017-01-13)
 For each ship in the Ships table whose name contains symbols that aren't letters of the English alphabet, display its name, the position of the first such non-alphabetic character, and the character itself.  
 对于 Ships 表，返回那些包含非英文字母的船只名称，并返回第一个非英文字母所在的位置以及该字符，提示中给了 charindex，但我觉得 patindex 更适合本题
 ```sql
-select name, 
+Select name, 
 patindex('%[^A-Za-z]%', name) n, 
 substring(name, patindex('%[^A-Za-z]%', name), 1) let 
 from Ships
 where name like '%[^A-Za-z]%'
 ```
+Exercise: 137 (Serge I: 2005-01-19)  
+For each fifth model (in ascending order of model numbers) in the Product table, find out its product type and average price.  
+在 Product 表中每隔五个取一行 model 的信息，model 按升序排列，返回其产品类型及均价
 ```sql
+select type, avg(price) from
+(
+  select *, row_number() over (order by model) rn from Product
+) a
+left join
+(
+  select model, price from PC
+  union all
+  select model, price from Laptop
+  union all
+  select model, price from Printer
+) b on -- 这里一定要用 union all，因为不同配置的产品也有可能有同样的价格
+a.model = b.model
+where rn%5 = 0
+group by a.model, type
+
 ```
 ```sql
 ```
