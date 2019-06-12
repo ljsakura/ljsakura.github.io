@@ -3112,7 +3112,7 @@ where Q_ID not in
 ```
 Exercise: 135 (Serge I: 2016-12-16)  
 For each one-hour interval starting on the hour during which squares were dyed, determine the last moment of a painting event (B_DATETIME).  
-以小时为间隔，返回每个绘图时间的结束时点
+以小时为间隔，返回每个绘图事件的结束时点
 ```sql
 Select B_DATETIME from 
 (
@@ -3122,7 +3122,15 @@ Select B_DATETIME from
 ) a
 where rn = 1
 ```
+Exercise: 136 (Serge I: 2017-01-13)  
+For each ship in the Ships table whose name contains symbols that aren't letters of the English alphabet, display its name, the position of the first such non-alphabetic character, and the character itself.  
+对于 Ships 表，返回那些包含非英文字母的船只名称，并返回第一个非英文字母所在的位置以及该字符，提示中给了 charindex，但我觉得 patindex 更适合本题
 ```sql
+select name, 
+patindex('%[^A-Za-z]%', name) n, 
+substring(name, patindex('%[^A-Za-z]%', name), 1) let 
+from Ships
+where name like '%[^A-Za-z]%'
 ```
 ```sql
 ```
