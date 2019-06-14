@@ -3170,7 +3170,35 @@ temp as
 Select a.q, b.q from temp a, temp b
 where a.rn = b.rn and a.q < b.q
 ```
+Exercise: 139 (Serge I: 2017-05-12)  
+For each ship not present in the Outcomes table, obtain the comma-separated chronological list of battles it couldn’t have participated in. If there are no such battles, output NULL.  
+Assume a ship could have taken part in any battle that happened in the year the vessel was launched.  
+Output: ship name, list of battles.  
+对于 Ships 中没有出现在 Outcomes 表中的船只，返回其不可能参与的战役的名单，该名单是以所有战斗按照时间排序并以逗号分隔做成的字段拼接  
+提示为假如船只的下水年份未知，则假设该船只不能参与 lead ship 下水前的所有战役
 ```sql
+with ba as
+(
+  select distinct name, year(date) yy, date from battles
+),
+ship as
+(
+  select distinct a.name, coalesce(a.launched, b.launched) launched from Ships a
+  left join Ships b on
+  a.class = b.name
+  where a.name not in
+  (
+    select ship from Outcomes
+  )
+)
+
+Select ship, string_agg(battle,',')within group(order by date) from
+(
+  select ship.name as ship, ba.name as battle, date from ship
+  left join ba on
+  launched > yy
+) x
+group by ship
 ```
 ```sql
 ```
