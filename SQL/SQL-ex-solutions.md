@@ -3151,9 +3151,24 @@ left join
 a.model = b.model
 where rn%5 = 0
 group by a.model, type
-
 ```
+Exercise: 138 (Serge I: 2017-03-10)  
+Determine all unique pairs of non-black squares (q_id1 and q_id2) painted by the same set of spray cans.  
+Output: q_id1, q_id2, where q_id1 < q_id2.  
+返回那些使用喷罐都一样的图纸编号，两两一组，且左列的数值小于右列，来一波数据合并 string_agg
 ```sql
+with test as
+(
+  select distinct B_Q_ID, B_V_ID from utB
+),
+temp as
+(
+  select B_Q_ID q, string_agg(B_V_ID,',') within group(order by B_V_ID) rn from test
+  group by B_Q_ID
+)
+
+Select a.q, b.q from temp a, temp b
+where a.rn = b.rn and a.q < b.q
 ```
 ```sql
 ```
