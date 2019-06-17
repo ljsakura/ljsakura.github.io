@@ -3200,7 +3200,29 @@ Select ship, string_agg(battle,',')within group(order by date) from
 ) x
 group by ship
 ```
+Exercise: 140 (no_more: 2017-07-07)  
+For the period from the earliest battle in the database to the last one, find out how many battles happened during each decade.   
+Result set: decade (in "1940s" format); number of battles.  
 ```sql
+with test as
+(
+  select min(year(date))/10 min_d, max(year(date))/10 max_d from Battles
+),
+temp as
+(
+  select min_d, '' name from test
+  union all
+  select min_d+1, '' from temp
+  where min_d < (select max_d from test)
+)
+
+Select years, sum(case when name='' then 0 else 1 end) battles from
+(
+  select name, cast(year(date)/10*10 as varchar(10)) + 's' years from Battles
+  union all
+  select name, cast(min_d*10 as varchar(10)) + 's' from temp
+) a
+group by years
 ```
 ```sql
 ```
