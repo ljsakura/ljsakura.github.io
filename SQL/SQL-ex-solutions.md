@@ -3203,6 +3203,7 @@ group by ship
 Exercise: 140 (no_more: 2017-07-07)  
 For the period from the earliest battle in the database to the last one, find out how many battles happened during each decade.   
 Result set: decade (in "1940s" format); number of battles.  
+对于数据库中自最早一场战役起，至最后一场战役止，计算每十年间发生过多少场战役，年代用 '1940s' 这样的格式来记录
 ```sql
 with test as
 (
@@ -3214,7 +3215,7 @@ temp as
   union all
   select min_d+1, '' from temp
   where min_d < (select max_d from test)
-)
+) -- 生成年代表，以补充为空的年代
 
 Select years, sum(case when name='' then 0 else 1 end) battles from
 (
@@ -3224,7 +3225,32 @@ Select years, sum(case when name='' then 0 else 1 end) battles from
 ) a
 group by years
 ```
+Exercise: 141 (Serge I: 2017-11-03)  
+For each travelled passenger, determine the number of days in April, 2003 lying between the dates of the passenger’s first and last departure inclusive.   
+Display the passenger’s name and the number of days.  
+对于每个曾搭乘过航班的乘客，返回乘客第一次出行和最后一次出行间隔中落在2003年4月份的天数
+这里面需要考虑一下几种情况：  
+1、首飞和末飞均早于2003-04-01，落在四月份的记录为0；  
+2、首飞早于2003-04-01，但末飞介于4月1日和5月1日之间，落在四月份的天数从4月1日算起；  
+3、首飞和末飞均介于4月1日和5月1日之间，落在四月份的天数为两者日期差+1；  
+4、首飞介于4月1日和5月1日之间，末飞晚于2003-05-01，落在四月份天数计算截止至5月1日；  
+5、首飞和末飞均晚于2003-05-01，落在四月份的记录为0  
+当然也还可以考虑首飞早于2003-04-01，末飞晚于2003-05-01，不过题目似乎没加入这种可能
 ```sql
+select name, cnt from
+(
+  select ID_psg, 
+    case
+      when max(date) <'2003-04-01' then 0
+      when min(date) <'2003-04-01' and max(date) >='2003-04-01' and max(date) <'2003-05-01' then datediff(day,'2003-04-01',max(date)) + 1
+      when min(date) >='2003-04-01' and max(date) < '2003-05-01' then datediff(day, min(date), max(date)) + 1 
+      when min(date) >='2003-04-01' and min(date) <'2003-05-01' and max(date) >= '2003-05-01' then datediff(day, min(date), '2003-05-01')
+      when min(date) >='2003-05-01' then 0
+    end cnt from Pass_in_trip
+  group by ID_psg
+) a 
+left join Passenger b on
+a. ID_psg = b. ID_psg
 ```
 ```sql
 ```
