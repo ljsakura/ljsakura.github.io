@@ -3274,7 +3274,30 @@ where Pass_in_trip. ID_psg in
 group by Pass_in_trip. ID_psg, name
 having count(distinct plane) = 1 
 ```
+Exercise: 143 (Serge I: 2011-10-08)  
+For each battle, find out the date of the last Friday of the month this battle occurred in.   
+Output: battle, date of battle, date of the last Friday of the month.  
+Display the dates in "yyyy-mm-dd" format.  
+返回战役发生所在月份的最后一个周五，日期以"yyyy-mm-dd"格式显示
 ```sql
+select name, convert(varchar(100), date, 23) date, convert(varchar(100), fri, 23) fri from
+(
+  select name, date,  
+    case 
+      when datename(dw, lastday) = 'Friday' then lastday
+      when datename(dw, lastday) = 'Saturday' then dateadd(day, -1, lastday)
+      when datename(dw, lastday) = 'Sunday'    then dateadd(day, -2, lastday)
+      when datename(dw, lastday) = 'Monday'   then dateadd(day, -3, lastday)
+      when datename(dw, lastday) = 'Tuesday'  then dateadd(day, -4, lastday)
+      when datename(dw, lastday) = 'Wednesday' then dateadd(day, -5, lastday)
+      when datename(dw, lastday) = 'Thursday' then dateadd(day, -6, lastday)
+  end fri
+  from
+  (
+    select *, dateadd(d, -1, dateadd(m, 1, dateadd(d, - day(date) +1, date))) lastday from Battles
+    -- 这里的一串 dateadd 是计算当月最后一天的，在网上看到有人用这个公式 dateadd(d,-day(date),dateadd(m,1,date))，考虑到每个月的天数都不一样 ，如果单纯的在月份上加一，有可能会导致结果跑到下下个月上去了，所以才更改为代码中所示
+  ) a
+) b
 ```
 ```sql
 ```
