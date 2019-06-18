@@ -3237,7 +3237,7 @@ Display the passenger’s name and the number of days.
 5、首飞和末飞均晚于2003-05-01，落在四月份的记录为0  
 当然也还可以考虑首飞早于2003-04-01，末飞晚于2003-05-01，不过题目似乎没加入这种可能
 ```sql
-select name, cnt from
+Select name, cnt from
 (
   select ID_psg, 
     case
@@ -3252,7 +3252,27 @@ select name, cnt from
 left join Passenger b on
 a. ID_psg = b. ID_psg
 ```
+Exercise: 142 (Serge I: 2003-08-28)  
+Among the passengers who only flew by the planes of the same model, find names of those who arrived at the same town at least twice.  
+返回那些只乘坐过一种型号飞机且抵达某一目的地至少两次的乘客名单
 ```sql
+Select name from Pass_in_trip
+left join Trip on
+Pass_in_trip. trip_no = Trip. trip_no
+left join Passenger on
+Pass_in_trip. ID_psg = Passenger. ID_psg
+where Pass_in_trip. ID_psg in
+(
+  select Pass_in_trip. ID_psg  from Pass_in_trip
+  left join Trip on
+  Pass_in_trip. trip_no = Trip. trip_no
+  left join Passenger on
+  Pass_in_trip. ID_psg = Passenger. ID_psg
+  group by Pass_in_trip. ID_psg, name, town_to
+  having count(*) > 1  -- 原本使用 intersect，但考虑到有重名问题，所以还是用了截断语句
+)
+group by Pass_in_trip. ID_psg, name
+having count(distinct plane) = 1 
 ```
 ```sql
 ```
