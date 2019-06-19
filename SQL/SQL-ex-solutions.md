@@ -3299,11 +3299,46 @@ select name, convert(varchar(100), date, 23) date, convert(varchar(100), fri, 23
   ) a
 ) b
 ```
+Exercise: 144 (Serge I: 2019-01-04)  
+Get the manufacturers producing both the cheapest and the most expensive PCs.  
+Output: maker.  
+返回既生产最高价格 PC 也生产最低价格 PC 的 maker
 ```sql
+Select maker from Product
+where model in
+(
+  select model from PC where price = (select max(price) from PC)
+)
+intersect
+select maker from Product
+where model in
+(
+  select model from PC where price = (select min(price) from PC)
+)
 ```
+Exercise: 145 (Serge I: 2019-01-04)  
+For each pair of consecutive dates in the Income_o table denoted as dt1 and dt2, determine the sum of payments according to the Outcome_o table within the half-closed interval of dates (dt1, dt2].  
+Output: sum of payments, dt1, dt2.  
+对于 Income_o 表中每一对连续日期 dt1 和 dt2，返回在其半闭区间 (dt1, dt2] 内，对应的 Outcome_o 表中的总支出
 ```sql
-```
-```sql
+with test as
+(
+  select date, row_number() over(order by date) rn from
+  (
+    select distinct date from Income_o
+  ) a
+),
+temp as
+(
+  select a.date dt1, b.date dt2 from test a
+  inner join test b on
+  a.rn = b.rn - 1
+)
+
+Select  isnull(sum(out),0), dt1, dt2 from temp
+left join Outcome_o on
+dt1 < date and dt2 >= date
+group by dt1, dt2
 ```
 Exercise: 146 (Serge I: 2008-08-30)  
 For the PC in the PC table with the maximum code value, obtain all its characteristics (except for the code) and display them in two columns:   
@@ -3347,3 +3382,4 @@ left join
 ) b on
 a.maker = b.maker
 ```
+截止这里，ex-ru 算是告一段落了，继续 LeetCode 喽！
