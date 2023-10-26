@@ -50,7 +50,7 @@ video_id	avg_comp_play_rate
 视频2001在2021年10月有3次播放记录，观看时长分别为30秒、24秒、34秒，视频时长30秒，因此有两次是被认为完成播放了的，故完播率为0.667；
 视频2002在2021年9月和10月共2次播放记录，观看时长分别为42秒、30秒，视频时长60秒，故完播率为0.000。
 
-```
+```sql
 select a.video_id, 
 round(sum(case when timestampdiff(second,start_time,end_time) >= duration then 1 else 0 end)/count(a.video_id),3) rate from tb_user_video_log a 
 left join tb_video_info b on a.video_id = b.video_id
