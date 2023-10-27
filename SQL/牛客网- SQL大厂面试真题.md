@@ -1556,3 +1556,736 @@ select city, max(num) max_num from
 ) c group by city
 order by max_num, city
 ```
+
+SQL180 某宝店铺的SPU数量:
+
+简单  通过率：61.47%  时间限制：1秒  空间限制：256M
+
+描述
+
+11月结束后，小牛同学需要对其在某宝的网店就11月份用户交易情况和产品情况进行分析以更好的经营小店。<br/>
+已知产品情况表product_tb如下（其中，item_id指某款号的具体货号，style_id指款号，tag_price表示标签价格，inventory指库存量）：
+|item_id|style_id|tag_price|inventory|
+|---|---|---|---|
+|A001|A|100|20|
+|A002|A|120|30|
+|A003|A|200|15|
+|B001|B|130|18|
+|B002|B|150|22|
+|B003|B|125|10|
+|B004|B|155|12|
+|C001|C|260|25|
+|C002|C|280|18|
+
+请你统计每款的SPU（货号）数量，并按SPU数量降序排序，以上例子的输出结果如下：
+|style_id|SPU_num|
+|---|---|
+|B|4|
+|A|3|
+|C|2|
+
+```sql
+select style_id, count(*) cnt from product_tb
+group by style_id
+order by cnt desc
+```
+
+SQL181 某宝店铺的实际销售额与客单价:
+
+简单  通过率：48.44%  时间限制：1秒  空间限制：256M
+
+描述
+
+11月结束后，小牛同学需要对其在某宝的网店就11月份用户交易情况和产品情况进行分析以更好的经营小店。<br/>
+已知11月份销售数据表sales_tb如下（其中，sales_date表示销售日期，user_id指用户编号，item_id指货号，sales_num表示销售数量，sales_price表示结算金额）：
+|sales_date|user_id|item_id|sales_num|sales_price|
+|---|---|---|---|---|
+|2021-11-01|1|A001|1|90|
+|2021-11-01|2|A002|2|220|
+|2021-11-01|2|B001|1|120|
+|2021-11-02|3|C001|2|500|
+|2021-11-02|4|B001|1|120|
+|2021-11-03|5|C001|1|240|
+|2021-11-03|6|C002|1|270|
+|2021-11-04|7|A003|1|180|
+|2021-11-04|8|B002|1|140|
+|2021-11-04|9|B001|1|125|
+|2021-11-05|10|B003|1|120|
+|2021-11-05|10|B004|1|150|
+|2021-11-05|10|A003|1|180|
+|2021-11-06|11|B003|1|120|
+|2021-11-06|10|B004|1|150|
+
+请你统计实际总销售额与客单价（人均付费，总收入/总用户数，结果保留两位小数），以上例子的输出结果如下：
+|sales_total|per_trans|
+|---|---|
+|2725|247.73|
+
+```sql
+select sum(sales_price), round(sum(sales_price)/count(distinct user_id),2) from sales_tb
+```
+
+SQL182 某宝店铺折扣率:
+
+中等  通过率：35.64%  时间限制：1秒  空间限制：256M
+
+描述
+
+11月结束后，小牛同学需要对其在某宝的网店就11月份用户交易情况和产品情况进行分析以更好的经营小店。<br/>
+已知产品情况表product_tb如下（其中，item_id指某款号的具体货号，style_id指款号，tag_price表示标签价格，inventory指库存量）：
+|item_id|style_id|tag_price|inventory|
+|---|---|---|---|
+|A001|A|100|20|
+|A002|A|120|30|
+|A003|A|200|15|
+|B001|B|130|18|
+|B002|B|150|22|
+|B003|B|125|10|
+|B004|B|155|12|
+|C001|C|260|25|
+|C002|C|280|18|
+
+11月份销售数据表sales_tb如下（其中，sales_date表示销售日期，user_id指用户编号，item_id指货号，sales_num表示销售数量，sales_price表示结算金额）：
+|sales_date|user_id|item_id|sales_num|sales_price|
+|---|---|---|---|---|
+|2021-11-01|1|A001|1|90|
+|2021-11-01|2|A002|2|220|
+|2021-11-01|2|B001|1|120|
+|2021-11-02|3|C001|2|500|
+|2021-11-02|4|B001|1|120|
+|2021-11-03|5|C001|1|240|
+|2021-11-03|6|C002|1|270|
+|2021-11-04|7|A003|1|180|
+|2021-11-04|8|B002|1|140|
+|2021-11-04|9|B001|1|125|
+|2021-11-05|10|B003|1|120|
+|2021-11-05|10|B004|1|150|
+|2021-11-05|10|A003|1|180|
+|2021-11-06|11|B003|1|120|
+|2021-11-06|10|B004|1|150|
+
+请你统计折扣率（GMV/吊牌金额，GMV指的是成交金额），以上例子的输出结果如下（折扣率保留两位小数）：
+|discount_rate(%)|
+|---|
+|93.97|
+
+```sql
+select round(sum(sales_price)*100/sum(tag_price*sales_num),2) from sales_tb
+left join product_tb on
+sales_tb.item_id = product_tb.item_id
+```
+
+SQL183 某宝店铺动销率与售罄率:
+
+较难  通过率：23.04%  时间限制：1秒  空间限制：256M
+
+描述
+
+11月结束后，小牛同学需要对其在某宝的网店就11月份用户交易情况和产品情况进行分析以更好的经营小店。<br/>
+已知产品情况表product_tb如下（其中，item_id指某款号的具体货号，style_id指款号，tag_price表示标签价格，inventory指库存量）：
+|item_id|style_id|tag_price|inventory|
+|---|---|---|---|
+|A001|A|100|20|
+|A002|A|120|30|
+|A003|A|200|15|
+|B001|B|130|18|
+|B002|B|150|22|
+|B003|B|125|10|
+|B004|B|155|12|
+|C001|C|260|25|
+|C002|C|280|18|
+
+11月份销售数据表sales_tb如下（其中，sales_date表示销售日期，user_id指用户编号，item_id指货号，sales_num表示销售数量，sales_price表示结算金额）：
+|sales_date|user_id|item_id|sales_num|sales_price|
+|---|---|---|---|---|
+|2021-11-01|1|A001|1|90|
+|2021-11-01|2|A002|2|220|
+|2021-11-01|2|B001|1|120|
+|2021-11-02|3|C001|2|500|
+|2021-11-02|4|B001|1|120|
+|2021-11-03|5|C001|1|240|
+|2021-11-03|6|C002|1|270|
+|2021-11-04|7|A003|1|180|
+|2021-11-04|8|B002|1|140|
+|2021-11-04|9|B001|1|125|
+|2021-11-05|10|B003|1|120|
+|2021-11-05|10|B004|1|150|
+|2021-11-05|10|A003|1|180|
+|2021-11-06|11|B003|1|120|
+|2021-11-06|10|B004|1|150|
+
+请你统计每款的动销率（pin_rate，有销售的SKU数量/在售SKU数量）与售罄率（sell-through_rate，GMV/备货值，备货值=吊牌价*库存数），按style_id升序排序，以上例子的输出结果如下：
+|style_id|pin_rate(%)|sell-through_rate(%)|
+|---|---|---|
+|A|8.33|7.79|
+|B|14.81|11.94|
+|C|10.26|8.75|
+
+```sql
+select style_id, round(sum(salesnum)*100/(sum(inventory)-sum(salesnum)),2), 
+round(sum(salesprice)*100/sum(tag_price*inventory),2)
+from
+(
+    select item_id, sum(sales_num) salesnum, sum(sales_price) salesprice from sales_tb group by item_id
+) a
+left join product_tb on product_tb.item_id = a.item_id
+group by style_id
+order by style_id
+```
+
+SQL184 某宝店铺连续2天及以上购物的用户及其对应的天数:
+
+较难  通过率：33.25%  时间限制：1秒  空间限制：256M
+
+描述
+
+11月结束后，小牛同学需要对其在某宝的网店就11月份用户交易情况和产品情况进行分析以更好的经营小店。<br/>
+11月份销售数据表sales_tb如下（其中，sales_date表示销售日期，user_id指用户编号，item_id指货号，sales_num表示销售数量，sales_price表示结算金额）：
+|sales_date|user_id|item_id|sales_num|sales_price|
+|---|---|---|---|---|
+|2021-11-01|1|A001|1|90|
+|2021-11-01|2|A002|2|220|
+|2021-11-01|2|B001|1|120|
+|2021-11-02|3|C001|2|500|
+|2021-11-02|4|B001|1|120|
+|2021-11-03|5|C001|1|240|
+|2021-11-03|6|C002|1|270|
+|2021-11-04|7|A003|1|180|
+|2021-11-04|8|B002|1|140|
+|2021-11-04|9|B001|1|125|
+|2021-11-05|10|B003|1|120|
+|2021-11-05|10|B004|1|150|
+|2021-11-05|10|A003|1|180|
+|2021-11-06|11|B003|1|120|
+|2021-11-06|10|B004|1|150|
+
+请你统计连续2天及以上在该店铺购物的用户及其对应的次数（若有多个用户，按user_id升序排序），以上例子的输出结果如下：
+|user_id|days_count|
+|---|---|
+|10|2|
+
+```sql
+select user_id, count(distinct sales_date) from sales_tb
+where user_id in
+(
+    select distinct a.user_id from sales_tb a
+    inner join sales_tb b on a.user_id = b.user_id and date_add(a.sales_date, interval 1 day) = b.sales_date
+)
+group by user_id
+order by user_id
+```
+
+SQL185 牛客直播转换率:
+
+简单  通过率：31.99%  时间限制：1秒  空间限制：256M
+
+描述
+
+牛客某页面推出了数据分析系列直播课程介绍。用户可以选择报名任意一场或多场直播课。<br/>
+已知课程表course_tb如下（其中course_id代表课程编号，course_name表示课程名称，course_datetime代表上课时间）：
+|course_id|course_name|course_datetime|
+|---|---|---|
+|1|Python|2021-12-1 19:00-21:00|
+|2|SQL|2021-12-2 19:00-21:00|
+|3|R|2021-12-3 19:00-21:00|
+
+用户行为表behavior_tb如下（其中user_id表示用户编号、if_vw表示是否浏览、if_fav表示是否收藏、if_sign表示是否报名、course_id代表课程编号）：
+|user_id|if_vw|if_fav|if_sign|course_id|
+|---|---|---|---|---|
+|100|1|1|1|1|
+|100|1|1|1|2|
+|100|1|1|1|3|
+|101|1|1|1|1|
+|101|1|1|1|2|
+|101|1|0|0|3|
+|102|1|1|1|1|
+|102|1|1|1|2|
+|102|1|1|1|3|
+|103|1|1|0|1|
+|103|1|0|0|2|
+|103|1|0|0|3|
+|104|1|1|1|1|
+|104|1|1|1|2|
+|104|1|1|0|3|
+|105|1|0|0|1|
+|106|1|0|0|1|
+|107|1|0|0|1|
+|107|1|1|1|2|
+|108|1|1|1|3|
+
+请你统计每个科目的转换率（sign_rate(%)，转化率=报名人数/浏览人数，结果保留两位小数）。<br/>
+注：按照course_id升序排序。
+|course_id|course_name|sign_rate(%)|
+|---|---|---|
+|1|Python|50.00|
+|2|SQL|83.33|
+|3|R|50.00|
+
+```sql
+select course_tb.course_id, course_name, 
+round(sum(if_sign)*100/sum(if_vw),2)
+from behavior_tb
+left join course_tb on behavior_tb.course_id = course_tb.course_id
+group by course_tb.course_id, course_name
+order by course_tb.course_id
+```
+
+SQL186 牛客直播开始时各直播间在线人数:
+
+中等  通过率：34.91%  时间限制：1秒  空间限制：256M
+
+描述
+
+牛客某页面推出了数据分析系列直播课程介绍。用户可以选择报名任意一场或多场直播课。<br/>
+已知课程表course_tb如下（其中course_id代表课程编号，course_name表示课程名称，course_datetime代表上课时间）：
+|course_id|course_name|course_datetime|
+|---|---|---|
+|1|Python|2021-12-1 19:00-21:00|
+|2|SQL|2021-12-2 19:00-21:00|
+|3|R|2021-12-3 19:00-21:00|
+
+上课情况表attend_tb如下（其中user_id表示用户编号、course_id代表课程编号、in_datetime表示进入直播间的时间、out_datetime表示离开直播间的时间）：
+|user_id|course_id|in_datetime|out_datetime|
+|---|---|---|---|
+|100|1|2021-12-01 19:00:00|2021-12-01 19:28:00|
+|100|1|2021-12-01 19:30:00|2021-12-01 19:53:00|
+|101|1|2021-12-01 19:00:00|2021-12-01 20:55:00|
+|102|1|2021-12-01 19:00:00|2021-12-01 19:05:00|
+|104|1|2021-12-01 19:00:00|2021-12-01 20:59:00|
+|101|2|2021-12-02 19:05:00|2021-12-02 20:58:00|
+|102|2|2021-12-02 18:55:00|2021-12-02 21:00:00|
+|104|2|2021-12-02 18:57:00|2021-12-02 20:56:00|
+|107|2|2021-12-02 19:10:00|2021-12-02 19:18:00|
+|100|3|2021-12-03 19:01:00|2021-12-03 21:00:00|
+|102|3|2021-12-03 18:58:00|2021-12-03 19:05:00|
+|108|3|2021-12-03 19:01:00|2021-12-03 19:56:00|
+
+请你统计直播开始时（19：00），各科目的在线人数，以上例子的输出结果为（按照course_id升序排序）：
+|course_id|course_name|online_num|
+|---|---|---|
+|1|Python|4|
+|2|SQL|2|
+|3|R|1|
+
+```sql
+select course_tb.course_id, course_name, count(distinct user_id)
+from course_tb
+right join attend_tb on course_tb.course_id = attend_tb.course_id
+where in_datetime <= date_format(course_datetime,"%Y-%m-%d 19:00:00") and out_datetime >= date_format(course_datetime,"%Y-%m-%d 19:00:00")
+group by course_tb.course_id, course_name
+order by course_tb.course_id
+```
+
+SQL187 牛客直播各科目平均观看时长:
+
+中等  通过率：44.76%  时间限制：1秒  空间限制：256M
+
+描述
+
+牛客某页面推出了数据分析系列直播课程介绍。用户可以选择报名任意一场或多场直播课。<br/>
+已知课程表course_tb如下（其中course_id代表课程编号，course_name表示课程名称，course_datetime代表上课时间）：
+|course_id|course_name|course_datetime|
+|---|---|---|
+|1|Python|2021-12-1 19:00-21:00|
+|2|SQL|2021-12-2 19:00-21:00|
+|3|R|2021-12-3 19:00-21:00|
+
+上课情况表attend_tb如下（其中user_id表示用户编号、course_id代表课程编号、in_datetime表示进入直播间的时间、out_datetime表示离开直播间的时间）：
+|user_id|course_id|in_datetime|out_datetime|
+|---|---|---|---|
+|100|1|2021-12-01 19:00:00|2021-12-01 19:28:00|
+|100|1|2021-12-01 19:30:00|2021-12-01 19:53:00|
+|101|1|2021-12-01 19:00:00|2021-12-01 20:55:00|
+|102|1|2021-12-01 19:00:00|2021-12-01 19:05:00|
+|104|1|2021-12-01 19:00:00|2021-12-01 20:59:00|
+|101|2|2021-12-02 19:05:00|2021-12-02 20:58:00|
+|102|2|2021-12-02 18:55:00|2021-12-02 21:00:00|
+|104|2|2021-12-02 18:57:00|2021-12-02 20:56:00|
+|107|2|2021-12-02 19:10:00|2021-12-02 19:18:00|
+|100|3|2021-12-03 19:01:00|2021-12-03 21:00:00|
+|102|3|2021-12-03 18:58:00|2021-12-03 19:05:00|
+|108|3|2021-12-03 19:01:00|2021-12-03 19:56:00|
+
+请你统计每个科目的平均观看时长（观看时长定义为离开直播间的时间与进入直播间的时间之差，单位是分钟），输出结果按平均观看时长降序排序，结果保留两位小数。
+|course_name|avg_Len|
+|---|---|
+|SQL|91.25|
+|R|60.33|
+|Python|58.00|
+
+```sql
+select course_name, 
+round(avg(timestampdiff(minute, in_datetime, out_datetime)),2) avg_len
+from attend_tb
+left join course_tb on attend_tb.course_id = course_tb.course_id
+group by course_name
+order by avg_len desc
+```
+
+
+SQL188 牛客直播各科目出勤率:
+
+较难  通过率：22.58%  时间限制：1秒  空间限制：256M
+
+描述
+
+牛客某页面推出了数据分析系列直播课程介绍。用户可以选择报名任意一场或多场直播课。<br/>
+已知课程表course_tb如下（其中course_id代表课程编号，course_name表示课程名称，course_datetime代表上课时间）：
+|course_id|course_name|course_datetime|
+|---|---|---|
+|1|Python|2021-12-1 19:00-21:00|
+|2|SQL|2021-12-2 19:00-21:00|
+|3|R|2021-12-3 19:00-21:00|
+
+上课情况表attend_tb如下（其中user_id表示用户编号、course_id代表课程编号、in_datetime表示进入直播间的时间、out_datetime表示离开直播间的时间）：
+|user_id|course_id|in_datetime|out_datetime|
+|---|---|---|---|
+|100|1|2021-12-01 19:00:00|2021-12-01 19:28:00|
+|100|1|2021-12-01 19:30:00|2021-12-01 19:53:00|
+|101|1|2021-12-01 19:00:00|2021-12-01 20:55:00|
+|102|1|2021-12-01 19:00:00|2021-12-01 19:05:00|
+|104|1|2021-12-01 19:00:00|2021-12-01 20:59:00|
+|101|2|2021-12-02 19:05:00|2021-12-02 20:58:00|
+|102|2|2021-12-02 18:55:00|2021-12-02 21:00:00|
+|104|2|2021-12-02 18:57:00|2021-12-02 20:56:00|
+|107|2|2021-12-02 19:10:00|2021-12-02 19:18:00|
+|100|3|2021-12-03 19:01:00|2021-12-03 21:00:00|
+|102|3|2021-12-03 18:58:00|2021-12-03 19:05:00|
+|108|3|2021-12-03 19:01:00|2021-12-03 19:56:00|
+
+请你统计每个科目的出勤率（attend_rate(%)，结果保留两位小数），出勤率=出勤（在线时长10分钟及以上）人数 / 报名人数，输出结果按course_id升序排序，以上数据的输出结果如下：
+|course_id|course_name|attend_rate(%)|
+|---|---|---|
+|1|Python|75.00|
+|2|SQL|60.00|
+|3|R|66.67|
+
+```sql
+select a.course_id, course_name, round(100*a.cnt/b.cnt,2) from
+(
+    select course_id, count(distinct user_id) cnt from attend_tb
+    where timestampdiff(minute,in_datetime,out_datetime) >= 10
+    group by course_id 
+) a 
+left join
+(
+    select course_id, count(distinct user_id) cnt from behavior_tb
+    where if_sign = 1 group by course_id
+) b on a.course_id = b.course_id
+left join course_tb c on a.course_id = c.course_id
+order by a.course_id
+```
+
+SQL189 牛客直播各科目同时在线人数:
+
+较难  通过率：35.23%  时间限制：1秒  空间限制：256M
+
+描述
+
+牛客某页面推出了数据分析系列直播课程介绍。用户可以选择报名任意一场或多场直播课。<br/>
+已知课程表course_tb如下（其中course_id代表课程编号，course_name表示课程名称，course_datetime代表上课时间）：
+|course_id|course_name|course_datetime|
+|---|---|---|
+|1|Python|2021-12-1 19:00-21:00|
+|2|SQL|2021-12-2 19:00-21:00|
+|3|R|2021-12-3 19:00-21:00|
+
+上课情况表attend_tb如下（其中user_id表示用户编号、course_id代表课程编号、in_datetime表示进入直播间的时间、out_datetime表示离开直播间的时间）：
+|user_id|course_id|in_datetime|out_datetime|
+|---|---|---|---|
+|100|1|2021-12-01 19:00:00|2021-12-01 19:28:00|
+|100|1|2021-12-01 19:30:00|2021-12-01 19:53:00|
+|101|1|2021-12-01 19:00:00|2021-12-01 20:55:00|
+|102|1|2021-12-01 19:00:00|2021-12-01 19:05:00|
+|104|1|2021-12-01 19:00:00|2021-12-01 20:59:00|
+|101|2|2021-12-02 19:05:00|2021-12-02 20:58:00|
+|102|2|2021-12-02 18:55:00|2021-12-02 21:00:00|
+|104|2|2021-12-02 18:57:00|2021-12-02 20:56:00|
+|107|2|2021-12-02 19:10:00|2021-12-02 19:18:00|
+|100|3|2021-12-03 19:01:00|2021-12-03 21:00:00|
+|102|3|2021-12-03 18:58:00|2021-12-03 19:05:00|
+|108|3|2021-12-03 19:01:00|2021-12-03 19:56:00|
+
+请你统计每个科目最大同时在线人数（按course_id排序），以上数据的输出结果如下：
+|course_id|course_name|max_num|
+|---|---|---|
+|1|Python|4|
+|2|SQL|4|
+|3|R|3|
+
+```sql
+select course_id, course_name, max(cnt) from
+(
+        select test.course_id, course_name, sum(status)over(partition by course_name order by date_time, status desc) cnt from
+    (
+        select course_id, in_datetime as date_time, 1 as status from attend_tb
+        union all
+        select course_id, out_datetime, -1 as status from attend_tb
+    ) test
+    left join course_tb on test.course_id = course_tb.course_id
+) temp
+group by course_id, course_name
+order by course_id
+```
+
+SQL190 某乎问答11月份日人均回答量:
+
+简单  通过率：49.47%  时间限制：1秒  空间限制：256M
+
+描述
+
+现有某乎问答创作者回答情况表answer_tb如下（其中answer_date表示创作日期、author_id指创作者编号、issue_id表示问题id、char_len表示回答字数）：
+|answer_date|author_id|issue_id|char_len|
+|---|---|---|---|
+|2021-11-01|101|E001|150|
+|2021-11-01|101|E002|200|
+|2021-11-01|102|C003|50|
+|2021-11-01|103|P001|35|
+|2021-11-01|104|C003|120|
+|2021-11-01|105|P001|125|
+|2021-11-01|102|P002|105|
+|2021-11-02|101|P001|201|
+|2021-11-02|110|C002|200|
+|2021-11-02|110|C001|225|
+|2021-11-02|110|C002|220|
+|2021-11-03|101|C002|180|
+|2021-11-04|109|E003|130|
+|2021-11-04|109|E001|123|
+|2021-11-05|108|C001|160|
+|2021-11-05|108|C002|120|
+|2021-11-05|110|P001|180|
+|2021-11-05|106|P002|45|
+|2021-11-05|107|E003|56|
+
+请你统计11月份日人均回答量（回答问题数量/答题人数），按回答日期排序，结果保留两位小数，以上例子的输出结果如下：
+|answer_date|per_num|
+|---|---|
+|2021-11-01|1.40|
+|2021-11-02|2.00|
+|2021-11-03|1.00|
+|2021-11-04|2.00|
+|2021-11-05|1.25|
+
+```sql
+select answer_date, 
+round(count(issue_id)/count(distinct author_id),2)
+from answer_tb
+group by answer_date
+order by answer_date
+```
+
+SQL191 某乎问答高质量的回答中用户属于各级别的数量:
+
+中等  通过率：31.31%  时间限制：1秒  空间限制：256M
+
+描述
+
+现有某乎问答创作者信息表author_tb如下(其中author_id表示创作者编号、author_level表示创作者级别，共1-6六个级别、sex表示创作者性别)：
+|author_id|author_level|sex|
+|---|---|---|
+|101|6|m|
+|102|1|f|
+|103|1|m|
+|104|3|m|
+|105|4|f|
+|106|2|f|
+|107|2|m|
+|108|5|f|
+|109|6|f|
+|110|5|m|
+
+创作者回答情况表answer_tb如下（其中answer_date表示创作日期、author_id指创作者编号、issue_id指问题编号、char_len表示回答字数）：
+|answer_date|author_id|issue_id|char_len|
+|---|---|---|---|
+|2021-11-01|101|E001|150|
+|2021-11-01|101|E002|200|
+|2021-11-01|102|C003|50|
+|2021-11-01|103|P001|35|
+|2021-11-01|104|C003|120|
+|2021-11-01|105|P001|125|
+|2021-11-01|102|P002|105|
+|2021-11-02|101|P001|201|
+|2021-11-02|110|C002|200|
+|2021-11-02|110|C001|225|
+|2021-11-02|110|C002|220|
+|2021-11-03|101|C002|180|
+|2021-11-04|109|E003|130|
+|2021-11-04|109|E001|123|
+|2021-11-05|108|C001|160|
+|2021-11-05|108|C002|120|
+|2021-11-05|110|P001|180|
+|2021-11-05|106|P002|45|
+|2021-11-05|107|E003|56|
+
+回答字数大于等于100字的认为是高质量回答，请你统计某乎问答高质量的回答中用户属于1-2级、3-4级、5-6级的数量分别是多少，按数量降序排列，以上例子的输出结果如下：
+|level_cut|num|
+|---|---|
+|5-6级|12|
+|3-4级|2|
+|1-2级|1|
+
+```sql
+select case when author_level < 3 then '1-2级' when author_level < 5 then '3-4级' else '5-6级' end,
+count(issue_id) num from answer_tb
+left join author_tb on answer_tb.author_id = author_tb.author_id
+where char_len >= 100
+group by case when author_level < 3 then '1-2级' when author_level < 5 then '3-4级' else '5-6级' end
+order by num desc
+```
+
+SQL192 某乎问答单日回答问题数大于等于3个的所有用户:
+
+中等  通过率：34.32%  时间限制：1秒  空间限制：256M
+
+描述
+
+现有某乎问答创作者回答情况表answer_tb如下（其中answer_date表示创作日期、author_id指创作者编号、issue_id指回答问题编号、char_len表示回答字数）：
+|answer_date|author_id|issue_id|char_len|
+|---|---|---|---|
+|2021-11-01|101|E001|150|
+|2021-11-01|101|E002|200|
+|2021-11-01|102|C003|50|
+|2021-11-01|103|P001|35|
+|2021-11-01|104|C003|120|
+|2021-11-01|105|P001|125|
+|2021-11-01|102|P002|105|
+|2021-11-02|101|P001|201|
+|2021-11-02|110|C002|200|
+|2021-11-02|110|C001|225|
+|2021-11-02|110|C002|220|
+|2021-11-03|101|C002|180|
+|2021-11-04|109|E003|130|
+|2021-11-04|109|E001|123|
+|2021-11-05|108|C001|160|
+|2021-11-05|108|C002|120|
+|2021-11-05|110|P001|180|
+|2021-11-05|106|P002|45|
+|2021-11-05|107|E003|56|
+
+请你统计11月份单日回答问题数大于等于3个的所有用户信息（author_date表示回答日期、author_id表示创作者id，answer_cnt表示回答问题个数），以上例子的输出结果如下：
+|answer_date|author_id|answer_cnt|
+|---|---|---|
+|2021-11-02|110|3|
+
+注：若有多条数据符合条件，按answer_date、author_id升序排序。
+
+```sql
+select answer_date, author_id, count(*) from answer_tb
+group by answer_date, author_id
+having count(*) >= 3
+order by answer_date, author_id
+```
+
+SQL193 某乎问答回答过教育类问题的用户里有多少用户回答过职场类问题:
+
+中等  通过率：38.35%  时间限制：1秒  空间限制：256M
+
+描述
+
+现有某乎问答题目信息表issue_tb如下（其中issue_id代表问题编号，issue_type表示问题类型）：
+|issue_id|issue_type|
+|---|---|
+|E001|Education|
+|E002|Education|
+|E003|Education|
+|C001|Career|
+|C002|Career|
+|C003|Career|
+|C004|Career|
+|P001|Psychology|
+|P002|Psychology|
+
+创作者回答情况表answer_tb如下（其中answer_date表示创作日期、author_id指创作者编号、issue_id指回答问题编号、char_len表示回答字数）：
+|answer_date|author_id|issue_id|char_len|
+|---|---|---|---|
+|2021-11-01|101|E001|150|
+|2021-11-01|101|E002|200|
+|2021-11-01|102|C003|50|
+|2021-11-01|103|P001|35|
+|2021-11-01|104|C003|120|
+|2021-11-01|105|P001|125|
+|2021-11-01|102|P002|105|
+|2021-11-02|101|P001|201|
+|2021-11-02|110|C002|200|
+|2021-11-02|110|C001|225|
+|2021-11-02|110|C002|220|
+|2021-11-03|101|C002|180|
+|2021-11-04|109|E003|130|
+|2021-11-04|109|E001|123|
+|2021-11-05|108|C001|160|
+|2021-11-05|108|C002|120|
+|2021-11-05|110|P001|180|
+|2021-11-05|106|P002|45|
+|2021-11-05|107|E003|56|
+
+请你统计回答过教育类问题的用户里有多少用户回答过职场类问题，以上例子的输出结果如下：
+|num|
+|---|
+|1|
+
+```sql
+select count(distinct author_id) from answer_tb
+where issue_id like 'E%' and author_id in (select author_id from answer_tb
+where issue_id like 'C%')
+```
+
+SQL194 某乎问答最大连续回答问题天数大于等于3天的用户及其对应等级:
+
+较难  通过率：28.35%  时间限制：1秒  空间限制：256M
+
+描述
+
+现有某乎问答创作者信息表author_tb如下(其中author_id表示创作者编号、author_level表示创作者级别，共1-6六个级别、sex表示创作者性别)：
+|author_id|author_level|sex|
+|---|---|---|
+|101|6|m|
+|102|1|f|
+|103|1|m|
+|104|3|m|
+|105|4|f|
+|106|2|f|
+|107|2|m|
+|108|5|f|
+|109|6|f|
+|110|5|m|
+
+创作者回答情况表answer_tb如下（其中answer_date表示创作日期、author_id指创作者编号、issue_id指回答问题编号、char_len表示回答字数）：
+|answer_date|author_id|issue_id|char_len|
+|---|---|---|---|
+|2021-11-01|101|E001|150|
+|2021-11-01|101|E002|200|
+|2021-11-01|102|C003|50|
+|2021-11-01|103|P001|35|
+|2021-11-01|104|C003|120|
+|2021-11-01|105|P001|125|
+|2021-11-01|102|P002|105|
+|2021-11-02|101|P001|201|
+|2021-11-02|110|C002|200|
+|2021-11-02|110|C001|225|
+|2021-11-02|110|C002|220|
+|2021-11-03|101|C002|180|
+|2021-11-04|109|E003|130|
+|2021-11-04|109|E001|123|
+|2021-11-05|108|C001|160|
+|2021-11-05|108|C002|120|
+|2021-11-05|110|P001|180|
+|2021-11-05|106|P002|45|
+|2021-11-05|107|E003|56|
+
+请你统计最大连续回答问题的天数大于等于3天的用户及其等级（若有多条符合条件的数据，按author_id升序排序），以上例子的输出结果如下：
+|author_id|author_level|days_cnt|
+|---|---|---|
+|101|6|3|
+
+```sql
+select distinct b.author_id, author_level, max(cnt)over(partition by b.author_id) from
+(
+    select author_id, (answer_date-rn) ind, count(*) cnt from 
+    (
+        select answer_date, author_id, row_number()over(partition by author_id order by answer_date) rn
+        from (select distinct answer_date, author_id from answer_tb) a
+    ) test
+    group by author_id, ind
+    having cnt >= 3
+) b left join author_tb on b.author_id = author_tb.author_id
+```
