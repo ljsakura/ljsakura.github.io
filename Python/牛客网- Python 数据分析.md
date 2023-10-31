@@ -593,3 +593,321 @@ import pandas as pd
 df = pd.read_csv("Nowcoder.csv")
 print((df[df['Num_of_exercise'] > 10]['Num_of_exercise']/df[df['Num_of_exercise'] > 10]['Number_of_submissions']).max().round(3))
 ```
+
+DA23 统计牛客网用户的名字长度:
+
+简单  通过率：2.87%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+运营小周同学想要统计这些用户的名字长度，你可以帮助她吗？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/a47e5ec4-4e07-480e-a220-f0aada16dce0)<br/>
+输出描述：<br/>
+输出每一行用户名字的长度，包括行号。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/ee1ca3e7-d0ef-43d9-b288-ecadbe7be45c)
+
+```python
+import pandas as pd 
+df = pd.read_csv("Nowcoder.csv")
+print(df['Name'].str.len())
+```
+
+DA24 去掉信息不全的用户:
+
+简单  通过率：7.80%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+运营同学正在做用户调研，为了保证调研的可靠性，想要去掉那些信息不全的用户，即去掉有缺失数据的行，请你帮助他去掉后输出全部数据。<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/b52c0281-83e2-4923-ba6d-39424186e111)<br/>
+输出描述：<br/>
+直接输出清洗后的全部数据。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/6e5c1e23-3379-4471-aa33-d88bafcfb6da)
+
+```python
+import pandas as pd 
+pd.set_option("display.max_rows", None)
+pd.set_option("display.max_columns", None)
+pd.set_option("display.width", 3000)
+df = pd.read_csv("Nowcoder.csv",dtype=object)
+print(df.dropna())
+```
+
+DA25 修补缺失的用户数据:
+
+中等  通过率：9.39%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+运营同学拿到了这份用户文件，但是由于系统BUG，出现了部分缺失的值，请你使用当前的最大年份填充缺失的毕业年份（“Graduate_year”），用Python填充缺失的常用语言（“Language”），用成就值的均值（四舍五入保留整数）填充缺失的成就值（“Achievement_value”）。<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/d1a7aa62-2410-4f63-aabe-9ff58fe07ebb)<br/>
+输出描述：<br/>
+输出修改后的全部数据，不用处理输出时年份与成就值的小数点问题。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/8358ee73-667c-47ad-9799-c85533ef4434)
+
+```python
+import pandas as pd 
+df = pd.read_csv("Nowcoder.csv")
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width',300)
+df['Graduate_year'].fillna(df['Graduate_year'].max())
+df['Language'].fillna('Python')
+df['Achievement_value'].fillna(df['Achievement_value'].mean().round(0))
+print(df)
+```
+
+DA26 解决牛客网用户重复的数据:
+
+简单  通过率：27.91%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+牛牛拿到这份文件的时候一脸懵逼，因为系统错误将很多相同用户的数据输出了多条，导致文件中有很多重复的行，请先检查每一行是否重复，然后输出删除重复行后的全部数据。<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/12af0fdf-b396-4c25-91ae-bb92d6973ea0)<br/>
+输出描述：<br/>
+先输出每一行是否重复，再输出去重后的文件全部数据。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/97b4bb7a-14b5-4fda-8071-e3a18a760350)
+
+```python
+import pandas as pd 
+df = pd.read_csv("Nowcoder.csv")
+print(df.duplicated())
+print(df.drop_duplicates())
+```
+
+DA27 统一最后刷题日期的格式:
+
+中等  通过率：9.79%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+运营同学发现最后一次提交题目日期这一列有各种各样的日期格式，这对于他分析用户十分不友好，你能够帮他输出用户ID、等级以及统一后的日期吗？（日期格式统一为yyyy-mm-dd）<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/8bcb946e-c23d-4f2b-bb4c-8cb08293f07e)<br/>
+输出描述：<br/>
+输出用户ID、等级与最后提交日期三列，包括行号。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/882d9a8d-d99d-43c0-84df-5ff2fd2754c3)
+
+```python
+import pandas as pd 
+df = pd.read_csv("Nowcoder.csv", dtype = object)
+df['Last_submission_time'] = pd.to_datetime(df['Last_submission_time'], format = '%Y-%m-%d')
+print(df[['Nowcoder_ID','Level','Last_submission_time']])
+```
+
+DA28 将用户的json文件转换为表格形式:
+
+简单  通过率：11.01%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.json文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+如果你读入了这个json文件，能将其转换为pandas的DataFrame格式吗？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.json文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/4cc61c7e-20d2-4a9c-b962-8a9b665c7334)<br/>
+输出描述：<br/>
+输出转换为DataFrame的全部数据，包括行号。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/ca464476-2093-4c3c-9006-5aa8e8fbccb0)
+
+```python
+import pandas as pd 
+df = pd.read_json("Nowcoder.json",dtype = dict)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 300)
+print(df)
+```
+
+DA29 牛客网的每日练题量:
+
+较难  通过率：10.43%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有牛客网12月每天练习题目情况的数据集nowcoder.csv。包含如下字段（字段之间用逗号分隔）：<br/>
+user_id:用户id<br/>
+question_id：问题编号<br/>
+result：运行结果<br/>
+date：练习日期<br/>
+请你统计2021年12月每天练习题目的数量。<br/>
+输入描述：<br/>
+数据集可以直接从当前目录下nowcoder.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/db2cb7a0-b4aa-42a3-b520-9d1dcc361e5f)<br/>
+输出描述：<br/>
+以上数据集的输出结果如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/2efee65b-7d60-4300-9cdf-2bbac4b44a60)
+
+```python
+import pandas as pd 
+df = pd.read_csv("nowcoder.csv")
+df['date'] = pd.to_datetime(df['date'],format = '%Y-%m-%d')
+df = df[(df['date'] <= '2021-12-31')&(df['date'] >= '2021-12-01')]
+print(df.groupby('date')['user_id'].count())
+```
+
+DA30 牛客网用户练习的平均次日留存率:
+
+较难  通过率：5.93%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+问题描述：<br/>
+现有牛客网12月每天练习题目情况的数据集nowcoder.csv。包含如下字段（字段之间用逗号分隔）：<br/>
+user_id:用户id<br/>
+question_id：问题编号<br/>
+result：运行结果<br/>
+date：练习日期<br/>
+现需要查看用户在某天练习后第二天还会再来练习的留存情况，请计算用户练习的平均次日留存率。<br/>
+输入描述：<br/>
+数据集可以直接从当前目录下nowcoder.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/81a58f53-0e11-4c14-aab1-fe94833db055)<br/>
+输出描述：<br/>
+以上数据集中某天练习后第二天还会再来的用户数除以user_id总次数（不考虑重复情况）记为平均此日留存率，结果保留两位小数。
+
+```python
+from datetime import timedelta
+import pandas as pd 
+df = pd.read_csv("nowcoder.csv")
+df['date'] = pd.to_datetime(df['date']).dt.date
+total = df['user_id'].count()
+df['an_date'] = df['date'] + timedelta(days=1)
+test = pd.merge(df, df, how = 'inner', left_on = ['user_id', 'date'], right_on = ['user_id', 'an_date'])
+n = test['user_id'].count()
+print(round(n/total,2))
+```
+
+DA31 牛客网每日正确与错误的答题次数:
+
+较难  通过率：9.00%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+问题描述：<br/>
+现有牛客网12月每天练习题目的数据集nowcoder.csv。包含如下字段（字段之间用逗号分隔）：<br/>
+user_id:用户id<br/>
+question_id：问题编号<br/>
+result：运行结果<br/>
+date：练习日期<br/>
+请你统计2021年12月答题结果正确和错误的前提下每天的答题次数。<br/>
+输入描述：<br/>
+数据集可以直接从当前目录下nowcoder.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/07a20f43-fa9b-4aaa-ba82-9d05c1c136f8)<br/>
+输出描述：<br/>
+以上数据集的输出结果如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/a47e3d5f-a02c-44a8-8eee-47e2bf776c3c)
+
+```python
+import pandas as pd 
+from datetime import timedelta
+df = pd.read_csv("nowcoder.csv")
+df['year-month-day'] = pd.to_datetime(df['date']).dt.date
+df1 = df.groupby(['result','year-month-day'])['user_id'].count()
+print(df1)
+```
+
+DA32 牛客网答题正误总数:
+
+中等  通过率：23.19%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+现有牛客网12月每天练习题目的数据集nowcoder.csv。包含如下字段（字段之间用逗号分隔）：<br/>
+user_id:用户id<br/>
+question_id：问题编号<br/>
+result：运行结果<br/>
+date：练习日期<br/>
+请你统计答对和答错的总数分别是多少。<br/>
+输入描述：<br/>
+数据集可以直接从当前目录下nowcoder.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/08616e7b-cfe7-436a-a6eb-0ccc3c59ea0e)<br/>
+输出描述：<br/>
+以上数据集的输出结果如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/93df7d50-1b36-440b-b0d7-fa8b02742e44)
+
+```python
+import pandas as pd 
+df = pd.read_csv('nowcoder.csv')
+print(df.groupby('result').size())
+```
+
+DA33 牛客网连续练习题目3天及以上的用户:
+
+较难  通过率：4.99%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+现有牛客网12月每天练习题目的数据集nowcoder.csv。包含如下字段（字段之间用逗号分隔）：<br/>
+user_id:用户id<br/>
+question_id：问题编号<br/>
+result：运行结果<br/>
+date：练习日期<br/>
+请你统计2021年12月连续练习题目3天及以上的所有用户。<br/>
+输入描述：<br/>
+数据集可以直接从当前目录下nowcoder.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/0fc426fe-b838-469a-88a9-002c718c5a30)<br/>
+输出描述：<br/>
+输出连续3天及以上的用户及对应的连续天数，以上数据集的输出结果如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/f6415feb-3286-400c-8c37-bd701aaad4ce)
+
+```python
+import pandas as pd 
+from datetime import timedelta
+df = pd.read_csv('nowcoder.csv')
+df = df[['user_id','date']]
+df['date'] = pd.to_datetime(df['date']).dt.date
+df.drop_duplicates(inplace= True)
+df['rank'] = df['date'].groupby(df['user_id']).rank()
+df['sub'] = df['date'] - pd.to_timedelta(df['rank'], unit='d')
+df = df.groupby(['user_id','sub']).agg(max_continues_days=('date','count'))
+df = df[df['max_continues_days'] >= 3]
+df = df.groupby('user_id')['max_continues_days'].max()
+print(df)
+```
+
