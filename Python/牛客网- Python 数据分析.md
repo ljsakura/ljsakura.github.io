@@ -911,3 +911,269 @@ df = df.groupby('user_id')['max_continues_days'].max()
 print(df)
 ```
 
+DA34 牛客网不同毕业年份的大佬:
+
+中等  通过率：15.25%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+牛牛想要知道牛客网这些刷题用户，每年毕业生中最高的成就值分别是多少？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/a9f1287f-a883-442c-9db6-3f818bcf294e)<br/>
+输出描述：<br/>
+按照毕业年份顺序输出每年毕业生中的最高成就值。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/74144cfa-9951-47bd-ae7d-84680e9a660b)
+
+```python
+import pandas as pd 
+df = pd.read_csv('Nowcoder.csv')
+df = df.groupby('Graduate_year')['Achievement_value'].max()
+print(df)
+```
+
+DA35 不同等级用户语言使用情况:
+
+中等  通过率：17.50%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+正在牛客网学习编程的小白同学，想要知道牛客网的用户们都使用了哪些语言，尤其是不同等级的用户中各类语言的使用分别有多少人，你能帮助他输出一下吗？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/d33e41a1-320a-4deb-bfae-d124a290fd54)<br/>
+输出描述：<br/>
+按照等级顺序输出每个等级下每种常用语言的使用人数，输出包括最后的dtype。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/e0368f5b-1fc8-4a91-bc3d-16f817ff6b67)
+
+```python
+import pandas as pd 
+df = pd.read_csv("Nowcoder.csv")
+df = df.groupby(['Level','Language'])
+print(df.size())
+```
+
+DA36 总人数超过5的等级:
+
+中等  通过率：16.05%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，它记录了牛客网的部分用户数据，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+产品经理小X同学想要分析一下用户的等级数据，他想知道在人数大于5的条件下，各个等级都分别有多少人？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/9665a855-d692-45af-98ab-a4f35800f5dd)<br/>
+输出描述：<br/>
+按照等级顺序输出人数大于5的等级中每个等级的人数，输出包括最后的dtype。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/57319a0a-bc96-436e-b22a-e4d9ded8c504)
+
+```python
+import pandas as pd 
+df = pd.read_csv('Nowcoder.csv')
+print(df.groupby('Level')['Nowcoder_ID'].count()>5)
+```
+
+DA37 统计运动会项目报名人数:
+
+中等  通过率：19.03%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述<br/>
+某公司计划举办一场运动会，现有运动会项目数据集items.csv。 包含以下字段：<br/>
+item_id：项目编号；<br/>
+item_name:项目名称；<br/>
+location:比赛场地。<br/>
+有员工报名情况数据集signup.csv。包含以下字段：<br/>
+employee_id：员工编号；<br/>
+name：员工姓名；<br/>
+sex：性别；<br/>
+department：所属部门；<br/>
+item_id：报名项目id<br/>
+请你统计各类型项目的报名人数。<br/>
+输入描述：<br/>
+数据集可以从当前目录下items.csv、signup.csv读取。<br/>
+items.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/c49f0b86-3393-44ee-84dd-6b9d1ca5460e)<br/>
+signup.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/5497e7af-2c94-49a1-b0ea-e0c73be2bd55)<br/>
+输出描述：<br/>
+只输出报名人数不为0的项目及其对应的报名人数。以上数据集的输出如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/0e7c63e0-1fdb-4232-ae8e-4e920e3e9786)
+
+```python
+import pandas as pd 
+df1 = pd.read_csv('items.csv')
+df2 = pd.read_csv('signup.csv')
+df = pd.merge(df1,df2,how='inner',on=['item_id'])
+print(df.groupby('item_name')['employee_id'].count()>0)
+```
+
+DA38 统计运动会项目报名人数(二):
+
+中等  通过率：31.32%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+某公司计划举办一场运动会，现有运动会项目数据集items.csv。 包含以下字段：<br/>
+item_id：项目编号；<br/>
+item_name:项目名称；<br/>
+location:比赛场地。<br/>
+有员工报名情况数据集signup.csv。包含以下字段：<br/>
+employee_id：员工编号；<br/>
+name：员工姓名；<br/>
+sex：性别；<br/>
+department：所属部门；<br/>
+item_id：报名项目id<br/>
+请你统计各类型项目的报名人数。<br/>
+输入描述：<br/>
+数据集可以从当前目录下items.csv、signup.csv读取。<br/>
+items.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/57d2304d-4a8e-485f-b797-ef4f972adf0d)<br/>
+signup.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/c52a4191-9e76-4ed4-b0fc-665696de0aa7)<br/>
+输出描述：<br/>
+输出items.csv中所有项目的报名人数（没有人报名的项目的报名人数输出为0即可）。以上数据集的输出如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/b144176b-5837-458e-ab7a-c6a93e631970)
+
+```python
+import pandas as pd 
+df1 = pd.read_csv('items.csv')
+df2 = pd.read_csv('signup.csv')
+df = pd.merge(df1,df2,how='left',on='item_id')
+print(df.groupby('item_name').size())
+```
+
+DA39 多报名表的运动项目人数统计:
+
+较难  通过率：16.36%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述<br/>
+某公司计划举办一场运动会，现有部分运动会项目数据集items.csv。 包含以下字段：<br/>
+item_id：项目编号；<br/>
+item_name:项目名称；<br/>
+location:比赛场地。<br/>
+有员工报名情况数据集signup.csv。包含以下字段：<br/>
+employee_id：员工编号；<br/>
+name：员工姓名；<br/>
+sex：性别；<br/>
+department：所属部门；<br/>
+item_id：报名项目id。<br/>
+另有signup1.csv，是education部门的报名情况，包含字段同signup.csv。<br/>
+请你将signup.csv与signup1.csv的数据集合并后，统计各类型项目的报名人数。<br/>
+输入描述：<br/>
+数据集可以从当前目录下items.csv、signup.csv、signup1.csv读取。<br/>
+items.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/0a9dfb78-7c7a-4558-a116-63b05aaccbb8)<br/>
+signup.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/fcd82691-de6f-4e0f-b447-47895304d8c7)<br/>
+signup1.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/f9837d72-8e97-4c65-a1eb-2bfe924bbba6)<br/>
+输出描述：<br/>
+只输出报名人数不为0的项目及其对应的报名人数。以上数据集的输出如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/406f99d2-287f-4045-9b59-876e67f1398e)
+
+```python
+import pandas as pd 
+items = pd.read_csv('items.csv')
+signup = pd.read_csv('signup.csv')
+signdep = pd.read_csv('signup1.csv')
+signuptotal = pd.concat([signup,signdep])
+df = pd.merge(items,signuptotal,how='left',on='item_id')
+print(df.groupby('item_name').size())
+```
+
+DA40 统计职能部分运动会某项目的报名信息:
+
+较难  通过率：6.57%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述<br/>
+某公司计划举办一场运动会，现有运动会项目数据集items.csv。 包含以下字段：<br/>
+item_id：项目编号；<br/>
+item_name:项目名称；<br/>
+location:比赛场地。<br/>
+有员工报名情况数据集signup.csv。包含以下字段：<br/>
+employee_id：员工编号；<br/>
+name：员工姓名；<br/>
+sex：性别；<br/>
+department：所属部门；<br/>
+item_id：报名项目id<br/>
+请你统计职能部门（functional）中报名标枪(javenlin)的所有员工的员工编号（employee_id）、姓名（name）及性别（sex）。<br/>
+输入描述：<br/>
+数据集可以从当前目录下items.csv、signup.csv读取。<br/>
+items.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/aa264b34-84ce-436e-8c5f-dd2959f0f5e4)<br/>
+signup.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/39037b06-9c21-451c-84c4-46aeb3765dfd)<br/>
+输出描述：<br/>
+输出职能部门（functional）中报名标枪(javenlin)的所有员工的员工编号（employee_id）、姓名（name）及性别（sex）。<br/>
+以上数据集的输出如下（注意：结果中行标签从0开始顺序排序）：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/c2f1ae99-179d-4384-90c7-57a2d54448ce)
+
+```python
+import pandas as pd 
+items = pd.read_csv('items.csv')
+signup = pd.read_csv('signup.csv')
+df = pd.merge(items,signup,how='left',on='item_id')
+print(df[(df['department'] == 'functional')&(df['item_name'] == 'javelin')][['employee_id','name','sex']].reset_index(drop=True))
+```
+
+DA41 运动会各项目报名透视表:
+
+中等  通过率：10.85%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述<br/>
+某公司计划举办一场运动会，现有运动会项目数据集items.csv。 包含以下字段：<br/>
+item_id：项目编号；<br/>
+item_name:项目名称；<br/>
+location:比赛场地。<br/>
+有员工报名情况数据集signup.csv。包含以下字段：<br/>
+employee_id：员工编号；<br/>
+name：员工姓名；<br/>
+sex：性别；<br/>
+department：所属部门；<br/>
+item_id：报名项目id<br/>
+请你输出报名的各个项目情况（不包含没人报名的项目）对应的透视表。<br/>
+输入描述：<br/>
+数据集可以从当前目录下items.csv、signup.csv读取。<br/>
+items.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/aec8d1a4-e629-45f7-89c9-ad4e138594b1)<br/>
+signup.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/1a6a9e03-946a-46f6-bdd6-328438df6616)<br/>
+输出描述：<br/>
+请输出下图所示的透视表。其中行索引键为sex、department，列索引键为item_name。数值为报名对应项目的人数。如education部门男性中报名longJump的人数为1人。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/34a1dcea-8812-4813-9bbc-154bfab2dd9c)
+
+```python
+import pandas as pd 
+import numpy as np 
+from numpy.core.defchararray import count
+item = pd.read_csv('items.csv')
+signup = pd.read_csv('signup.csv')
+df = pd.merge(item,signup,how='left',on='item_id')
+print(pd.pivot_table(data=df,index=['sex','department'],columns='item_name',values=['employee_id'],aggfunc='count'))
+```
