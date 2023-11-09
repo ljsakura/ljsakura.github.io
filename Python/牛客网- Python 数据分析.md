@@ -1177,3 +1177,79 @@ signup = pd.read_csv('signup.csv')
 df = pd.merge(item,signup,how='left',on='item_id')
 print(pd.pivot_table(data=df,index=['sex','department'],columns='item_name',values=['employee_id'],aggfunc='count'))
 ```
+
+DA42 合并用户信息表与用户活跃表:
+
+简单  通过率：12.77%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder1.csv文件，记录了牛客网的部分用户的个人信息，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+另外一个Nowcoder2.csv文件记录了用户的活跃情况，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+两张表分开查看对于运营同学太困难了，请帮助他通过用户ID将两张表合并输出。<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder1.csv文件和Nowcoder2.csv中读取。<br/>
+Nowcoder1.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/cb97275e-921a-4595-b284-f6ee91e8acca)<br/>
+Nowcoder2.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/aaaee8de-8dc7-4d8a-83a3-58add27985c6)<br/>
+输出描述：<br/>
+输出合并后的完整表格。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/d0a3a1d5-30a7-40e6-9eb7-c18c5e17f9cf)
+
+```python
+import pandas as pd 
+df1 = pd.read_csv('Nowcoder1.csv')
+df2 = pd.read_csv('Nowcoder2.csv')
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 300)
+df = pd.merge(df1,df2,how='left',on='Nowcoder_ID')
+print(df)
+```
+
+DA43 两份用户信息表格中的查找:
+
+简单  通过率：23.34%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder1.csv文件，记录了牛客网的部分用户的个人信息，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+另外一个Nowcoder2.csv文件记录了用户的活跃情况，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Continuous_check_in_days：最近连续签到天数<br/>
+Number_of_submissions：提交代码次数<br/>
+Last_submission_time：最后一次提交题目日期<br/>
+如果你想要的信息各自在两个csv文件中，你该怎么输出？同时输出用户的名字、刷题量和代码提交次数。<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder1.csv文件和Nowcoder2.csv中读取。<br/>
+Nowcoder1.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/214c646d-d8c7-4207-b16f-4d1ec58584ec)<br/>
+Nowcoder2.csv<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/6d3cc862-d5eb-4297-a34c-158075797cb4)<br/>
+输出描述：<br/>
+输出用户的名字、刷题量和代码提交次数，包括行号。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/6a95ce34-4ca3-41c2-ac15-2d56d23964af)
+
+```python
+import pandas as pd 
+df1 = pd.read_csv('Nowcoder1.csv')
+df2 = pd.read_csv('Nowcoder2.csv')
+df = pd.merge(df1,df2,how='left',on='Nowcoder_ID')
+print(df[['Name','Num_of_exercise','Number_of_submissions']])
+```
+
