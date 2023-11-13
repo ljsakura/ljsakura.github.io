@@ -1253,3 +1253,134 @@ df = pd.merge(df1,df2,how='left',on='Nowcoder_ID')
 print(df[['Name','Num_of_exercise','Number_of_submissions']])
 ```
 
+DA44 某店铺消费最多的前三名用户:
+
+简单  通过率：12.13%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+现有某店铺会员消费情况sales.csv。包含以下字段：<br/>
+user_id：会员编号；<br/>
+recency：最近一次消费距离当天的天数；<br/>
+frequency：一段时间内消费的次数；<br/>
+monetary：一段时间内消费的总金额。<br/>
+请你统计消费金额最多的前3名用户。<br/>
+输入描述：<br/>
+数据集可以从当前目录下sales.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/234fb5e1-6485-4bda-a477-7500b0e26dce)<br/>
+输出描述：<br/>
+输出销售金额最多的前3名用户，索引从0开始。<br/>
+以上数据集的输出如下图所示。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/c2fd0583-93a7-4567-a9b0-770ac5b294b4)
+
+```python
+import pandas as pd 
+df = pd.read_csv('sales.csv')
+df.sort_values(by='monetary',inplace=True,ascending=False)
+print(df[:3].reset_index(drop=True))
+```
+
+DA45 按照等级递增序查看牛客网用户信息:
+
+简单  通过率：16.85%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+现有一个Nowcoder.csv文件，记录了牛客网的部分用户的个人信息，包含如下字段（字段与字段之间以逗号间隔）：<br/>
+Nowcoder_ID：用户ID<br/>
+Name：用户名<br/>
+Level：等级<br/>
+Achievement_value：成就值<br/>
+Num_of_exercise：刷题量<br/>
+Graduate_year：毕业年份<br/>
+Language：常用语言<br/>
+牛牛在查看这些数据的时候，等级都是混乱的，他想按照1-7级的递增序查看这些用户数据，你能帮他输出一下吗？<br/>
+输入描述：<br/>
+数据集直接从当前目录下的Nowcoder.csv文件中读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/5c685f6e-f8c2-4136-ad21-bc0436b36e3f)<br/>
+输出描述：<br/>
+输出排序后的全部数据，包括行号。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/380beb90-0b39-4808-ab86-fb5f5e10c537)
+
+```python
+import pandas as pd 
+df = pd.read_csv('Nowcoder.csv')
+pd.set_option('display.max_rows',None)
+pd.set_option('display.max_columns',None)
+pd.set_option('display.width',300)
+df.sort_values(by='Level')
+print(df)
+```
+
+DA46 某店铺用户消费特征评分:
+
+较难  通过率：9.75%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+现有某店铺会员消费情况sales.csv。包含以下字段：<br/>
+user_id：会员编号；<br/>
+recency：最近一次消费距离当天的天数；<br/>
+frequency：一段时间内消费的次数；<br/>
+monetary：一段时间内消费的总金额。<br/>
+请你分别对每个用户的每个消费特征进行评分。<br/>
+输入描述：<br/>
+数据集可以从当前目录下sales.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/6cb7edda-5895-4398-9fa4-05436e9f13fc)<br/>
+输出描述：<br/>
+请你对每个用户销售情况的每个特征进行评分，分值为1-4分。对于recency特征，值越小越好。对于frequency和monetary值越大越好。请分别将对应的数据进行四等分并评分，如对于recency：<br/>
+数值小于等于下四分位数则评为4分；<br/>
+大于下四分位数并且小于等于中位数则评为3分；<br/>
+大于中位数且小于等于上四分位数则评为2分；<br/>
+大于上四分位数则评为1分。<br/>
+对于frequency和monetary则方法刚好相反。<br/>
+要求给所有数据进行评分，并输出前5行。以上数据的输出结果如下：<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/53e8332b-d3f9-4f80-9215-c796b16436d0)
+
+```python
+import pandas as pd 
+df = pd.read_csv('sales.csv')
+pd.set_option('display.max_rows',None)
+pd.set_option('display.max_columns',None)
+pd.set_option('display.width',300)
+#df.loc[df['recency']<=df['recency'].quantile(0.75),'R_Quartile'] = 4
+#df.loc[(df['recency']>df['recency'].quantile(0.75))&(df['recency']<=df['recency'].quantile(0.5)),'R_Quartile'] = 3
+#df.loc[(df['recency']>df['recency'].quantile(0.5))&(df['recency']<=df['recency'].quantile(0.25)),'R_Quartile'] = 2
+#df.loc[df['recency']>df['recency'].quantile(0.25),'R_Quartile'] = 1
+df['R_Quartile'] = pd.qcut(df['recency'],4,labels=[4,3,2,1]).astype('int')
+df['F_Quartile'] = pd.qcut(df['frequency'],4,labels=[1,2,3,4]).astype('int')
+df['M_Quartile'] = pd.qcut(df['monetary'],4,labels=[1,2,3,4]).astype('int')
+print(df[:5])
+```
+
+DA47 筛选某店铺最有价值用户中消费最多前5名:
+
+较难  通过率：7.54%  时间限制：5秒  空间限制：256M<br/>
+描述<br/>
+题目描述：<br/>
+现有某店铺会员消费情况sales.csv。包含以下字段：<br/>
+user_id：会员编号；<br/>
+recency：最近一次消费距离当天的天数；<br/>
+frequency：一段时间内消费的次数；<br/>
+monetary：一段时间内消费的总金额。<br/>
+请你统计最有价值的用户中消费金额最多的前5名用户。<br/>
+输入描述：<br/>
+数据集可以从当前目录下sales.csv读取。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/7fab31c7-3d8a-4a09-8f09-b765cfe127e5)<br/>
+输出描述：<br/>
+请你先对每个用户销售情况的每个特征进行评分，分值为1-4分。再将所有评分拼接到一起形成新的列RFMClass。<br/>
+评分规则如下： 对于recency特征，值越小越好。对于frequency和monetary值越大越好。如对于recency：<br/>
+数值小于等于下四分位数则评为4分；<br/>
+大于下四分位数并且小于等于中位数则评为3分；<br/>
+大于中位数且小于等于上四分位数则评为2分；<br/>
+大于上四分位数则评为1分。<br/>
+对于frequency和monetary则方法刚好相反。<br/>
+请你输出评分后的数据的前5行并输出最有价值的用户（评分为“444”）中销售总金额最高的前5位(索引从0开始)，以上数据集的输出如下图所示（两次输出之间有一个空行）。<br/>
+![image](https://github.com/ljsakura/ljsakura.github.io/assets/19812837/09d3da39-70b3-409f-b807-24fae13850cf)
+
+```python
+import pandas as pd 
+df = pd.read_csv('sales.csv')
+df['R_Quartile'] = pd.qcut(df['recency'],4,labels=[4,3,2,1]).astype('str')
+df['F_Quartile'] = pd.qcut(df['frequency'],4,labels=[1,2,3,4]).astype('str')
+df['M_Quartile'] = pd.qcut(df['monetary'],4,labels=[1,2,3,4]).astype('str')
+df['RFMClass'] = df['R_Quartile']+df['F_Quartile']+df['M_Quartile']
+df = df[['user_id','recency','frequency','monetary','RFMClass']]
+print(df[:5],'\n','\n',df[df['RFMClass'] == '444'].sort_values(by='monetary',ascending=False)[:5].reset_index(drop=True))
+```
